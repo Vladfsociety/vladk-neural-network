@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "vladk-neural-network"
+version = "0.1.0"
+description = "Custom neural network"
+authors = ["Vlad"]
+readme = "README.md"
+packages = [
+    {include = "src"}
+]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+numpy = "^2.0.1"
+torch = "^2.4.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
