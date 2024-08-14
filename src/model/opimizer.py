@@ -3,6 +3,8 @@ class SGD:
         self.learning_rate = learning_rate
         self._gradients = []
 
+    def update_w(self, layer, previous_layer, error):
+        return layer['w'] - self.learning_rate * (previous_layer['a'] @ error)
 
-    def update(self, layers, loss):
-        pass
+    def update_b(self, layer, error):
+        return layer['b'] - self.learning_rate * error
