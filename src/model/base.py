@@ -1,57 +1,96 @@
-import pprint
 import random
 import torch
 
 
 class NeuralNetwork:
-    def __init__(self, input_size, layers, optimizer, loss, metric=None):
-        self.input_size = input_size
-        self.layers = layers
-        self.optimizer = optimizer
-        self.loss = loss
-        self.metric = metric
-        self._layers = []
-        self._prediction = []
-        self._actual = []
-        self._layers.append({
-            'a': torch.zeros((self.input_size, 1))
-        })
-        previous_layer_size = self.input_size
-        for layer in self.layers:
-            self._layers.append({
-                'w': self.__init_weights((layer.size, previous_layer_size)),
-                'b': self.__init_biases((layer.size, 1)),
-                'z': torch.zeros((layer.size, 1)),
-                'activation_function': layer.activation,
-                'a': torch.zeros((layer.size, 1))
-            })
+    def __init__(self, input_layer, layers, optimizer, loss, metric=None):
+        self.__input_layer = input_layer
+        self.__layers_raw = layers
+        self.__optimizer = optimizer
+        self.__loss = loss
+        self.__metric = metric
+        self.__layers = []
+        self.__prediction = []
+        self.__actual = []
+        self.__init_layers()
+
+    def __init_layers(self):
+        self.__layers.append(self.__input_layer.initialize())
+        previous_layer_size = self.__input_layer.size
+        for layer in self.__layers_raw:
+            self.__layers.append(layer.initialize(previous_layer_size))
             previous_layer_size = layer.size
 
-        #print('self._layers')
-        #pprint.pprint(self._layers)
+        return None
 
-    def __init_weights(self, size):
-        return torch.tensor([[random.uniform(-0.1, 0.1) for _ in range(size[1])] for _ in range(size[0])])
+    def __forward(self):
 
-    def __init_biases(self, size):
-        return torch.tensor([[random.uniform(-0.1, 0.1) for _ in range(size[1])] for _ in range(size[0])])
+        layer_index = 1
 
-    def __forward(self, layer_input):
+        while layer_index < len(self.__layers):
 
-        for layer in self._layers[1::]:
+            self.__layers[layer_index]['z'] = (
+                torch.matmul(self.__layers[layer_index]['w'], self.__layers[layer_index - 1]['a'])
+                + self.__layers[layer_index]['b']
+            )
+            self.__layers[layer_index]['a'] = (
+                self.__layers[layer_index]['activation_function'].apply(self.__layers[layer_index]['z'])
+            )
 
-            layer['z'] = torch.matmul(layer['w'], layer_input) + layer['b']
+            layer_index += 1
 
-            if layer['activation_function'] == 'linear':
-                layer['a'] = layer['z']
-            else:
-                layer['a'] = layer['activation_function'](layer['z'])
+        return self.__layers[-1]['a']
 
-            layer_input = layer['a']
+    def __backward(self, predict, actual):
 
-        return layer_input
+        layer_index = len(self.__layers) - 1
 
-    def __backward(self):
+        grads_w_update = [torch.zeros(layer['w'].shape) for layer in self.__layers[1:]]
+        grads_b_update = [torch.zeros(layer['b'].shape) for layer in self.__layers[1:]]
+
+        layer_error = (
+            self.__loss.derivative(predict, actual)
+            * self.__layers[-1]['activation_function'].derivative(self.__layers[-1]['z'])
+        )
+
+        while layer_index > 1:
+
+            grads_w_update[layer_index - 1] = (torch.matmul(layer_error, self.__layers[layer_index - 1]['a'].t()))
+            grads_b_update[layer_index - 1] = (torch.tensor(layer_error))
+
+            layer_error = (
+                torch.matmul(self.__layers[layer_index]['w'].t(), layer_error)
+                * self.__layers[layer_index - 1]['activation_function'].derivative(self.__layers[layer_index - 1]['z'])
+            )
+
+            layer_index -= 1
+
+        return grads_w_update, grads_b_update
+
+    def __process_batch(self, batch):
+
+        grads_w = [torch.zeros(layer['w'].shape) for layer in self.__layers[1:]]
+        grads_b = [torch.zeros(layer['b'].shape) for layer in self.__layers[1:]]
+
+        for sample in batch:
+
+            input_data = sample['input']
+
+            self.__layers[0]['a'] = torch.tensor(input_data).reshape(len(input_data), 1)
+
+            predict = self.__forward()
+
+            self.__prediction.append([predict])
+
+            self.__actual.append(sample['output'])
+
+            grads_w_update, grads_b_update = self.__backward(torch.tensor(predict), torch.tensor(sample['output']))
+
+            grads_w = [value + update for value, update in zip(grads_w, grads_w_update)]
+            grads_b = [value + update for value, update in zip(grads_b, grads_b_update)]
+
+        self.__optimizer.update(self.__layers, grads_w, grads_b, len(batch))
+
         return None
 
     def r2_score_manual(self, prediction, actual):
@@ -65,66 +104,51 @@ class NeuralNetwork:
         r2 = 1.0 - (ss_res / ss_tot)
         return r2
 
-    def fit(self, train_dataset, test_dataset, epochs=10):
+    def fit(self, train_dataset, test_dataset=None, epochs=10, batch_size=1, verbose=False):
+
+        train_dataset = train_dataset.copy()
 
         for epoch in range(epochs):
 
-            #print('----------------Epoch ', epoch)
+            self.__prediction = []
+            self.__actual = []
 
-            #debug.append('----------------Epoch ' + str(epoch))
+            random.shuffle(train_dataset)
+            batches = [train_dataset[k:k + batch_size] for k in range(0, len(train_dataset), batch_size)]
 
-            self._prediction = []
-            self._actual = []
+            for batch in batches:
+                self.__process_batch(batch)
 
-            for train_sample in train_dataset:
+            if verbose:
+                loss = self.__loss.value(torch.tensor(self.__prediction), torch.tensor(self.__actual))
+                r2 = self.r2_score_manual(self.__prediction, self.__actual)
+                print(f"Epoch: {epoch+1}/{epochs}, Loss: {round(float(loss), 4)}, r2 score: {round(float(r2), 4)}")
 
-                input_data = train_sample['input']
-                if len(input_data) != self.input_size:
-                    raise Exception(f'len(input_data) != self.input_size, len(input_data) = {len(input_data)}, input_data = {input_data}')
 
-                self._layers[0]['a'] = torch.tensor(input_data).reshape(len(input_data), 1)
+        if test_dataset:
 
-                predict = self.__forward(self._layers[0]['a'])
+            self.__prediction = []
+            self.__actual = []
 
-                self._prediction.append([predict])
+            for test_sample in test_dataset:
+                input_data = test_sample['input']
+                self.__layers[0]['a'] = torch.tensor(input_data).reshape(len(input_data), 1)
+                predict = self.__forward()
+                self.__prediction.append([predict])
+                self.__actual.append(test_sample['output'])
 
-                self._actual.append(train_sample['output'])
+            if verbose:
+                loss = self.__loss.value(torch.tensor(self.__prediction), torch.tensor(self.__actual))
+                r2 = self.r2_score_manual(self.__prediction, self.__actual)
+                print(f"Test dataset validation. Loss: {round(float(loss), 4)}, r2 score: {round(float(r2), 4)}")
 
-                self.loss.backward(self.optimizer, self._layers, torch.tensor(predict), torch.tensor(train_sample['output']))
-
-            loss = self.loss.calculate(torch.tensor(self._prediction), torch.tensor(self._actual))
-            r2 = self.r2_score_manual(self._prediction, self._actual)
-
-            print(f"Epoch: {epoch}, Loss: {round(float(loss), 4)}, r2 score: {round(float(r2), 4)}")
-
-        self._prediction = []
-        self._actual = []
-
-        for test_sample in test_dataset:
-            input_data = test_sample['input']
-            if len(input_data) != self.input_size:
-                raise Exception(
-                    f'len(input_data) != self.input_size, len(input_data) = {len(input_data)}, input_data = {input_data}')
-            self._layers[0]['a'] = torch.tensor(input_data).reshape(len(input_data), 1)
-            predict = self.__forward(self._layers[0]['a'])
-            self._prediction.append([predict])
-            self._actual.append(test_sample['output'])
-
-        loss = self.loss.calculate(torch.tensor(self._prediction), torch.tensor(self._actual))
-        r2 = self.r2_score_manual(self._prediction, self._actual)
-
-        print(f"Test dataset validation. Loss: {round(float(loss), 4)}, r2 score: {round(float(r2), 4)}")
-
+        return None
 
     def predict(self, data):
-        self._prediction = []
+        self.__prediction = []
         for sample in data:
             input_data = sample['input']
-            if len(input_data) != self.input_size:
-                raise Exception(
-                    f'len(input_data) != self.input_size, len(input_data) = {len(input_data)}, input_data = {input_data}')
-
-            self._layers[0]['a'] = torch.tensor(input_data).reshape(len(input_data), 1)
-            predict = self.__forward(self._layers[0]['a'])
-            self._prediction.append([predict])
-        return self._prediction
+            self.__layers[0]['a'] = torch.tensor(input_data).reshape(len(input_data), 1)
+            predict = self.__forward()
+            self.__prediction.append([predict])
+        return self.__prediction

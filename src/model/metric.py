@@ -16,4 +16,4 @@ def mse_loss(prediction, actual):
     prediction = torch.flatten(torch.tensor(prediction))
     actual = torch.flatten(torch.tensor(actual))
 
-    return ((actual - prediction)**2).sum()/prediction.size(0)
+    return 0.5 * ((actual - prediction) ** 2).sum() / prediction.size(0)
