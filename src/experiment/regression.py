@@ -9,7 +9,6 @@ from src.model.loss import MeanSquaredError
 from src.model.optimizer import SGD
 from src.model.activation import Relu, Linear
 from src.model.metric import R2Score
-from mpl_toolkits.mplot3d import Axes3D
 
 
 def func_3d(arg_x, arg_y):
@@ -146,9 +145,9 @@ train_dataset, test_dataset = generate_train_test_data()
 # pprint.pprint(test_dataset)
 
 layers = [
-    FullyConnected(32, Relu()),
-    FullyConnected(32, Relu()),
-    FullyConnected(32, Relu()),
+    FullyConnected(128, Relu()),
+    FullyConnected(128, Relu()),
+    FullyConnected(128, Relu()),
     FullyConnected(1, Linear())
 ]
 # layers = [

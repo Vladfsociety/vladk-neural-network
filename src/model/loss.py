@@ -1,4 +1,3 @@
-import pprint
 import torch
 
 
@@ -14,22 +13,11 @@ class BinaryCrossEntropy:
         self.__epsilon = epsilon
 
     def value(self, prediction, actual):
-        # losses = -(actual * torch.log(prediction) + (torch.ones_like(prediction) - actual) * (
-        #             torch.log(prediction) - torch.ones_like(prediction)))
 
         prediction = torch.clamp(prediction, min=self.__epsilon, max=1 - self.__epsilon )
 
         losses = -(actual * torch.log(prediction) + (torch.ones_like(prediction) - actual) *
                    torch.log(torch.ones_like(prediction) - prediction))
-
-        # print('prediction')
-        # pprint.pprint(prediction)
-        # print('actual')
-        # pprint.pprint(actual)
-        # print('losses')
-        # pprint.pprint(losses)
-        # print('losses.sum()')
-        # print(losses.sum())
 
         return losses.sum() / prediction.size(0)
 

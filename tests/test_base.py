@@ -27,7 +27,7 @@ def get_dataset_regression(func):
 
     return train_data, test_data
 
-def run_regression_test(func, learning_rate=0.001, mse_threshold=0.1, r2_threshold=0.95, fit_time_threshold=2.0):
+def run_regression_test(func, learning_rate=0.001, mse_threshold=0.1, r2_threshold=0.975, fit_time_threshold=2.0):
     train_dataset, test_dataset = get_dataset_regression(func)
 
     layers = [
@@ -47,10 +47,10 @@ def run_regression_test(func, learning_rate=0.001, mse_threshold=0.1, r2_thresho
     start_time = time.time()
     epochs = 50
     nn.fit(train_dataset, test_dataset, epochs=epochs, batch_size=1, verbose=True)
-    fit_time = time.time() - start_time
+    fit_time = round(time.time() - start_time, 4)
 
     prediction = nn.predict(test_dataset)
-    actual = [test_sample['output'] for test_sample in test_dataset]
+    actual = torch.tensor([test_sample['output'] for test_sample in test_dataset])
 
     mse = nn.loss(prediction, actual)
     r2 = nn.metric(prediction, actual)
@@ -62,12 +62,12 @@ def run_regression_test(func, learning_rate=0.001, mse_threshold=0.1, r2_thresho
     assert fit_time < fit_time_threshold
 
 @pytest.mark.two_dim
-@pytest.mark.parametrize("func, learning_rate", [
-    (func_quadratic, 0.001),
-    (func_linear, 0.001)
+@pytest.mark.parametrize("func", [
+    (func_quadratic),
+    (func_linear)
 ])
-def test_regression(func, learning_rate):
-    run_regression_test(func, learning_rate)
+def test_regression(func):
+    run_regression_test(func)
 
 """
 Regression testing on 3D functions
@@ -103,7 +103,7 @@ def get_dataset_regression_3d(func):
 
     return train_data, test_data
 
-def run_regression_test_3d(func, learning_rate=0.001, mse_threshold=0.1, r2_threshold=0.95, fit_time_threshold=50.0):
+def run_regression_test_3d(func, learning_rate=0.001, mse_threshold=0.05, r2_threshold=0.975, fit_time_threshold=40.0):
     train_dataset, test_dataset = get_dataset_regression_3d(func)
 
     layers = [
@@ -125,10 +125,10 @@ def run_regression_test_3d(func, learning_rate=0.001, mse_threshold=0.1, r2_thre
     start_time = time.time()
     epochs = 20
     nn.fit(train_dataset, test_dataset, epochs=epochs, batch_size=16, verbose=True)
-    fit_time = time.time() - start_time
+    fit_time = round(time.time() - start_time, 4)
 
     prediction = nn.predict(test_dataset)
-    actual = [test_sample['output'] for test_sample in test_dataset]
+    actual = torch.tensor([test_sample['output'] for test_sample in test_dataset])
 
     mse = nn.loss(prediction, actual)
     r2 = nn.metric(prediction, actual)

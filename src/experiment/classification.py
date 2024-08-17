@@ -43,7 +43,6 @@ def plot_data(data, labels, name):
     plt.xlabel("Feature 1")
     plt.ylabel("Feature 2")
     plt.savefig(name)
-    #plt.show()
 
 
 # Example usage:
@@ -62,9 +61,9 @@ test_labels = labels[1000:]
 print(f"Data shape: {data.shape}")
 print(f"Labels shape: {labels.shape}")
 
-plot_data(data, labels, 'classification_random_all.jpg')
-plot_data(train_data, train_labels, 'classification_random_train.jpg')
-plot_data(test_data, test_labels, 'classification_random_test.jpg')
+plot_data(data, labels, 'classification_synthetic_all.jpg')
+plot_data(train_data, train_labels, 'classification_synthetic_train.jpg')
+plot_data(test_data, test_labels, 'classification_synthetic_test.jpg')
 
 train_dataset = []
 for index in range(len(train_data)):
@@ -115,110 +114,9 @@ for index in range(len(test_data)):
 # print('test_dataset')
 # print(test_dataset)
 
-# train_dataset = [
-#     {
-#         'input': [0.1],
-#         'output': [0.0]
-#     },
-#     {
-#         'input': [0.9],
-#         'output': [1.0]
-#     },
-#     {
-#         'input': [0.75],
-#         'output': [1.0]
-#     },
-#     {
-#         'input': [0.3],
-#         'output': [0.0]
-#     },
-#     {
-#         'input': [0.7],
-#         'output': [1.0]
-#     },
-#     {
-#         'input': [0.12],
-#         'output': [0.0]
-#     },
-#     {
-#         'input': [0.43],
-#         'output': [0.0]
-#     },
-#     {
-#         'input': [0.57],
-#         'output': [1.0]
-#     },
-#     {
-#         'input': [0.35],
-#         'output': [0.0]
-#     },
-#     {
-#         'input': [0.67],
-#         'output': [1.0]
-#     },
-#     {
-#         'input': [0.25],
-#         'output': [0.0]
-#     },
-#     {
-#         'input': [0.78],
-#         'output': [1.0]
-#     },
-#     {
-#         'input': [0.29],
-#         'output': [0.0]
-#     },
-#     {
-#         'input': [0.63],
-#         'output': [1.0]
-#     },
-# ]
-#
-# test_dataset = [
-#     {
-#         'input': [0.2],
-#         'output': [0.0]
-#     },
-#     {
-#         'input': [0.85],
-#         'output': [1.0]
-#     },
-#     {
-#         'input': [0.32],
-#         'output': [0.0]
-#     },
-#     {
-#         'input': [0.71],
-#         'output': [1.0]
-#     },
-# ]
-
-# pred = torch.tensor([[0.4839],
-#         [0.4822],
-#         [0.4829],
-#         [0.4841],
-#         [0.4838],
-#         [0.4822]])
-# act = torch.tensor([[1.],
-#         [0.],
-#         [0.],
-#         [1.],
-#         [1.],
-#         [0.]])
-#
-# eps = 0.001
-# res = -(act * torch.log(pred + eps) + (torch.ones_like(pred) - act) *
-#                    torch.log(torch.ones_like(pred) - pred + eps))
-# print(pred - torch.ones_like(pred) + eps)
-# print(torch.log(pred - torch.ones_like(pred) + eps))
-#
-# sys.exit(0)
-
 start_time = time.time()
 
 layers = [
-    FullyConnected(128, LeakyRelu()),
-    FullyConnected(128, LeakyRelu()),
     FullyConnected(128, LeakyRelu()),
     FullyConnected(128, LeakyRelu()),
     FullyConnected(128, LeakyRelu()),
@@ -229,14 +127,15 @@ nn = NeuralNetwork(
     layers,
     optimizer=SGD(learning_rate=0.01),
     loss=BinaryCrossEntropy(),
-    metric=Accuracy()
+    metric=Accuracy(),
+    convert_prediction='binary'
 )
 
-epochs = 100
+epochs = 50
 nn.fit(train_dataset, test_dataset, epochs=epochs, batch_size=4, verbose=True)
 
 prediction = nn.predict(test_dataset)
 
-#plot_data(test_data, prediction, 'classification_random_prediction.jpg')
+plot_data(test_data, prediction, 'classification_synthetic_prediction.jpg')
 
 print("--- %s seconds ---" % (time.time() - start_time))
