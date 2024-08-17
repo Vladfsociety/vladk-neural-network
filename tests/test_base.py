@@ -5,8 +5,8 @@ import torch
 from src.model.base import NeuralNetwork
 from src.model.layer import Input, FullyConnected
 from src.model.loss import MeanSquaredError
-from src.model.opimizer import SGD
-from src.model.metric import r2_score, mse_loss
+from src.model.optimizer import SGD
+from src.model.metric import R2Score
 from src.model.activation import Relu, Linear
 
 """
@@ -31,9 +31,9 @@ def run_regression_test(func, learning_rate=0.001, mse_threshold=0.1, r2_thresho
     train_dataset, test_dataset = get_dataset_regression(func)
 
     layers = [
-        FullyConnected(96, Relu()),
-        FullyConnected(96, Relu()),
-        FullyConnected(96, Relu()),
+        FullyConnected(128, Relu()),
+        FullyConnected(128, Relu()),
+        FullyConnected(128, Relu()),
         FullyConnected(1, Linear())
     ]
     nn = NeuralNetwork(
@@ -41,19 +41,19 @@ def run_regression_test(func, learning_rate=0.001, mse_threshold=0.1, r2_thresho
         layers,
         optimizer=SGD(learning_rate=learning_rate),
         loss=MeanSquaredError(),
-        metric=r2_score,
+        metric=R2Score(),
     )
 
     start_time = time.time()
-    epochs = 40
+    epochs = 50
     nn.fit(train_dataset, test_dataset, epochs=epochs, batch_size=1, verbose=True)
     fit_time = time.time() - start_time
 
     prediction = nn.predict(test_dataset)
     actual = [test_sample['output'] for test_sample in test_dataset]
 
-    mse = mse_loss(prediction, actual)
-    r2 = r2_score(prediction, actual)
+    mse = nn.loss(prediction, actual)
+    r2 = nn.metric(prediction, actual)
 
     print(f"MSE: {mse}, r2: {r2}, Fit time: {fit_time}")
 
@@ -63,7 +63,7 @@ def run_regression_test(func, learning_rate=0.001, mse_threshold=0.1, r2_thresho
 
 @pytest.mark.two_dim
 @pytest.mark.parametrize("func, learning_rate", [
-    (func_quadratic, 0.005),
+    (func_quadratic, 0.001),
     (func_linear, 0.001)
 ])
 def test_regression(func, learning_rate):
@@ -103,7 +103,7 @@ def get_dataset_regression_3d(func):
 
     return train_data, test_data
 
-def run_regression_test_3d(func, learning_rate=0.001, mse_threshold=0.1, r2_threshold=0.95, fit_time_threshold=60.0):
+def run_regression_test_3d(func, learning_rate=0.001, mse_threshold=0.1, r2_threshold=0.95, fit_time_threshold=50.0):
     train_dataset, test_dataset = get_dataset_regression_3d(func)
 
     layers = [
@@ -119,7 +119,7 @@ def run_regression_test_3d(func, learning_rate=0.001, mse_threshold=0.1, r2_thre
         layers,
         optimizer=SGD(learning_rate=learning_rate),
         loss=MeanSquaredError(),
-        metric=r2_score,
+        metric=R2Score(),
     )
 
     start_time = time.time()
@@ -130,8 +130,8 @@ def run_regression_test_3d(func, learning_rate=0.001, mse_threshold=0.1, r2_thre
     prediction = nn.predict(test_dataset)
     actual = [test_sample['output'] for test_sample in test_dataset]
 
-    mse = mse_loss(prediction, actual)
-    r2 = r2_score(prediction, actual)
+    mse = nn.loss(prediction, actual)
+    r2 = nn.metric(prediction, actual)
 
     print(f"MSE: {mse}, r2: {r2}, Fit time: {fit_time}")
 

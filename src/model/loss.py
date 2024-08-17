@@ -1,6 +1,40 @@
-class MeanSquaredError:
-    def value(self, predicted, actual):
-        return 0.5 * ((actual - predicted) ** 2).sum() / predicted.size(0)
+import pprint
+import torch
 
-    def derivative(self, predicted, actual):
-        return predicted - actual
+
+class MeanSquaredError:
+    def value(self, prediction, actual):
+        return 0.5 * ((actual - prediction) ** 2).sum() / prediction.size(0)
+
+    def derivative(self, prediction, actual):
+        return prediction - actual
+
+class BinaryCrossEntropy:
+    def __init__(self, epsilon=1e-10):
+        self.__epsilon = epsilon
+
+    def value(self, prediction, actual):
+        # losses = -(actual * torch.log(prediction) + (torch.ones_like(prediction) - actual) * (
+        #             torch.log(prediction) - torch.ones_like(prediction)))
+
+        prediction = torch.clamp(prediction, min=self.__epsilon, max=1 - self.__epsilon )
+
+        losses = -(actual * torch.log(prediction) + (torch.ones_like(prediction) - actual) *
+                   torch.log(torch.ones_like(prediction) - prediction))
+
+        # print('prediction')
+        # pprint.pprint(prediction)
+        # print('actual')
+        # pprint.pprint(actual)
+        # print('losses')
+        # pprint.pprint(losses)
+        # print('losses.sum()')
+        # print(losses.sum())
+
+        return losses.sum() / prediction.size(0)
+
+    def derivative(self, prediction, actual):
+
+        prediction = torch.clamp(prediction, min=self.__epsilon, max=1 - self.__epsilon)
+
+        return (prediction - actual) / ((prediction * (1 - prediction)) + self.__epsilon)

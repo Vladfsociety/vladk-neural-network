@@ -3,12 +3,12 @@ import sys
 import time
 import matplotlib.pyplot as plt
 import torch
-from model.base import NeuralNetwork
-from model.layer import Input, FullyConnected
-from model.loss import MeanSquaredError
-from model.optimizer import SGD
-from model.activation import Relu, Linear
-from model.metric import R2Score
+from src.model.base import NeuralNetwork
+from src.model.layer import Input, FullyConnected
+from src.model.loss import MeanSquaredError
+from src.model.optimizer import SGD
+from src.model.activation import Relu, Linear
+from src.model.metric import R2Score
 from mpl_toolkits.mplot3d import Axes3D
 
 
@@ -136,37 +136,37 @@ def generate_train_test_data():
 
 start_time = time.time()
 
-#train_dataset, test_dataset = generate_train_test_data()
+train_dataset, test_dataset = generate_train_test_data()
 
-train_dataset, test_dataset = generate_train_test_data_3d()
+#train_dataset, test_dataset = generate_train_test_data_3d()
 
 # print('train_dataset')
 # pprint.pprint(train_dataset)
 # print('test_dataset')
 # pprint.pprint(test_dataset)
 
-# layers = [
-#     FullyConnected(64, Relu()),
-#     FullyConnected(64, Relu()),
-#     FullyConnected(64, Relu()),
-#     FullyConnected(1, Linear())
-# ]
-# layers = [
-#     FullyConnected(128, Relu()),
-#     FullyConnected(128, Relu()),
-#     FullyConnected(128, Relu()),
-#     FullyConnected(128, Relu()),
-#     FullyConnected(1, Linear())
-# ]
 layers = [
-    FullyConnected(256, Relu()),
-    FullyConnected(256, Relu()),
-    FullyConnected(256, Relu()),
-    FullyConnected(256, Relu()),
-    FullyConnected(256, Relu()),
-    FullyConnected(256, Relu()),
+    FullyConnected(32, Relu()),
+    FullyConnected(32, Relu()),
+    FullyConnected(32, Relu()),
     FullyConnected(1, Linear())
 ]
+# layers = [
+#     FullyConnected(128, Relu()),
+#     FullyConnected(128, Relu()),
+#     FullyConnected(128, Relu()),
+#     FullyConnected(128, Relu()),
+#     FullyConnected(1, Linear())
+# ]
+# layers = [
+#     FullyConnected(256, Relu()),
+#     FullyConnected(256, Relu()),
+#     FullyConnected(256, Relu()),
+#     FullyConnected(256, Relu()),
+#     FullyConnected(256, Relu()),
+#     FullyConnected(256, Relu()),
+#     FullyConnected(1, Linear())
+# ]
 # layers = [
 #     FullyConnected(512, f.relu),
 #     FullyConnected(512, f.relu),
@@ -179,40 +179,40 @@ layers = [
 #     FullyConnected(1, 'linear')
 # ]
 
-# nn = NeuralNetwork(
-#     1,
-#     layers,
-#     optimizer=SGD(),
-#     loss=MeanSquaredError(),
-#     metric=r2_score,
-# )
 nn = NeuralNetwork(
-    Input(2),
+    Input(1),
     layers,
-    optimizer=SGD(learning_rate=0.01),
+    optimizer=SGD(),
     loss=MeanSquaredError(),
     metric=R2Score()
 )
+# nn = NeuralNetwork(
+#     Input(2),
+#     layers,
+#     optimizer=SGD(learning_rate=0.001),
+#     loss=MeanSquaredError(),
+#     metric=R2Score()
+# )
 
-epochs = 20
-nn.fit(train_dataset, test_dataset, epochs=epochs, batch_size=16, verbose=True)
+epochs = 40
+nn.fit(train_dataset, test_dataset, epochs=epochs, batch_size=1, verbose=True)
 
 prediction = nn.predict(test_dataset)
 
 print("--- %s seconds ---" % (time.time() - start_time))
 
-# plot([d['input'][0].item() for d in test_dataset], [pred[0].item() for pred in prediction], 'test_result.jpg')
-# plot([d['input'][0].item() for d in train_dataset], [d['output'][0].item() for d in train_dataset], 'train.jpg')
+plot([d['input'][0].item() for d in test_dataset], [pred[0].item() for pred in prediction], 'test_result.jpg')
+plot([d['input'][0].item() for d in train_dataset], [d['output'][0].item() for d in train_dataset], 'train.jpg')
 
-plot_3d(
-    torch.tensor([[train_dataset[j*50 + i]['input'][0].item() for i in range(50)] for j in range(50)]),
-    torch.tensor([[train_dataset[j*50 + i]['input'][1].item() for i in range(50)] for j in range(50)]),
-    torch.tensor([[train_dataset[j*50 + i]['output'][0].item() for i in range(50)] for j in range(50)]),
-    'train_3d.jpg'
-)
-plot_3d(
-    torch.tensor([[test_dataset[j*30 + i]['input'][0].item() for i in range(30)] for j in range(30)]),
-    torch.tensor([[test_dataset[j*30 + i]['input'][1].item() for i in range(30)] for j in range(30)]),
-    torch.tensor([[prediction[j*30 + i][0].item() for i in range(30)] for j in range(30)]),
-    'test_result_3d.jpg'
-)
+# plot_3d(
+#     torch.tensor([[train_dataset[j*50 + i]['input'][0].item() for i in range(50)] for j in range(50)]),
+#     torch.tensor([[train_dataset[j*50 + i]['input'][1].item() for i in range(50)] for j in range(50)]),
+#     torch.tensor([[train_dataset[j*50 + i]['output'][0].item() for i in range(50)] for j in range(50)]),
+#     'train_3d.jpg'
+# )
+# plot_3d(
+#     torch.tensor([[test_dataset[j*30 + i]['input'][0].item() for i in range(30)] for j in range(30)]),
+#     torch.tensor([[test_dataset[j*30 + i]['input'][1].item() for i in range(30)] for j in range(30)]),
+#     torch.tensor([[prediction[j*30 + i][0].item() for i in range(30)] for j in range(30)]),
+#     'test_result_3d.jpg'
+# )
