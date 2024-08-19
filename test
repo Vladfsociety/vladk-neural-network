@@ -1,0 +1,264 @@
+[tool.poetry]
+name = "vladk-neural-network"
+version = "0.1.0"
+description = "A description of your project"
+authors = ["Your Name <you@example.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+# Add other dependencies here
+
+[tool.poetry.packages]
+include = ["vladk_neural_network"]
+
+
+test_predictions
+[[tensor([0.0133])], [tensor([3.4210])], [tensor([1.7721])]]
+
+test_predictions
+[[tensor([-0.0902])], [tensor([2.8185])], [tensor([1.4110])]]
+
+
+[[tensor([-0.2594])], [tensor([1.7169])], [tensor([0.7606])]]
+
+
+[[tensor([-0.2912])], [tensor([1.2591])], [tensor([0.5090])]]
+
+[[tensor([-0.1964])],
+ [tensor([1.0806])],
+ [tensor([0.4627])],
+ [tensor([0.6686])]]
+
+ [[tensor([-0.0863])],
+ [tensor([1.0168])],
+ [tensor([0.4830])],
+ [tensor([0.6609])]]
+
+ [[tensor([-0.0070])],
+ [tensor([0.9716])],
+ [tensor([0.4981])],
+ [tensor([0.6560])]]
+
+
+  /home/vlad/Documents/Projects/vladk-neural-network/src/main.py:45: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.show()
+/home/vlad/Documents/Projects/vladk-neural-network/src/model/base.py:94: UserWarning: To copy construct from a tensor, it is recommended to use sourceTensor.clone().detach() or sourceTensor.clone().detach().requires_grad_(True), rather than torch.tensor(sourceTensor).
+  self.loss.backward(self.optimizer, self._layers, torch.tensor(predict), torch.tensor(train_sample['output']))
+/home/vlad/Documents/Projects/vladk-neural-network/src/main.py:57: UserWarning: To copy construct from a tensor, it is recommended to use sourceTensor.clone().detach() or sourceTensor.clone().detach().requires_grad_(True), rather than torch.tensor(sourceTensor).
+  x = torch.tensor(x)
+/home/vlad/Documents/Projects/vladk-neural-network/src/main.py:58: UserWarning: To copy construct from a tensor, it is recommended to use sourceTensor.clone().detach() or sourceTensor.clone().detach().requires_grad_(True), rather than torch.tensor(sourceTensor).
+  y = torch.tensor(y)
+/home/vlad/Documents/Projects/vladk-neural-network/src/main.py:59: UserWarning: To copy construct from a tensor, it is recommended to use sourceTensor.clone().detach() or sourceTensor.clone().detach().requires_grad_(True), rather than torch.tensor(sourceTensor).
+  z = torch.tensor(z)
+/home/vlad/Documents/Projects/vladk-neural-network/src/main.py:72: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.show()
+/home/vlad/Documents/Projects/vladk-neural-network/src/main.py:57: UserWarning: To copy construct from a tensor, it is recommended to use sourceTensor.clone().detach() or sourceTensor.clone().detach().requires_grad_(True), rather than torch.tensor(sourceTensor).
+  x = torch.tensor(x)
+/home/vlad/Documents/Projects/vladk-neural-network/src/main.py:58: UserWarning: To copy construct from a tensor, it is recommended to use sourceTensor.clone().detach() or sourceTensor.clone().detach().requires_grad_(True), rather than torch.tensor(sourceTensor).
+  y = torch.tensor(y)
+/home/vlad/Documents/Projects/vladk-neural-network/src/main.py:59: UserWarning: To copy construct from a tensor, it is recommended to use sourceTensor.clone().detach() or sourceTensor.clone().detach().requires_grad_(True), rather than torch.tensor(sourceTensor).
+  z = torch.tensor(z)
+/home/vlad/Documents/Projects/vladk-neural-network/src/main.py:72: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.show()
+
+
+
+
+  if no use output layer
+  poetry run python src/main.py > output.txt
+/home/vlad/Documents/Projects/vladk-neural-network/src/model/base.py:93: UserWarning: To copy construct from a tensor, it is recommended to use sourceTensor.clone().detach() or sourceTensor.clone().detach().requires_grad_(True), rather than torch.tensor(sourceTensor).
+  self.loss.backward(self.optimizer, self._layers, torch.tensor(predict), torch.tensor(train_sample['output']))
+Traceback (most recent call last):
+  File "/home/vlad/Documents/Projects/vladk-neural-network/src/main.py", line 188, in <module>
+    nn.fit(train_dataset, test_dataset, epochs=epochs)
+  File "/home/vlad/Documents/Projects/vladk-neural-network/src/model/base.py", line 95, in fit
+    loss = self.loss.calculate(torch.tensor(self._prediction), torch.tensor(self._actual))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: only one element tensors can be converted to Python scalars
+
+
+Первым делом добавить тесты
+
+
+
+
+
+batch 1 
+Epoch: 49/50, Loss: 0.0113, r2 score: 0.9987
+Test dataset validation. Loss: 0.0139, r2 score: 0.9984
+--- 16.43903636932373 seconds ---
+
+
+batch 2
+Epoch: 49/50, Loss: 0.1676, r2 score: 0.9803
+Test dataset validation. Loss: 0.1775, r2 score: 0.9801
+--- 16.935725212097168 seconds ---
+
+batch 1
+Epoch: 49/50, Loss: 0.0095, r2 score: 0.9989
+Test dataset validation. Loss: 0.0114, r2 score: 0.9987
+--- 16.717719554901123 seconds ---
+
+batch 4
+Epoch: 49/50, Loss: 5.8183, r2 score: 0.3156
+Test dataset validation. Loss: 5.9799, r2 score: 0.3287
+--- 18.0739266872406 seconds ---
+
+batch 4 lr 0.01
+Epoch: 49/50, Loss: 0.0004, r2 score: 1.0
+Test dataset validation. Loss: 0.0005, r2 score: 0.9999
+--- 17.332524061203003 seconds ---
+
+batch 1 lr 0.01
+Epoch: 49/50, Loss: 0.001, r2 score: 0.9999
+Test dataset validation. Loss: 0.0062, r2 score: 0.9993
+--- 15.673651456832886 seconds ---
+
+
+more complic model
+batch 1
+Epoch: 99/100, Loss: 0.4454, r2 score: 0.9908
+Test dataset validation. Loss: 0.7514, r2 score: 0.9854
+--- 3.9565186500549316 seconds ---
+
+
+batch 4
+Epoch: 99/100, Loss: 1.1448, r2 score: 0.9764
+Test dataset validation. Loss: 1.313, r2 score: 0.9745
+--- 3.285139322280884 seconds ---
+
+batch 8
+Epoch: 99/100, Loss: 1.3276, r2 score: 0.9726
+Test dataset validation. Loss: 1.424, r2 score: 0.9723
+--- 3.2789177894592285 seconds ---
+
+batch 16
+Epoch: 99/100, Loss: 2.0787, r2 score: 0.9571
+Test dataset validation. Loss: 2.0876, r2 score: 0.9594
+--- 3.0714268684387207 seconds ---
+
+
+3d quad
+batch 1
+Epoch: 19/20, Loss: 0.0006, r2 score: 0.9999
+Test dataset validation. Loss: 0.1335, r2 score: 0.9736
+--- 423.70688581466675 seconds ---
+
+batch 32
+Epoch: 20/20, Loss: 0.0146, r2 score: 0.9969
+Test dataset validation. Loss: 0.0601, r2 score: 0.9881
+--- 156.04590106010437 seconds ---
+
+batch 64
+Epoch: 20/20, Loss: 0.0275, r2 score: 0.9941
+Test dataset validation. Loss: 0.0635, r2 score: 0.9875
+--- 138.64127945899963 seconds ---
+
+batch 128
+Epoch: 20/20, Loss: 0.0824, r2 score: 0.9822
+Test dataset validation. Loss: 0.1834, r2 score: 0.9638
+--- 153.09762501716614 seconds ---
+
+batch 256
+Epoch: 20/20, Loss: 1.0324, r2 score: 0.7767
+Test dataset validation. Loss: 1.2249, r2 score: 0.758
+--- 144.80464816093445 seconds ---
+
+batch 64
+Epoch: 20/20, Loss: 0.032, r2 score: 0.9931
+Test dataset validation. Loss: 0.0784, r2 score: 0.9845
+--- 148.19429850578308 seconds ---
+
+batch 64 shuffle
+Epoch: 20/20, Loss: 0.0283, r2 score: 0.9939
+Test dataset validation. Loss: 0.0329, r2 score: 0.9935
+--- 156.4179859161377 seconds --
+
+
+
+
+
+
+
+Epoch: 40/40, Loss: 0.5841, R2 score: 0.9759
+Test dataset validation. Loss: 0.6434, R2 score: 0.975
+--- 16.375547409057617 seconds ---
+
+
+Epoch: 40/40, Loss: 0.5669, R2 score: 0.9766
+Test dataset validation. Loss: 0.6277, R2 score: 0.9756
+--- 14.545613050460815 seconds ---
+
+
+'b': tensor([[ 0.3932],
+        [ 0.2622],
+        [-0.1065],
+        [ 0.1861],
+        [ 0.4144],
+        [ 0.2395],
+        [-0.5613],
+        [ 0.1152],
+        [-0.1406],
+        [ 0.4850],
+        [-0.5589],
+        [ 0.5319],
+        [ 0.3562],
+        [-0.1339],
+        [ 0.2887],
+        [-0.3296]]),
+
+'w': tensor([[-0.1276, -0.2779,  0.4979,  0.5601,  0.2960, -0.2253,  0.2908,  0.1090,
+          0.4300, -0.0269,  0.3568, -0.3834, -0.0432,  0.3246, -0.4088,  0.5653]]),
+
+
+
+'b': tensor([[ 0.4043],
+        [ 0.3085],
+        [-0.1065],
+        [ 0.1836],
+        [ 0.3595],
+        [ 0.1364],
+        [-0.5613],
+        [ 0.1327],
+        [-0.1406],
+        [ 0.4958],
+        [-0.5589],
+        [ 0.4930],
+        [ 0.3183],
+        [-0.1339],
+        [ 0.2830],
+        [-0.3296]])
+
+'w': tensor([[-0.1167, -0.2779,  0.4979,  0.6723,  0.2960, -0.2881,  0.2908,  0.1792,
+          0.4300, -0.0454,  0.3364, -0.3834, -0.0432,  0.3246, -0.4088,  0.6313]]),
+
+
+Похоже что стоит попробовать с leaky relu
+
+
+
+
+
+
+
+Так на ирисе воспроизводится хороший но не идеальній результат
+layers = [
+    FullyConnected(4, Relu()),
+    FullyConnected(1, Sigmoid())
+]
+nn = NeuralNetwork(
+    Input(4),
+    layers,
+    optimizer=SGD(learning_rate=0.001),
+    loss=BinaryCrossEntropy(),
+    metric=Accuracy(),
+    convert_prediction='binary'
+)
+
+epochs = 30
+nn.fit(train_dataset, test_dataset, epochs=epochs, batch_size=1, verbose=True)
+
+
+
+
+Нужно сделать норм argmax из торч модуля не подходит походу и после уже дальше смотреть работает ли

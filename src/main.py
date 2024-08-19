@@ -1,5 +1,3 @@
-import pprint
-import sys
 import time
 import matplotlib.pyplot as plt
 import torch
@@ -9,7 +7,6 @@ from model.loss import MeanSquaredError
 from model.optimizer import SGD
 from model.activation import Relu, Linear
 from model.metric import R2Score
-from mpl_toolkits.mplot3d import Axes3D
 
 
 def func_3d(arg_x, arg_y):

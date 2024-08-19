@@ -1,5 +1,3 @@
-import pprint
-import sys
 import time
 import matplotlib.pyplot as plt
 import torch

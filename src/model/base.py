@@ -25,14 +25,25 @@ class NeuralNetwork:
 
         return
 
-    def __binary_convert(self, prediction):
-        threshold = 0.5
-        return (prediction >= threshold).float()
+    def __binary_convert(self, prediction, threshold=0.5):
+        return (prediction >= threshold).double()
+
+    def __argmax_convert(self, prediction):
+        max_indices = torch.argmax(prediction, dim=1, keepdim=True)
+        onehot_prediction = torch.zeros_like(prediction)
+        onehot_prediction.scatter_(1, max_indices, 1)
+
+        # print('result22')
+        # print(onehot_prediction)
+
+        return onehot_prediction
 
     def __apply_convert_prediction(self, prediction):
 
         if self.__convert_prediction == 'binary':
             prediction = self.__binary_convert(prediction)
+        elif self.__convert_prediction == 'argmax':
+            prediction = self.__argmax_convert(prediction)
 
         return prediction
 
@@ -52,7 +63,7 @@ class NeuralNetwork:
 
             layer_index += 1
 
-        return self.__layers[-1]['a'].flatten()
+        return self.__layers[-1]['a']
 
     def __backward(self, predict, actual):
 
@@ -65,6 +76,12 @@ class NeuralNetwork:
         while layer_index > 0:
 
             if layer_index == len(self.__layers) - 1:
+
+                # print('self.__loss.derivative(predict, actual)')
+                # pprint.pprint(self.__loss.derivative(predict, actual))
+                # print('self.__layers[-1][activation_function].derivative(self.__layers[-1][z])')
+                # pprint.pprint(self.__layers[-1]['activation_function'].derivative(self.__layers[-1]['z']))
+
                 layer_error = (
                     self.__loss.derivative(predict, actual)
                     * self.__layers[-1]['activation_function'].derivative(self.__layers[-1]['z'])
@@ -74,6 +91,11 @@ class NeuralNetwork:
                     torch.matmul(self.__layers[layer_index + 1]['w'].t(), layer_error)
                     * self.__layers[layer_index]['activation_function'].derivative(self.__layers[layer_index]['z'])
                 )
+
+            # print('layer_error')
+            # pprint.pprint(layer_error)
+            # print('self.__layers[layer_index - 1][a].t()')
+            # pprint.pprint(self.__layers[layer_index - 1]['a'].t())
 
             grads_w_update[layer_index - 1] = (torch.matmul(layer_error, self.__layers[layer_index - 1]['a'].t()))
             grads_b_update[layer_index - 1] = layer_error
@@ -95,11 +117,17 @@ class NeuralNetwork:
 
             predict = self.__forward()
 
-            self.__prediction.append([predict])
+            self.__prediction.append(predict)
 
-            output = torch.tensor(sample['output'])
+            # print('predict')
+            # print(predict)
 
-            self.__actual.append([output])
+            output = torch.tensor(sample['output']).unsqueeze(1)
+
+            # print('output')
+            # print(output)
+
+            self.__actual.append(output)
 
             grads_w_update, grads_b_update = self.__backward(predict, output)
 
@@ -114,9 +142,6 @@ class NeuralNetwork:
 
         train_dataset = train_dataset.copy()
 
-        # print('self.__layers_before')
-        # pprint.pprint(self.__layers)
-
         for epoch in range(epochs):
 
             self.__prediction = []
@@ -128,8 +153,19 @@ class NeuralNetwork:
             for batch in batches:
                 self.__process_batch(batch)
 
-            self.__prediction = torch.tensor(self.__prediction)
-            self.__actual = torch.tensor(self.__actual)
+
+            # print('self.__prediction')
+            # pprint.pprint(self.__prediction)
+            # print('self.__actual')
+            # pprint.pprint(self.__actual)
+
+            self.__prediction = torch.stack(self.__prediction)
+            self.__actual = torch.stack(self.__actual)
+
+            # print('self.__prediction_after')
+            # pprint.pprint(self.__prediction)
+            # print('self.__actual_after')
+            # pprint.pprint(self.__actual)
 
             if verbose:
                 loss = self.loss(self.__prediction, self.__actual)
@@ -146,23 +182,20 @@ class NeuralNetwork:
                 input_data = test_sample['input']
                 self.__layers[0]['a'] = torch.tensor(input_data).reshape(len(input_data), 1)
                 predict = self.__forward()
-                self.__prediction.append([predict])
-                self.__actual.append([torch.tensor(test_sample['output'])])
+                self.__prediction.append(predict)
+                self.__actual.append(torch.tensor(test_sample['output']).unsqueeze(1))
 
-            self.__prediction = torch.tensor(self.__prediction)
-            self.__actual = torch.tensor(self.__actual)
+            self.__prediction = torch.stack(self.__prediction)
+            self.__actual = torch.stack(self.__actual)
 
             loss = self.loss(self.__prediction, self.__actual)
             metric_name = self.__metric.name()
             metric_value = self.metric(self.__apply_convert_prediction(self.__prediction), self.__actual)
             print(f"Test dataset. Loss: {loss}, {metric_name}: {metric_value}")
 
-        # print('self.__layers_after')
-        # pprint.pprint(self.__layers)
-
         return
 
-    def predict(self, data):
+    def predict(self, data, with_raw_prediction=False):
 
         self.__prediction = []
 
@@ -170,10 +203,14 @@ class NeuralNetwork:
             input_data = sample['input']
             self.__layers[0]['a'] = torch.tensor(input_data).reshape(len(input_data), 1)
             predict = self.__forward()
+            self.__prediction.append(predict)
 
-            self.__prediction.append([predict])
+        self.__prediction = torch.stack(self.__prediction)
 
-        return self.__apply_convert_prediction(torch.tensor(self.__prediction))
+        if with_raw_prediction:
+            return self.__apply_convert_prediction(self.__prediction), self.__prediction
+        else:
+            return self.__apply_convert_prediction(self.__prediction)
 
     def loss(self, prediction, actual):
         return round(float(self.__loss.value(prediction, actual)), 4)

@@ -1,0 +1,19 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-8.3.2, pluggy-1.5.0
+rootdir: /home/vlad/Documents/Projects/vladk-neural-network
+configfile: pyproject.toml
+testpaths: tests
+collected 7 items / 4 deselected / 3 selected
+
+tests/test_binary_classification.py 
+Binary classification. Testing Iris-setosa - Iris-versicolor combination
+BCE: 0.0342, Accuracy: 1.0, Fit time: 1.3855
+.
+Binary classification. Testing Iris-versicolor - Iris-virginica combination
+BCE: 0.2761, Accuracy: 0.9667, Fit time: 1.44
+.
+Binary classification. Testing Iris-setosa - Iris-virginica combination
+BCE: 0.0309, Accuracy: 1.0, Fit time: 1.3516
+.
+
+======================= 3 passed, 4 deselected in 5.55s ========================

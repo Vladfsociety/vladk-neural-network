@@ -2,7 +2,9 @@ import pprint
 
 import torch
 
+
 class R2Score:
+
     def name(self):
         return 'R2 score'
 
@@ -13,9 +15,20 @@ class R2Score:
 
         return 1.0 - (ss_res / ss_tot)
 
+
 class Accuracy:
+
     def name(self):
         return 'Accuracy'
 
     def value(self, prediction, actual):
         return (prediction == actual).sum().item() / prediction.size(0)
+
+
+class AccuracyOneHot:
+
+    def name(self):
+        return 'Accuracy'
+
+    def value(self, prediction, actual):
+        return (prediction * actual).to(torch.int).sum().item() / prediction.size(0)

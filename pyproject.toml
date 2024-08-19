@@ -16,7 +16,21 @@ matplotlib = "^3.9.1.post1"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.2"
+pandas = "^2.2.2"
+ruff = "^0.6.1"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+testpaths = "tests"
+markers = [
+    "regression_two_dim: test regression on 2d functions",
+    "regression_three_dim: test regression on 3d functions",
+    "binary_classification_iris: binary classification on iris dataset with 3 possible pairs"
+]
+
+[tool.ruff]
+lint.select = ["I", "SIM", "B", "UP", "F", "E", "W"]
+lint.ignore = ["E501"]
