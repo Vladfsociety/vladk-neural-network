@@ -7,7 +7,7 @@ import pandas as pd
 from src.model.base import NeuralNetwork
 from src.model.layer import Input, FullyConnected
 from src.model.loss import BinaryCrossEntropy
-from src.model.optimizer import SGD
+from src.model.optimizer import Adam
 from src.model.metric import Accuracy
 from src.model.activation import LeakyRelu, Sigmoid
 
@@ -41,8 +41,8 @@ def get_iris_dataset(species_to_compare, specie_to_exclude):
 
 def run_classification_test(
     species_combination,
-    learning_rate=0.002,
-    bce_threshold=0.1,
+    learning_rate=0.001,
+    bce_threshold=0.01,
     acc_threshold=0.98,
     fit_time_threshold=2.0
 ):
@@ -59,14 +59,14 @@ def run_classification_test(
     nn = NeuralNetwork(
         Input(4),
         layers,
-        optimizer=SGD(learning_rate=learning_rate),
+        optimizer=Adam(learning_rate=learning_rate),
         loss=BinaryCrossEntropy(),
         metric=Accuracy(),
         convert_prediction='binary'
     )
 
     start_time = time.time()
-    epochs = 50
+    epochs = 20
     nn.fit(train_dataset,  epochs=epochs, batch_size=1, verbose=False)
     fit_time = round(time.time() - start_time, 4)
 
@@ -76,7 +76,7 @@ def run_classification_test(
     bce = nn.loss(raw_prediction, actual)
     acc = nn.metric(prediction, actual)
 
-    print(f"BCE: {bce}, Accuracy: {acc}, Fit time: {fit_time}")
+    print(f"BCE: {bce}, Accuracy: {acc}, Fit time: {fit_time} seconds")
 
     assert bce < bce_threshold
     assert acc > acc_threshold
@@ -84,9 +84,9 @@ def run_classification_test(
 
 @pytest.mark.binary_classification_iris
 @pytest.mark.parametrize("species_combination, bce_threshold, acc_threshold", [
-    ([['Iris-setosa', 'Iris-versicolor'], 'Iris-virginica'], 0.1, 0.98),
+    ([['Iris-setosa', 'Iris-versicolor'], 'Iris-virginica'], 0.01, 0.98),
     ([['Iris-versicolor', 'Iris-virginica'], 'Iris-setosa'], 0.5, 0.85),
-    ([['Iris-setosa', 'Iris-virginica'], 'Iris-versicolor'], 0.1, 0.98)
+    ([['Iris-setosa', 'Iris-virginica'], 'Iris-versicolor'], 0.01, 0.98)
 ])
 def test_classification(species_combination, bce_threshold, acc_threshold):
     run_classification_test(species_combination, bce_threshold=bce_threshold, acc_threshold=acc_threshold)

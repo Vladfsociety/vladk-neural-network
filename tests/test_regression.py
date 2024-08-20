@@ -5,7 +5,7 @@ import torch
 from src.model.base import NeuralNetwork
 from src.model.layer import Input, FullyConnected
 from src.model.loss import MeanSquaredError
-from src.model.optimizer import SGD
+from src.model.optimizer import Adam
 from src.model.metric import R2Score
 from src.model.activation import Relu, Linear
 
@@ -48,13 +48,13 @@ def run_regression_test(
     nn = NeuralNetwork(
         Input(1),
         layers,
-        optimizer=SGD(learning_rate=learning_rate),
+        optimizer=Adam(learning_rate=learning_rate),
         loss=MeanSquaredError(),
         metric=R2Score(),
     )
 
     start_time = time.time()
-    epochs = 50
+    epochs = 20
     nn.fit(train_dataset, test_dataset, epochs=epochs, batch_size=1, verbose=False)
     fit_time = round(time.time() - start_time, 4)
 
@@ -64,7 +64,7 @@ def run_regression_test(
     mse = nn.loss(prediction, actual)
     r2 = nn.metric(prediction, actual)
 
-    print(f"MSE: {mse}, r2: {r2}, Fit time: {fit_time}")
+    print(f"MSE: {mse}, r2: {r2}, Fit time: {fit_time} seconds")
 
     assert mse < mse_threshold
     assert r2 > r2_threshold
@@ -118,7 +118,7 @@ def run_regression_test_3d(
         learning_rate=0.001,
         mse_threshold=0.05,
         r2_threshold=0.975,
-        fit_time_threshold=40.0
+        fit_time_threshold=30.0
 ):
     print(f"\nRegression. Testing {func.__name__}")
 
@@ -135,13 +135,13 @@ def run_regression_test_3d(
     nn = NeuralNetwork(
         Input(2),
         layers,
-        optimizer=SGD(learning_rate=learning_rate),
+        optimizer=Adam(learning_rate=learning_rate),
         loss=MeanSquaredError(),
         metric=R2Score(),
     )
 
     start_time = time.time()
-    epochs = 20
+    epochs = 15
     nn.fit(train_dataset, test_dataset, epochs=epochs, batch_size=16, verbose=False)
     fit_time = round(time.time() - start_time, 4)
 
@@ -151,17 +151,17 @@ def run_regression_test_3d(
     mse = nn.loss(prediction, actual)
     r2 = nn.metric(prediction, actual)
 
-    print(f"MSE: {mse}, r2: {r2}, Fit time: {fit_time}")
+    print(f"MSE: {mse}, r2: {r2}, Fit time: {fit_time} seconds")
 
     assert mse < mse_threshold
     assert r2 > r2_threshold
     assert fit_time < fit_time_threshold
 
 @pytest.mark.regression_three_dim
-@pytest.mark.parametrize("func, learning_rate", [
-    (func_quadratic_3d, 0.001),
-    (func_sin_plus_cos_3d, 0.025)
+@pytest.mark.parametrize("func", [
+    func_quadratic_3d,
+    func_sin_plus_cos_3d
 ])
-def test_regression_3d(func, learning_rate):
-    run_regression_test_3d(func, learning_rate=learning_rate)
+def test_regression_3d(func):
+    run_regression_test_3d(func)
     return

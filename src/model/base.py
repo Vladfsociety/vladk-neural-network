@@ -1,4 +1,3 @@
-import pprint
 import random
 import torch
 
@@ -15,6 +14,7 @@ class NeuralNetwork:
         self.__prediction         = []
         self.__actual             = []
         self.__init_layers()
+        self.__optimizer.initialize(self.__layers)
 
     def __init_layers(self):
         self.__layers.append(self.__input_layer.initialize())
@@ -32,10 +32,6 @@ class NeuralNetwork:
         max_indices = torch.argmax(prediction, dim=1, keepdim=True)
         onehot_prediction = torch.zeros_like(prediction)
         onehot_prediction.scatter_(1, max_indices, 1)
-
-        # print('result22')
-        # print(onehot_prediction)
-
         return onehot_prediction
 
     def __apply_convert_prediction(self, prediction):
@@ -67,8 +63,8 @@ class NeuralNetwork:
 
     def __backward(self, predict, actual):
 
-        grads_w_update = [torch.zeros(layer['w'].shape) for layer in self.__layers[1:]]
-        grads_b_update = [torch.zeros(layer['b'].shape) for layer in self.__layers[1:]]
+        grads_w_update = [torch.zeros_like(layer['w']) for layer in self.__layers[1:]]
+        grads_b_update = [torch.zeros_like(layer['b']) for layer in self.__layers[1:]]
 
         layer_index = len(self.__layers) - 1
         layer_error = torch.zeros_like(self.__layers[-1]['a'])
@@ -76,12 +72,6 @@ class NeuralNetwork:
         while layer_index > 0:
 
             if layer_index == len(self.__layers) - 1:
-
-                # print('self.__loss.derivative(predict, actual)')
-                # pprint.pprint(self.__loss.derivative(predict, actual))
-                # print('self.__layers[-1][activation_function].derivative(self.__layers[-1][z])')
-                # pprint.pprint(self.__layers[-1]['activation_function'].derivative(self.__layers[-1]['z']))
-
                 layer_error = (
                     self.__loss.derivative(predict, actual)
                     * self.__layers[-1]['activation_function'].derivative(self.__layers[-1]['z'])
@@ -92,11 +82,6 @@ class NeuralNetwork:
                     * self.__layers[layer_index]['activation_function'].derivative(self.__layers[layer_index]['z'])
                 )
 
-            # print('layer_error')
-            # pprint.pprint(layer_error)
-            # print('self.__layers[layer_index - 1][a].t()')
-            # pprint.pprint(self.__layers[layer_index - 1]['a'].t())
-
             grads_w_update[layer_index - 1] = (torch.matmul(layer_error, self.__layers[layer_index - 1]['a'].t()))
             grads_b_update[layer_index - 1] = layer_error
 
@@ -106,8 +91,8 @@ class NeuralNetwork:
 
     def __process_batch(self, batch):
 
-        grads_w = [torch.zeros(layer['w'].shape) for layer in self.__layers[1:]]
-        grads_b = [torch.zeros(layer['b'].shape) for layer in self.__layers[1:]]
+        grads_w = [torch.zeros_like(layer['w']) for layer in self.__layers[1:]]
+        grads_b = [torch.zeros_like(layer['b']) for layer in self.__layers[1:]]
 
         for sample in batch:
 
@@ -119,13 +104,7 @@ class NeuralNetwork:
 
             self.__prediction.append(predict)
 
-            # print('predict')
-            # print(predict)
-
             output = torch.tensor(sample['output']).unsqueeze(1)
-
-            # print('output')
-            # print(output)
 
             self.__actual.append(output)
 
@@ -153,19 +132,8 @@ class NeuralNetwork:
             for batch in batches:
                 self.__process_batch(batch)
 
-
-            # print('self.__prediction')
-            # pprint.pprint(self.__prediction)
-            # print('self.__actual')
-            # pprint.pprint(self.__actual)
-
             self.__prediction = torch.stack(self.__prediction)
             self.__actual = torch.stack(self.__actual)
-
-            # print('self.__prediction_after')
-            # pprint.pprint(self.__prediction)
-            # print('self.__actual_after')
-            # pprint.pprint(self.__actual)
 
             if verbose:
                 loss = self.loss(self.__prediction, self.__actual)

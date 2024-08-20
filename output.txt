@@ -3,17 +3,401 @@ platform linux -- Python 3.12.3, pytest-8.3.2, pluggy-1.5.0
 rootdir: /home/vlad/Documents/Projects/vladk-neural-network
 configfile: pyproject.toml
 testpaths: tests
-collected 7 items / 4 deselected / 3 selected
+collected 9 items
 
 tests/test_binary_classification.py 
 Binary classification. Testing Iris-setosa - Iris-versicolor combination
-BCE: 0.0342, Accuracy: 1.0, Fit time: 1.3855
+Epoch: 1/50, Loss: 0.66, Accuracy: 0.5857
+Epoch: 2/50, Loss: 0.6436, Accuracy: 0.5857
+Epoch: 3/50, Loss: 0.63, Accuracy: 0.5857
+Epoch: 4/50, Loss: 0.6182, Accuracy: 0.5857
+Epoch: 5/50, Loss: 0.6062, Accuracy: 0.5857
+Epoch: 6/50, Loss: 0.5933, Accuracy: 0.5857
+Epoch: 7/50, Loss: 0.5797, Accuracy: 0.5857
+Epoch: 8/50, Loss: 0.5651, Accuracy: 0.5857
+Epoch: 9/50, Loss: 0.5498, Accuracy: 0.5857
+Epoch: 10/50, Loss: 0.5336, Accuracy: 0.5857
+Epoch: 11/50, Loss: 0.5162, Accuracy: 0.7714
+Epoch: 12/50, Loss: 0.4976, Accuracy: 0.7286
+Epoch: 13/50, Loss: 0.478, Accuracy: 0.9571
+Epoch: 14/50, Loss: 0.4571, Accuracy: 0.9714
+Epoch: 15/50, Loss: 0.4345, Accuracy: 1.0
+Epoch: 16/50, Loss: 0.4117, Accuracy: 1.0
+Epoch: 17/50, Loss: 0.3879, Accuracy: 1.0
+Epoch: 18/50, Loss: 0.3641, Accuracy: 1.0
+Epoch: 19/50, Loss: 0.34, Accuracy: 1.0
+Epoch: 20/50, Loss: 0.3161, Accuracy: 1.0
+Epoch: 21/50, Loss: 0.2922, Accuracy: 1.0
+Epoch: 22/50, Loss: 0.2698, Accuracy: 1.0
+Epoch: 23/50, Loss: 0.2479, Accuracy: 1.0
+Epoch: 24/50, Loss: 0.2274, Accuracy: 1.0
+Epoch: 25/50, Loss: 0.208, Accuracy: 1.0
+Epoch: 26/50, Loss: 0.1905, Accuracy: 1.0
+Epoch: 27/50, Loss: 0.1742, Accuracy: 1.0
+Epoch: 28/50, Loss: 0.1592, Accuracy: 1.0
+Epoch: 29/50, Loss: 0.1458, Accuracy: 1.0
+Epoch: 30/50, Loss: 0.1335, Accuracy: 1.0
+Epoch: 31/50, Loss: 0.1225, Accuracy: 1.0
+Epoch: 32/50, Loss: 0.1125, Accuracy: 1.0
+Epoch: 33/50, Loss: 0.1035, Accuracy: 1.0
+Epoch: 34/50, Loss: 0.0954, Accuracy: 1.0
+Epoch: 35/50, Loss: 0.0881, Accuracy: 1.0
+Epoch: 36/50, Loss: 0.0815, Accuracy: 1.0
+Epoch: 37/50, Loss: 0.0756, Accuracy: 1.0
+Epoch: 38/50, Loss: 0.0703, Accuracy: 1.0
+Epoch: 39/50, Loss: 0.0654, Accuracy: 1.0
+Epoch: 40/50, Loss: 0.0611, Accuracy: 1.0
+Epoch: 41/50, Loss: 0.0572, Accuracy: 1.0
+Epoch: 42/50, Loss: 0.0536, Accuracy: 1.0
+Epoch: 43/50, Loss: 0.0504, Accuracy: 1.0
+Epoch: 44/50, Loss: 0.0474, Accuracy: 1.0
+Epoch: 45/50, Loss: 0.0447, Accuracy: 1.0
+Epoch: 46/50, Loss: 0.0422, Accuracy: 1.0
+Epoch: 47/50, Loss: 0.0399, Accuracy: 1.0
+Epoch: 48/50, Loss: 0.0378, Accuracy: 1.0
+Epoch: 49/50, Loss: 0.0359, Accuracy: 1.0
+Epoch: 50/50, Loss: 0.0341, Accuracy: 1.0
+BCE: 0.04, Accuracy: 1.0, Fit time: 1.229 seconds
 .
 Binary classification. Testing Iris-versicolor - Iris-virginica combination
-BCE: 0.2761, Accuracy: 0.9667, Fit time: 1.44
+Epoch: 1/50, Loss: 0.6893, Accuracy: 0.4714
+Epoch: 2/50, Loss: 0.6693, Accuracy: 0.7857
+Epoch: 3/50, Loss: 0.6553, Accuracy: 0.7
+Epoch: 4/50, Loss: 0.6437, Accuracy: 0.7143
+Epoch: 5/50, Loss: 0.6349, Accuracy: 0.5857
+Epoch: 6/50, Loss: 0.6271, Accuracy: 0.6
+Epoch: 7/50, Loss: 0.6199, Accuracy: 0.5857
+Epoch: 8/50, Loss: 0.6129, Accuracy: 0.6
+Epoch: 9/50, Loss: 0.6062, Accuracy: 0.6286
+Epoch: 10/50, Loss: 0.5992, Accuracy: 0.6857
+Epoch: 11/50, Loss: 0.592, Accuracy: 0.6857
+Epoch: 12/50, Loss: 0.5844, Accuracy: 0.6429
+Epoch: 13/50, Loss: 0.5773, Accuracy: 0.7714
+Epoch: 14/50, Loss: 0.5697, Accuracy: 0.7429
+Epoch: 15/50, Loss: 0.5618, Accuracy: 0.7571
+Epoch: 16/50, Loss: 0.5537, Accuracy: 0.7571
+Epoch: 17/50, Loss: 0.5454, Accuracy: 0.8
+Epoch: 18/50, Loss: 0.5367, Accuracy: 0.8143
+Epoch: 19/50, Loss: 0.5278, Accuracy: 0.8143
+Epoch: 20/50, Loss: 0.5189, Accuracy: 0.8143
+Epoch: 21/50, Loss: 0.5095, Accuracy: 0.8286
+Epoch: 22/50, Loss: 0.4997, Accuracy: 0.8857
+Epoch: 23/50, Loss: 0.4898, Accuracy: 0.8571
+Epoch: 24/50, Loss: 0.4802, Accuracy: 0.8714
+Epoch: 25/50, Loss: 0.4697, Accuracy: 0.8857
+Epoch: 26/50, Loss: 0.4595, Accuracy: 0.8857
+Epoch: 27/50, Loss: 0.4497, Accuracy: 0.8714
+Epoch: 28/50, Loss: 0.4392, Accuracy: 0.8857
+Epoch: 29/50, Loss: 0.429, Accuracy: 0.8857
+Epoch: 30/50, Loss: 0.418, Accuracy: 0.9
+Epoch: 31/50, Loss: 0.4078, Accuracy: 0.9
+Epoch: 32/50, Loss: 0.398, Accuracy: 0.9
+Epoch: 33/50, Loss: 0.3877, Accuracy: 0.9143
+Epoch: 34/50, Loss: 0.3775, Accuracy: 0.9
+Epoch: 35/50, Loss: 0.3676, Accuracy: 0.9286
+Epoch: 36/50, Loss: 0.357, Accuracy: 0.9143
+Epoch: 37/50, Loss: 0.346, Accuracy: 0.9143
+Epoch: 38/50, Loss: 0.3384, Accuracy: 0.9286
+Epoch: 39/50, Loss: 0.3289, Accuracy: 0.9286
+Epoch: 40/50, Loss: 0.3189, Accuracy: 0.9286
+Epoch: 41/50, Loss: 0.3112, Accuracy: 0.9143
+Epoch: 42/50, Loss: 0.3023, Accuracy: 0.9143
+Epoch: 43/50, Loss: 0.2942, Accuracy: 0.9286
+Epoch: 44/50, Loss: 0.2851, Accuracy: 0.9286
+Epoch: 45/50, Loss: 0.2788, Accuracy: 0.9286
+Epoch: 46/50, Loss: 0.2703, Accuracy: 0.9286
+Epoch: 47/50, Loss: 0.2645, Accuracy: 0.9286
+Epoch: 48/50, Loss: 0.2577, Accuracy: 0.9286
+Epoch: 49/50, Loss: 0.2502, Accuracy: 0.9429
+Epoch: 50/50, Loss: 0.2455, Accuracy: 0.9286
+BCE: 0.227, Accuracy: 0.9333, Fit time: 1.2268 seconds
 .
 Binary classification. Testing Iris-setosa - Iris-virginica combination
-BCE: 0.0309, Accuracy: 1.0, Fit time: 1.3516
+Epoch: 1/50, Loss: 0.7856, Accuracy: 0.5
+Epoch: 2/50, Loss: 0.706, Accuracy: 0.5
+Epoch: 3/50, Loss: 0.6445, Accuracy: 0.5
+Epoch: 4/50, Loss: 0.5955, Accuracy: 0.5857
+Epoch: 5/50, Loss: 0.5551, Accuracy: 0.9286
+Epoch: 6/50, Loss: 0.5213, Accuracy: 0.9857
+Epoch: 7/50, Loss: 0.4914, Accuracy: 1.0
+Epoch: 8/50, Loss: 0.4636, Accuracy: 1.0
+Epoch: 9/50, Loss: 0.4359, Accuracy: 1.0
+Epoch: 10/50, Loss: 0.4092, Accuracy: 1.0
+Epoch: 11/50, Loss: 0.3826, Accuracy: 1.0
+Epoch: 12/50, Loss: 0.3562, Accuracy: 1.0
+Epoch: 13/50, Loss: 0.3305, Accuracy: 1.0
+Epoch: 14/50, Loss: 0.3054, Accuracy: 1.0
+Epoch: 15/50, Loss: 0.2813, Accuracy: 1.0
+Epoch: 16/50, Loss: 0.2582, Accuracy: 1.0
+Epoch: 17/50, Loss: 0.2369, Accuracy: 1.0
+Epoch: 18/50, Loss: 0.2168, Accuracy: 1.0
+Epoch: 19/50, Loss: 0.199, Accuracy: 1.0
+Epoch: 20/50, Loss: 0.1825, Accuracy: 1.0
+Epoch: 21/50, Loss: 0.1676, Accuracy: 1.0
+Epoch: 22/50, Loss: 0.1539, Accuracy: 1.0
+Epoch: 23/50, Loss: 0.1415, Accuracy: 1.0
+Epoch: 24/50, Loss: 0.1303, Accuracy: 1.0
+Epoch: 25/50, Loss: 0.1201, Accuracy: 1.0
+Epoch: 26/50, Loss: 0.1108, Accuracy: 1.0
+Epoch: 27/50, Loss: 0.1025, Accuracy: 1.0
+Epoch: 28/50, Loss: 0.095, Accuracy: 1.0
+Epoch: 29/50, Loss: 0.0883, Accuracy: 1.0
+Epoch: 30/50, Loss: 0.0822, Accuracy: 1.0
+Epoch: 31/50, Loss: 0.0768, Accuracy: 1.0
+Epoch: 32/50, Loss: 0.0719, Accuracy: 1.0
+Epoch: 33/50, Loss: 0.0674, Accuracy: 1.0
+Epoch: 34/50, Loss: 0.0634, Accuracy: 1.0
+Epoch: 35/50, Loss: 0.0598, Accuracy: 1.0
+Epoch: 36/50, Loss: 0.0564, Accuracy: 1.0
+Epoch: 37/50, Loss: 0.0533, Accuracy: 1.0
+Epoch: 38/50, Loss: 0.0505, Accuracy: 1.0
+Epoch: 39/50, Loss: 0.0479, Accuracy: 1.0
+Epoch: 40/50, Loss: 0.0455, Accuracy: 1.0
+Epoch: 41/50, Loss: 0.0433, Accuracy: 1.0
+Epoch: 42/50, Loss: 0.0413, Accuracy: 1.0
+Epoch: 43/50, Loss: 0.0394, Accuracy: 1.0
+Epoch: 44/50, Loss: 0.0376, Accuracy: 1.0
+Epoch: 45/50, Loss: 0.036, Accuracy: 1.0
+Epoch: 46/50, Loss: 0.0345, Accuracy: 1.0
+Epoch: 47/50, Loss: 0.0331, Accuracy: 1.0
+Epoch: 48/50, Loss: 0.0318, Accuracy: 1.0
+Epoch: 49/50, Loss: 0.0306, Accuracy: 1.0
+Epoch: 50/50, Loss: 0.0295, Accuracy: 1.0
+BCE: 0.0258, Accuracy: 1.0, Fit time: 1.2503 seconds
+.
+tests/test_multi_classification.py 
+Multi classification. Testing on full iris dataset (3 species)
+Epoch: 1/50, Loss: 1.0811, Accuracy: 0.4696
+Epoch: 2/50, Loss: 0.9458, Accuracy: 0.7652
+Epoch: 3/50, Loss: 0.8733, Accuracy: 0.7913
+Epoch: 4/50, Loss: 0.8314, Accuracy: 0.8174
+Epoch: 5/50, Loss: 0.8123, Accuracy: 0.8435
+Epoch: 6/50, Loss: 0.7945, Accuracy: 0.8696
+Epoch: 7/50, Loss: 0.781, Accuracy: 0.8957
+Epoch: 8/50, Loss: 0.7641, Accuracy: 0.8522
+Epoch: 9/50, Loss: 0.7515, Accuracy: 0.913
+Epoch: 10/50, Loss: 0.7282, Accuracy: 0.9304
+Epoch: 11/50, Loss: 0.7218, Accuracy: 0.8957
+Epoch: 12/50, Loss: 0.6988, Accuracy: 0.9304
+Epoch: 13/50, Loss: 0.6999, Accuracy: 0.9304
+Epoch: 14/50, Loss: 0.6817, Accuracy: 0.9304
+Epoch: 15/50, Loss: 0.6708, Accuracy: 0.9304
+Epoch: 16/50, Loss: 0.6584, Accuracy: 0.9391
+Epoch: 17/50, Loss: 0.6556, Accuracy: 0.9565
+Epoch: 18/50, Loss: 0.6536, Accuracy: 0.9565
+Epoch: 19/50, Loss: 0.6364, Accuracy: 0.9652
+Epoch: 20/50, Loss: 0.6427, Accuracy: 0.9304
+Epoch: 21/50, Loss: 0.6343, Accuracy: 0.9478
+Epoch: 22/50, Loss: 0.6346, Accuracy: 0.9391
+Epoch: 23/50, Loss: 0.6208, Accuracy: 0.9739
+Epoch: 24/50, Loss: 0.632, Accuracy: 0.9565
+Epoch: 25/50, Loss: 0.6235, Accuracy: 0.9652
+Epoch: 26/50, Loss: 0.6245, Accuracy: 0.9391
+Epoch: 27/50, Loss: 0.6263, Accuracy: 0.9565
+Epoch: 28/50, Loss: 0.6295, Accuracy: 0.9565
+Epoch: 29/50, Loss: 0.6208, Accuracy: 0.9565
+Epoch: 30/50, Loss: 0.6159, Accuracy: 0.9652
+Epoch: 31/50, Loss: 0.6089, Accuracy: 0.9565
+Epoch: 32/50, Loss: 0.6178, Accuracy: 0.9391
+Epoch: 33/50, Loss: 0.6151, Accuracy: 0.9739
+Epoch: 34/50, Loss: 0.6107, Accuracy: 0.9478
+Epoch: 35/50, Loss: 0.6171, Accuracy: 0.9565
+Epoch: 36/50, Loss: 0.6154, Accuracy: 0.9826
+Epoch: 37/50, Loss: 0.5973, Accuracy: 0.9652
+Epoch: 38/50, Loss: 0.609, Accuracy: 0.9652
+Epoch: 39/50, Loss: 0.611, Accuracy: 0.9652
+Epoch: 40/50, Loss: 0.6131, Accuracy: 0.9565
+Epoch: 41/50, Loss: 0.6109, Accuracy: 0.9478
+Epoch: 42/50, Loss: 0.6118, Accuracy: 0.9652
+Epoch: 43/50, Loss: 0.5991, Accuracy: 0.9826
+Epoch: 44/50, Loss: 0.6151, Accuracy: 0.9478
+Epoch: 45/50, Loss: 0.6053, Accuracy: 0.9652
+Epoch: 46/50, Loss: 0.61, Accuracy: 0.9826
+Epoch: 47/50, Loss: 0.6005, Accuracy: 0.9739
+Epoch: 48/50, Loss: 0.6041, Accuracy: 0.9739
+Epoch: 49/50, Loss: 0.606, Accuracy: 0.9565
+Epoch: 50/50, Loss: 0.6021, Accuracy: 0.9739
+CCE: 0.5783, Accuracy: 1.0, Fit time: 1.7031 seconds
+.
+Multi classification. Testing on digits dataset
+Epoch: 1/20, Loss: 2.1376, Accuracy: 0.4805
+Epoch: 2/20, Loss: 1.9571, Accuracy: 0.7755
+Epoch: 3/20, Loss: 1.8708, Accuracy: 0.8455
+Epoch: 4/20, Loss: 1.8127, Accuracy: 0.876
+Epoch: 5/20, Loss: 1.7691, Accuracy: 0.9065
+Epoch: 6/20, Loss: 1.7397, Accuracy: 0.9175
+Epoch: 7/20, Loss: 1.7161, Accuracy: 0.927
+Epoch: 8/20, Loss: 1.6956, Accuracy: 0.933
+Epoch: 9/20, Loss: 1.6828, Accuracy: 0.9395
+Epoch: 10/20, Loss: 1.6669, Accuracy: 0.947
+Epoch: 11/20, Loss: 1.6558, Accuracy: 0.9525
+Epoch: 12/20, Loss: 1.6447, Accuracy: 0.956
+Epoch: 13/20, Loss: 1.6376, Accuracy: 0.9595
+Epoch: 14/20, Loss: 1.627, Accuracy: 0.966
+Epoch: 15/20, Loss: 1.6204, Accuracy: 0.9675
+Epoch: 16/20, Loss: 1.6139, Accuracy: 0.97
+Epoch: 17/20, Loss: 1.6074, Accuracy: 0.972
+Epoch: 18/20, Loss: 1.602, Accuracy: 0.974
+Epoch: 19/20, Loss: 1.5966, Accuracy: 0.979
+Epoch: 20/20, Loss: 1.5904, Accuracy: 0.979
+CCE: 1.6406, Accuracy: 0.92, Fit time: 21.6939 seconds
+.
+tests/test_regression.py 
+Regression. Testing func_quadratic
+Epoch: 1/50, Loss: 13.5262, R2 score: 0.4417
+Epoch: 2/50, Loss: 1.6751, R2 score: 0.9309
+Epoch: 3/50, Loss: 1.0717, R2 score: 0.9558
+Epoch: 4/50, Loss: 0.9152, R2 score: 0.9622
+Epoch: 5/50, Loss: 0.7106, R2 score: 0.9707
+Epoch: 6/50, Loss: 0.6319, R2 score: 0.9739
+Epoch: 7/50, Loss: 0.506, R2 score: 0.9791
+Epoch: 8/50, Loss: 0.4816, R2 score: 0.9801
+Epoch: 9/50, Loss: 0.4381, R2 score: 0.9819
+Epoch: 10/50, Loss: 0.4551, R2 score: 0.9812
+Epoch: 11/50, Loss: 0.4259, R2 score: 0.9824
+Epoch: 12/50, Loss: 0.3389, R2 score: 0.986
+Epoch: 13/50, Loss: 0.3156, R2 score: 0.987
+Epoch: 14/50, Loss: 0.3511, R2 score: 0.9855
+Epoch: 15/50, Loss: 0.304, R2 score: 0.9875
+Epoch: 16/50, Loss: 0.3121, R2 score: 0.9871
+Epoch: 17/50, Loss: 0.2912, R2 score: 0.988
+Epoch: 18/50, Loss: 0.2782, R2 score: 0.9885
+Epoch: 19/50, Loss: 0.2485, R2 score: 0.9897
+Epoch: 20/50, Loss: 0.2531, R2 score: 0.9896
+Epoch: 21/50, Loss: 0.2252, R2 score: 0.9907
+Epoch: 22/50, Loss: 0.2079, R2 score: 0.9914
+Epoch: 23/50, Loss: 0.1449, R2 score: 0.994
+Epoch: 24/50, Loss: 0.2041, R2 score: 0.9916
+Epoch: 25/50, Loss: 0.1776, R2 score: 0.9927
+Epoch: 26/50, Loss: 0.1755, R2 score: 0.9928
+Epoch: 27/50, Loss: 0.169, R2 score: 0.993
+Epoch: 28/50, Loss: 0.1496, R2 score: 0.9938
+Epoch: 29/50, Loss: 0.1343, R2 score: 0.9945
+Epoch: 30/50, Loss: 0.1523, R2 score: 0.9937
+Epoch: 31/50, Loss: 0.1313, R2 score: 0.9946
+Epoch: 32/50, Loss: 0.087, R2 score: 0.9964
+Epoch: 33/50, Loss: 0.1179, R2 score: 0.9951
+Epoch: 34/50, Loss: 0.0936, R2 score: 0.9961
+Epoch: 35/50, Loss: 0.0892, R2 score: 0.9963
+Epoch: 36/50, Loss: 0.0852, R2 score: 0.9965
+Epoch: 37/50, Loss: 0.0939, R2 score: 0.9961
+Epoch: 38/50, Loss: 0.0883, R2 score: 0.9964
+Epoch: 39/50, Loss: 0.063, R2 score: 0.9974
+Epoch: 40/50, Loss: 0.079, R2 score: 0.9967
+Epoch: 41/50, Loss: 0.0675, R2 score: 0.9972
+Epoch: 42/50, Loss: 0.0761, R2 score: 0.9969
+Epoch: 43/50, Loss: 0.06, R2 score: 0.9975
+Epoch: 44/50, Loss: 0.06, R2 score: 0.9975
+Epoch: 45/50, Loss: 0.0608, R2 score: 0.9975
+Epoch: 46/50, Loss: 0.062, R2 score: 0.9974
+Epoch: 47/50, Loss: 0.045, R2 score: 0.9981
+Epoch: 48/50, Loss: 0.0477, R2 score: 0.998
+Epoch: 49/50, Loss: 0.0453, R2 score: 0.9981
+Epoch: 50/50, Loss: 0.0424, R2 score: 0.9982
+Test dataset. Loss: 0.0298, R2 score: 0.9988
+MSE: 0.0298, r2: 0.9988, Fit time: 1.5387 seconds
+.
+Regression. Testing func_linear
+Epoch: 1/50, Loss: 2.6196, R2 score: 0.3838
+Epoch: 2/50, Loss: 0.572, R2 score: 0.8654
+Epoch: 3/50, Loss: 0.066, R2 score: 0.9845
+Epoch: 4/50, Loss: 0.0232, R2 score: 0.9945
+Epoch: 5/50, Loss: 0.0167, R2 score: 0.9961
+Epoch: 6/50, Loss: 0.0127, R2 score: 0.997
+Epoch: 7/50, Loss: 0.01, R2 score: 0.9976
+Epoch: 8/50, Loss: 0.008, R2 score: 0.9981
+Epoch: 9/50, Loss: 0.0066, R2 score: 0.9984
+Epoch: 10/50, Loss: 0.0056, R2 score: 0.9987
+Epoch: 11/50, Loss: 0.0048, R2 score: 0.9989
+Epoch: 12/50, Loss: 0.0041, R2 score: 0.999
+Epoch: 13/50, Loss: 0.0036, R2 score: 0.9992
+Epoch: 14/50, Loss: 0.0032, R2 score: 0.9992
+Epoch: 15/50, Loss: 0.0029, R2 score: 0.9993
+Epoch: 16/50, Loss: 0.0026, R2 score: 0.9994
+Epoch: 17/50, Loss: 0.0023, R2 score: 0.9995
+Epoch: 18/50, Loss: 0.0021, R2 score: 0.9995
+Epoch: 19/50, Loss: 0.002, R2 score: 0.9995
+Epoch: 20/50, Loss: 0.0018, R2 score: 0.9996
+Epoch: 21/50, Loss: 0.0017, R2 score: 0.9996
+Epoch: 22/50, Loss: 0.0015, R2 score: 0.9996
+Epoch: 23/50, Loss: 0.0014, R2 score: 0.9997
+Epoch: 24/50, Loss: 0.0013, R2 score: 0.9997
+Epoch: 25/50, Loss: 0.0012, R2 score: 0.9997
+Epoch: 26/50, Loss: 0.0011, R2 score: 0.9997
+Epoch: 27/50, Loss: 0.0011, R2 score: 0.9997
+Epoch: 28/50, Loss: 0.001, R2 score: 0.9998
+Epoch: 29/50, Loss: 0.0009, R2 score: 0.9998
+Epoch: 30/50, Loss: 0.0009, R2 score: 0.9998
+Epoch: 31/50, Loss: 0.0008, R2 score: 0.9998
+Epoch: 32/50, Loss: 0.0008, R2 score: 0.9998
+Epoch: 33/50, Loss: 0.0007, R2 score: 0.9998
+Epoch: 34/50, Loss: 0.0007, R2 score: 0.9998
+Epoch: 35/50, Loss: 0.0007, R2 score: 0.9998
+Epoch: 36/50, Loss: 0.0006, R2 score: 0.9998
+Epoch: 37/50, Loss: 0.0006, R2 score: 0.9999
+Epoch: 38/50, Loss: 0.0006, R2 score: 0.9999
+Epoch: 39/50, Loss: 0.0006, R2 score: 0.9999
+Epoch: 40/50, Loss: 0.0005, R2 score: 0.9999
+Epoch: 41/50, Loss: 0.0005, R2 score: 0.9999
+Epoch: 42/50, Loss: 0.0005, R2 score: 0.9999
+Epoch: 43/50, Loss: 0.0005, R2 score: 0.9999
+Epoch: 44/50, Loss: 0.0005, R2 score: 0.9999
+Epoch: 45/50, Loss: 0.0005, R2 score: 0.9999
+Epoch: 46/50, Loss: 0.0004, R2 score: 0.9999
+Epoch: 47/50, Loss: 0.0004, R2 score: 0.9999
+Epoch: 48/50, Loss: 0.0004, R2 score: 0.9999
+Epoch: 49/50, Loss: 0.0004, R2 score: 0.9999
+Epoch: 50/50, Loss: 0.0004, R2 score: 0.9999
+Test dataset. Loss: 0.0004, R2 score: 0.9999
+MSE: 0.0004, r2: 0.9999, Fit time: 1.5058 seconds
+.
+Regression. Testing func_quadratic_3d
+Epoch: 1/20, Loss: 2.1756, R2 score: 0.0952
+Epoch: 2/20, Loss: 1.0954, R2 score: 0.5444
+Epoch: 3/20, Loss: 0.743, R2 score: 0.691
+Epoch: 4/20, Loss: 0.4506, R2 score: 0.8126
+Epoch: 5/20, Loss: 0.2413, R2 score: 0.8997
+Epoch: 6/20, Loss: 0.1241, R2 score: 0.9484
+Epoch: 7/20, Loss: 0.0675, R2 score: 0.9719
+Epoch: 8/20, Loss: 0.0431, R2 score: 0.9821
+Epoch: 9/20, Loss: 0.0326, R2 score: 0.9865
+Epoch: 10/20, Loss: 0.0271, R2 score: 0.9887
+Epoch: 11/20, Loss: 0.0238, R2 score: 0.9901
+Epoch: 12/20, Loss: 0.0214, R2 score: 0.9911
+Epoch: 13/20, Loss: 0.0197, R2 score: 0.9918
+Epoch: 14/20, Loss: 0.0181, R2 score: 0.9925
+Epoch: 15/20, Loss: 0.0168, R2 score: 0.993
+Epoch: 16/20, Loss: 0.0156, R2 score: 0.9935
+Epoch: 17/20, Loss: 0.0145, R2 score: 0.994
+Epoch: 18/20, Loss: 0.0135, R2 score: 0.9944
+Epoch: 19/20, Loss: 0.0128, R2 score: 0.9947
+Epoch: 20/20, Loss: 0.0119, R2 score: 0.9951
+Test dataset. Loss: 0.0125, R2 score: 0.9951
+MSE: 0.0125, r2: 0.9951, Fit time: 26.8006 seconds
+.
+Regression. Testing func_sin_plus_cos_3d
+Epoch: 1/20, Loss: 0.302, R2 score: 0.3754
+Epoch: 2/20, Loss: 0.1139, R2 score: 0.7645
+Epoch: 3/20, Loss: 0.0604, R2 score: 0.8752
+Epoch: 4/20, Loss: 0.0321, R2 score: 0.9337
+Epoch: 5/20, Loss: 0.0181, R2 score: 0.9626
+Epoch: 6/20, Loss: 0.0158, R2 score: 0.9672
+Epoch: 7/20, Loss: 0.0087, R2 score: 0.982
+Epoch: 8/20, Loss: 0.0073, R2 score: 0.9848
+Epoch: 9/20, Loss: 0.0071, R2 score: 0.9853
+Epoch: 10/20, Loss: 0.006, R2 score: 0.9875
+Epoch: 11/20, Loss: 0.0047, R2 score: 0.9903
+Epoch: 12/20, Loss: 0.005, R2 score: 0.9897
+Epoch: 13/20, Loss: 0.0053, R2 score: 0.989
+Epoch: 14/20, Loss: 0.0039, R2 score: 0.992
+Epoch: 15/20, Loss: 0.0035, R2 score: 0.9928
+Epoch: 16/20, Loss: 0.0035, R2 score: 0.9927
+Epoch: 17/20, Loss: 0.0031, R2 score: 0.9935
+Epoch: 18/20, Loss: 0.0023, R2 score: 0.9952
+Epoch: 19/20, Loss: 0.0022, R2 score: 0.9955
+Epoch: 20/20, Loss: 0.0022, R2 score: 0.9955
+Test dataset. Loss: 0.004, R2 score: 0.9918
+MSE: 0.004, r2: 0.9918, Fit time: 27.0536 seconds
 .
 
-======================= 3 passed, 4 deselected in 5.55s ========================
+========================= 9 passed in 87.67s (0:01:27) =========================

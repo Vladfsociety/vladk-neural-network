@@ -26,15 +26,11 @@ class Linear:
         return x
 
     def derivative(self, x):
-
-        # print('x')
-        # print(x)
-
         return torch.ones_like(x)
 
 
 class Sigmoid:
-    def __init__(self, epsilon=1e-12, min_arg_value=-100, max_arg_value=100):
+    def __init__(self, epsilon=1e-06, min_arg_value=-100, max_arg_value=100):
         self.__epsilon       = epsilon
         self.__min_arg_value = min_arg_value
         self.__max_arg_value = max_arg_value
@@ -51,4 +47,4 @@ class Sigmoid:
 
         derivative = value * (torch.ones_like(value) - value)
 
-        return torch.clamp(derivative, min=self.__epsilon, max=1-self.__epsilon)
+        return torch.clamp(derivative, min=self.__epsilon, max=1.0 - self.__epsilon)
