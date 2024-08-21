@@ -18,7 +18,9 @@ class LeakyRelu:
         return f.leaky_relu(x, negative_slope=self.__negative_slope)
 
     def derivative(self, x):
-        return torch.where(x > 0, torch.ones_like(x), torch.full_like(x, self.__negative_slope))
+        return torch.where(
+            x > 0, torch.ones_like(x), torch.full_like(x, self.__negative_slope)
+        )
 
 
 class Linear:
@@ -31,7 +33,7 @@ class Linear:
 
 class Sigmoid:
     def __init__(self, epsilon=1e-06, min_arg_value=-100, max_arg_value=100):
-        self.__epsilon       = epsilon
+        self.__epsilon = epsilon
         self.__min_arg_value = min_arg_value
         self.__max_arg_value = max_arg_value
 

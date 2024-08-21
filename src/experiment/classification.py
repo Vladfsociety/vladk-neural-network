@@ -108,7 +108,7 @@ from src.model.metric import AccuracyOneHot
 #     return random.shuffle(train_dataset)[:1000], random.shuffle(test_dataset)[:1000] # ?????????????
 
 
-#train_dataset, test_dataset = generate_train_test_data()
+# train_dataset, test_dataset = generate_train_test_data()
 
 # start_time = time.time()
 #
@@ -512,27 +512,24 @@ from src.model.metric import AccuracyOneHot
 # print("--- %s seconds ---" % (time.time() - start_time))
 
 
-
-
-
-
 def plot_digit(image, index):
-    image = torch.tensor(image['input']).numpy().reshape(28, 28)
+    image = torch.tensor(image["input"]).numpy().reshape(28, 28)
     plt.figure()
-    plt.imshow(image, cmap='gray')
-    plt.title('MNIST Digit:')
-    plt.axis('off')  # Hide axis
+    plt.imshow(image, cmap="gray")
+    plt.title("MNIST Digit:")
+    plt.axis("off")  # Hide axis
     plt.show()
-    plt.savefig('results/digits/test/' + str(index) + '.jpg')
-    #plt.show()
+    plt.savefig("results/digits/test/" + str(index) + ".jpg")
+    # plt.show()
 
     return
+
 
 def generate_train_test_data_digits():
 
     train_dataset = []
 
-    train = pd.read_csv('data/digits/train.csv', header=0, nrows=5000)
+    train = pd.read_csv("data/digits/train.csv", header=0, nrows=5000)
 
     output = [1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 
@@ -540,15 +537,20 @@ def generate_train_test_data_digits():
         return vector[-rotate_by:] + vector[:-rotate_by]
 
     for index in train.index:
-        input_values = [float(val) / 255.0 for val in train.loc[index].drop('label').values]
-        train_dataset.append({
-            'input': input_values,
-            'output': rotate_vector(output, int(train.loc[index]['label']))
-        })
+        input_values = [
+            float(val) / 255.0 for val in train.loc[index].drop("label").values
+        ]
+        train_dataset.append(
+            {
+                "input": input_values,
+                "output": rotate_vector(output, int(train.loc[index]["label"])),
+            }
+        )
 
     random.shuffle(train_dataset)
 
     return train_dataset[:2000], train_dataset[2000:2500]
+
 
 random.seed(43)
 
@@ -560,7 +562,7 @@ layers = [
     FullyConnected(256, LeakyRelu()),
     FullyConnected(128, LeakyRelu()),
     FullyConnected(64, LeakyRelu()),
-    FullyConnected(10, Linear())
+    FullyConnected(10, Linear()),
 ]
 nn = NeuralNetwork(
     Input(784),
@@ -568,7 +570,7 @@ nn = NeuralNetwork(
     optimizer=Adam(learning_rate=0.001),
     loss=CategoricalCrossEntropy(),
     metric=AccuracyOneHot(),
-    convert_prediction='argmax'
+    convert_prediction="argmax",
 )
 
 epochs = 20
@@ -577,4 +579,3 @@ nn.fit(train_dataset, test_dataset, epochs=epochs, batch_size=8, verbose=True)
 prediction = nn.predict(test_dataset)
 
 print("--- %s seconds ---" % (time.time() - start_time))
-

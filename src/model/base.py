@@ -3,16 +3,18 @@ import torch
 
 
 class NeuralNetwork:
-    def __init__(self, input_layer, layers, optimizer, loss, metric, convert_prediction=None):
-        self.__input_layer        = input_layer
-        self.__layers_objects     = layers
-        self.__optimizer          = optimizer
-        self.__loss               = loss
-        self.__metric             = metric
+    def __init__(
+        self, input_layer, layers, optimizer, loss, metric, convert_prediction=None
+    ):
+        self.__input_layer = input_layer
+        self.__layers_objects = layers
+        self.__optimizer = optimizer
+        self.__loss = loss
+        self.__metric = metric
         self.__convert_prediction = convert_prediction
-        self.__layers             = []
-        self.__prediction         = []
-        self.__actual             = []
+        self.__layers = []
+        self.__prediction = []
+        self.__actual = []
         self.__init_layers()
         self.__optimizer.initialize(self.__layers)
 
@@ -36,9 +38,9 @@ class NeuralNetwork:
 
     def __apply_convert_prediction(self, prediction):
 
-        if self.__convert_prediction == 'binary':
+        if self.__convert_prediction == "binary":
             prediction = self.__binary_convert(prediction)
-        elif self.__convert_prediction == 'argmax':
+        elif self.__convert_prediction == "argmax":
             prediction = self.__argmax_convert(prediction)
 
         return prediction
@@ -49,40 +51,44 @@ class NeuralNetwork:
 
         while layer_index < len(self.__layers):
 
-            self.__layers[layer_index]['z'] = (
-                torch.matmul(self.__layers[layer_index]['w'], self.__layers[layer_index - 1]['a'])
-                + self.__layers[layer_index]['b']
+            self.__layers[layer_index]["z"] = (
+                torch.matmul(
+                    self.__layers[layer_index]["w"], self.__layers[layer_index - 1]["a"]
+                )
+                + self.__layers[layer_index]["b"]
             )
-            self.__layers[layer_index]['a'] = (
-                self.__layers[layer_index]['activation_function'].apply(self.__layers[layer_index]['z'])
-            )
+            self.__layers[layer_index]["a"] = self.__layers[layer_index][
+                "activation_function"
+            ].apply(self.__layers[layer_index]["z"])
 
             layer_index += 1
 
-        return self.__layers[-1]['a']
+        return self.__layers[-1]["a"]
 
     def __backward(self, predict, actual):
 
-        grads_w_update = [torch.zeros_like(layer['w']) for layer in self.__layers[1:]]
-        grads_b_update = [torch.zeros_like(layer['b']) for layer in self.__layers[1:]]
+        grads_w_update = [torch.zeros_like(layer["w"]) for layer in self.__layers[1:]]
+        grads_b_update = [torch.zeros_like(layer["b"]) for layer in self.__layers[1:]]
 
         layer_index = len(self.__layers) - 1
-        layer_error = torch.zeros_like(self.__layers[-1]['a'])
+        layer_error = torch.zeros_like(self.__layers[-1]["a"])
 
         while layer_index > 0:
 
             if layer_index == len(self.__layers) - 1:
-                layer_error = (
-                    self.__loss.derivative(predict, actual)
-                    * self.__layers[-1]['activation_function'].derivative(self.__layers[-1]['z'])
-                )
+                layer_error = self.__loss.derivative(predict, actual) * self.__layers[
+                    -1
+                ]["activation_function"].derivative(self.__layers[-1]["z"])
             else:
-                layer_error = (
-                    torch.matmul(self.__layers[layer_index + 1]['w'].t(), layer_error)
-                    * self.__layers[layer_index]['activation_function'].derivative(self.__layers[layer_index]['z'])
+                layer_error = torch.matmul(
+                    self.__layers[layer_index + 1]["w"].t(), layer_error
+                ) * self.__layers[layer_index]["activation_function"].derivative(
+                    self.__layers[layer_index]["z"]
                 )
 
-            grads_w_update[layer_index - 1] = (torch.matmul(layer_error, self.__layers[layer_index - 1]['a'].t()))
+            grads_w_update[layer_index - 1] = torch.matmul(
+                layer_error, self.__layers[layer_index - 1]["a"].t()
+            )
             grads_b_update[layer_index - 1] = layer_error
 
             layer_index -= 1
@@ -91,20 +97,20 @@ class NeuralNetwork:
 
     def __process_batch(self, batch):
 
-        grads_w = [torch.zeros_like(layer['w']) for layer in self.__layers[1:]]
-        grads_b = [torch.zeros_like(layer['b']) for layer in self.__layers[1:]]
+        grads_w = [torch.zeros_like(layer["w"]) for layer in self.__layers[1:]]
+        grads_b = [torch.zeros_like(layer["b"]) for layer in self.__layers[1:]]
 
         for sample in batch:
 
-            input_data = sample['input']
+            input_data = sample["input"]
 
-            self.__layers[0]['a'] = torch.tensor(input_data).reshape(len(input_data), 1)
+            self.__layers[0]["a"] = torch.tensor(input_data).reshape(len(input_data), 1)
 
             predict = self.__forward()
 
             self.__prediction.append(predict)
 
-            output = torch.tensor(sample['output']).unsqueeze(1)
+            output = torch.tensor(sample["output"]).unsqueeze(1)
 
             self.__actual.append(output)
 
@@ -117,7 +123,9 @@ class NeuralNetwork:
 
         return
 
-    def fit(self, train_dataset, test_dataset=None, epochs=10, batch_size=1, verbose=True):
+    def fit(
+        self, train_dataset, test_dataset=None, epochs=10, batch_size=1, verbose=True
+    ):
 
         train_dataset = train_dataset.copy()
 
@@ -127,7 +135,10 @@ class NeuralNetwork:
             self.__actual = []
 
             random.shuffle(train_dataset)
-            batches = [train_dataset[k:k + batch_size] for k in range(0, len(train_dataset), batch_size)]
+            batches = [
+                train_dataset[k : k + batch_size]
+                for k in range(0, len(train_dataset), batch_size)
+            ]
 
             for batch in batches:
                 self.__process_batch(batch)
@@ -138,8 +149,12 @@ class NeuralNetwork:
             if verbose:
                 loss = self.loss(self.__prediction, self.__actual)
                 metric_name = self.__metric.name()
-                metric_value = self.metric(self.__apply_convert_prediction(self.__prediction), self.__actual)
-                print(f"Epoch: {epoch+1}/{epochs}, Loss: {loss}, {metric_name}: {metric_value}")
+                metric_value = self.metric(
+                    self.__apply_convert_prediction(self.__prediction), self.__actual
+                )
+                print(
+                    f"Epoch: {epoch+1}/{epochs}, Loss: {loss}, {metric_name}: {metric_value}"
+                )
 
         if test_dataset and verbose:
 
@@ -147,18 +162,22 @@ class NeuralNetwork:
             self.__actual = []
 
             for test_sample in test_dataset:
-                input_data = test_sample['input']
-                self.__layers[0]['a'] = torch.tensor(input_data).reshape(len(input_data), 1)
+                input_data = test_sample["input"]
+                self.__layers[0]["a"] = torch.tensor(input_data).reshape(
+                    len(input_data), 1
+                )
                 predict = self.__forward()
                 self.__prediction.append(predict)
-                self.__actual.append(torch.tensor(test_sample['output']).unsqueeze(1))
+                self.__actual.append(torch.tensor(test_sample["output"]).unsqueeze(1))
 
             self.__prediction = torch.stack(self.__prediction)
             self.__actual = torch.stack(self.__actual)
 
             loss = self.loss(self.__prediction, self.__actual)
             metric_name = self.__metric.name()
-            metric_value = self.metric(self.__apply_convert_prediction(self.__prediction), self.__actual)
+            metric_value = self.metric(
+                self.__apply_convert_prediction(self.__prediction), self.__actual
+            )
             print(f"Test dataset. Loss: {loss}, {metric_name}: {metric_value}")
 
         return
@@ -168,8 +187,8 @@ class NeuralNetwork:
         self.__prediction = []
 
         for sample in data:
-            input_data = sample['input']
-            self.__layers[0]['a'] = torch.tensor(input_data).reshape(len(input_data), 1)
+            input_data = sample["input"]
+            self.__layers[0]["a"] = torch.tensor(input_data).reshape(len(input_data), 1)
             predict = self.__forward()
             self.__prediction.append(predict)
 

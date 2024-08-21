@@ -19,6 +19,7 @@ jupyterlab = "^4.2.4"
 pytest = "^8.3.2"
 pandas = "^2.2.2"
 ruff = "^0.6.1"
+black = "^24.8.0"
 
 [build-system]
 requires = ["poetry-core"]
@@ -35,5 +36,25 @@ markers = [
 ]
 
 [tool.ruff]
+line-length = 88
 lint.select = ["I", "SIM", "B", "UP", "F", "E", "W"]
 lint.ignore = ["E501"]
+
+[tool.black]
+line-length = 88
+target-version = ['py38']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
