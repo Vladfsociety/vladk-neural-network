@@ -38,7 +38,7 @@ def run_regression_test(
     learning_rate=0.001,
     mse_threshold=0.1,
     r2_threshold=0.975,
-    fit_time_threshold=2.0,
+    fit_time_threshold=5.0,
 ):
     print(f"\nRegression. Testing {func.__name__}")
 

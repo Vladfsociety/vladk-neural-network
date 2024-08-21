@@ -126,10 +126,11 @@ class NeuralNetwork:
     def fit(
         self, train_dataset, test_dataset=None, epochs=10, batch_size=1, verbose=True
     ):
-
         train_dataset = train_dataset.copy()
 
-        for epoch in range(epochs):
+        history = []
+
+        for epoch in range(1, epochs + 1):
 
             self.__prediction = []
             self.__actual = []
@@ -146,41 +147,63 @@ class NeuralNetwork:
             self.__prediction = torch.stack(self.__prediction)
             self.__actual = torch.stack(self.__actual)
 
-            if verbose:
-                loss = self.loss(self.__prediction, self.__actual)
-                metric_name = self.__metric.name()
-                metric_value = self.metric(
-                    self.__apply_convert_prediction(self.__prediction), self.__actual
-                )
-                print(
-                    f"Epoch: {epoch+1}/{epochs}, Loss: {loss}, {metric_name}: {metric_value}"
-                )
-
-        if test_dataset and verbose:
-
-            self.__prediction = []
-            self.__actual = []
-
-            for test_sample in test_dataset:
-                input_data = test_sample["input"]
-                self.__layers[0]["a"] = torch.tensor(input_data).reshape(
-                    len(input_data), 1
-                )
-                predict = self.__forward()
-                self.__prediction.append(predict)
-                self.__actual.append(torch.tensor(test_sample["output"]).unsqueeze(1))
-
-            self.__prediction = torch.stack(self.__prediction)
-            self.__actual = torch.stack(self.__actual)
-
-            loss = self.loss(self.__prediction, self.__actual)
-            metric_name = self.__metric.name()
-            metric_value = self.metric(
+            train_loss = self.loss(self.__prediction, self.__actual)
+            train_metric = self.metric(
                 self.__apply_convert_prediction(self.__prediction), self.__actual
             )
-            print(f"Test dataset. Loss: {loss}, {metric_name}: {metric_value}")
 
-        return
+            epoch_data = {}
+            epoch_data['epoch'] = epoch
+            epoch_data['train_loss'] = train_loss
+            epoch_data['train_metric'] = train_metric
+
+            if test_dataset:
+
+                self.__prediction = []
+                self.__actual = []
+
+                for test_sample in test_dataset:
+                    input_data = test_sample["input"]
+                    self.__layers[0]["a"] = torch.tensor(input_data).reshape(
+                        len(input_data), 1
+                    )
+                    predict = self.__forward()
+                    self.__prediction.append(predict)
+                    self.__actual.append(torch.tensor(test_sample["output"]).unsqueeze(1))
+
+                self.__prediction = torch.stack(self.__prediction)
+                self.__actual = torch.stack(self.__actual)
+
+                test_loss = self.loss(self.__prediction, self.__actual)
+                test_metric = self.metric(
+                    self.__apply_convert_prediction(self.__prediction), self.__actual
+                )
+
+                epoch_data['test_loss'] = test_loss
+                epoch_data['test_metric'] = test_metric
+
+            if verbose:
+
+                metric_name = self.__metric.name()
+
+                if test_dataset:
+                    print(
+                        f"Epoch: {epoch_data['epoch']}/{epochs}, "
+                        f"train loss: {epoch_data['train_loss']}, "
+                        f"train {metric_name}: {epoch_data['train_metric']}, "
+                        f"test loss: {epoch_data['test_loss']}, "
+                        f"test {metric_name}: {epoch_data['test_metric']}"
+                    )
+                else:
+                    print(
+                        f"Epoch: {epoch_data['epoch']}/{epochs}, "
+                        f"train loss: {epoch_data['train_loss']}, "
+                        f"train {metric_name}: {epoch_data['train_metric']}"
+                    )
+
+            history.append(epoch_data)
+
+        return history
 
     def predict(self, data, with_raw_prediction=False):
 
