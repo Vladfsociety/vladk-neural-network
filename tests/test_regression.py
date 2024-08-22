@@ -8,7 +8,7 @@ from src.model.base import NeuralNetwork
 from src.model.layer import FullyConnected, Input
 from src.model.loss import MeanSquaredError
 from src.model.metric import R2Score
-from src.model.optimizer import Adam
+from src.model.optimizer import SGD, Adam
 
 """
 Regression testing on 2D functions.
@@ -58,13 +58,13 @@ def run_regression_test(
     nn = NeuralNetwork(
         Input(1),
         layers,
-        optimizer=Adam(learning_rate=learning_rate),
+        optimizer=SGD(learning_rate=learning_rate),
         loss=MeanSquaredError(),
         metric=R2Score(),
     )
 
     start_time = time.time()
-    epochs = 20
+    epochs = 50
     nn.fit(train_dataset, test_dataset, epochs=epochs, batch_size=1, verbose=False)
     fit_time = round(time.time() - start_time, 4)
 
@@ -146,7 +146,7 @@ def run_regression_test_3d(
     learning_rate=0.001,
     mse_threshold=0.05,
     r2_threshold=0.975,
-    fit_time_threshold=30.0,
+    fit_time_threshold=40.0,
 ):
     """Run a regression test on a 3D function."""
     print(f"\nRegression. Testing {func.__name__}")

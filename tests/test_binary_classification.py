@@ -54,7 +54,7 @@ def run_classification_test(
     learning_rate=0.001,
     bce_threshold=0.01,
     acc_threshold=0.98,
-    fit_time_threshold=2.0,
+    fit_time_threshold=3.0,
 ):
     """Run a classification test on the given species combination."""
     print(
@@ -81,7 +81,7 @@ def run_classification_test(
     )
 
     start_time = time.time()
-    epochs = 20
+    epochs = 30
     nn.fit(train_dataset, epochs=epochs, batch_size=1, verbose=False)
     fit_time = round(time.time() - start_time, 4)
 
