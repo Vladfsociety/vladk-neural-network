@@ -1,15 +1,11 @@
-import pprint
-
 import torch
 
 
 class R2Score:
-
     def name(self):
         return "R2 score"
 
     def value(self, prediction, actual):
-
         ss_res = torch.sum((actual - prediction) ** 2)
         ss_tot = torch.sum((actual - torch.mean(actual)) ** 2)
 
@@ -17,7 +13,6 @@ class R2Score:
 
 
 class Accuracy:
-
     def name(self):
         return "Accuracy"
 
@@ -26,7 +21,6 @@ class Accuracy:
 
 
 class AccuracyOneHot:
-
     def name(self):
         return "Accuracy"
 

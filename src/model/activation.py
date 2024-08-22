@@ -38,15 +38,10 @@ class Sigmoid:
         self.__max_arg_value = max_arg_value
 
     def apply(self, x):
-
         x = torch.clamp(x, min=self.__min_arg_value, max=self.__max_arg_value)
-
         return f.sigmoid(x)
 
     def derivative(self, x):
-
         value = self.apply(x)
-
         derivative = value * (torch.ones_like(value) - value)
-
         return torch.clamp(derivative, min=self.__epsilon, max=1.0 - self.__epsilon)

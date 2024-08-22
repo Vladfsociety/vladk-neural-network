@@ -10,16 +10,15 @@ packages = [
 
 [tool.poetry.dependencies]
 python = "^3.12"
-numpy = "^2.0.1"
 torch = "^2.4.0"
-matplotlib = "^3.9.1.post1"
-jupyterlab = "^4.2.4"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.2"
 pandas = "^2.2.2"
+matplotlib = "^3.9.1.post1"
+jupyterlab = "^4.2.4"
 ruff = "^0.6.1"
-black = "^24.8.0"
+black = {extras = ["jupyter"], version = "^24.8.0"}
 
 [build-system]
 requires = ["poetry-core"]

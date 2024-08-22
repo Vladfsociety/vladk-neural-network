@@ -2,19 +2,28 @@ import torch
 
 
 class SGD:
+    """
+    Stochastic Gradient Descent (SGD) optimizer.
+
+    Performs parameter updates using the SGD optimization algorithm.
+    """
 
     def __init__(self, learning_rate=0.001):
         self.__learning_rate = learning_rate
 
     def initialize(self, layers):
+        """
+        Initialize the optimizer for the given layers. For SGD, no initialization is needed.
+        """
         return
 
     def update(self, layers, delta_w, delta_b, batch_size):
-
+        """
+        Update parameters using SGD.
+        """
         layer_index = len(layers) - 1
 
         while layer_index > 0:
-
             layers[layer_index]["w"] -= (self.__learning_rate / batch_size) * delta_w[
                 layer_index - 1
             ]
@@ -28,6 +37,11 @@ class SGD:
 
 
 class Adam:
+    """
+    Adam optimizer.
+
+    Performs parameter updates using the Adam optimization algorithm with momentum and adaptive learning rates.
+    """
 
     def __init__(self, learning_rate=0.001, beta_1=0.9, beta_2=0.999, epsilon=1e-06):
         self.__learning_rate = learning_rate
@@ -41,9 +55,10 @@ class Adam:
         self.__second_moment_b = []
 
     def initialize(self, layers):
-
+        """
+        Initialize the optimizer for the given layers by setting up moment estimates.
+        """
         for layer in layers[1:]:
-
             self.__first_moment_w.append(torch.zeros_like(layer["w"]))
             self.__first_moment_b.append(torch.zeros_like(layer["b"]))
             self.__second_moment_w.append(torch.zeros_like(layer["w"]))
@@ -52,13 +67,14 @@ class Adam:
         return
 
     def update(self, layers, delta_w, delta_b, batch_size):
-
+        """
+        Update parameters using Adam.
+        """
         self.__timestamp += 1
 
         layer_index = len(layers) - 1
 
         while layer_index > 0:
-
             first_moment_w = self.__get_first_moment_w(layer_index, delta_w)
             second_moment_w = self.__get_second_moment_w(layer_index, delta_w)
 
@@ -78,7 +94,9 @@ class Adam:
         return
 
     def __get_first_moment_w(self, layer_index, delta_w):
-
+        """
+        Compute the first moment estimate for weights.
+        """
         first_moment_w = self.__first_moment_w[layer_index - 1]
         first_moment_w = (
             self.__beta_1 * first_moment_w
@@ -90,7 +108,9 @@ class Adam:
         return first_moment_w / (1.0 - self.__beta_1**self.__timestamp)
 
     def __get_second_moment_w(self, layer_index, delta_w):
-
+        """
+        Compute the second moment estimate for weights.
+        """
         second_moment_w = self.__second_moment_w[layer_index - 1]
         second_moment_w = self.__beta_2 * second_moment_w + (1.0 - self.__beta_2) * (
             delta_w[layer_index - 1] ** 2
@@ -101,7 +121,9 @@ class Adam:
         return second_moment_w / (1.0 - self.__beta_2**self.__timestamp)
 
     def __get_first_moment_b(self, layer_index, delta_b):
-
+        """
+        Compute the first moment estimate for biases.
+        """
         first_moment_b = self.__first_moment_b[layer_index - 1]
         first_moment_b = (
             self.__beta_1 * first_moment_b
@@ -113,7 +135,9 @@ class Adam:
         return first_moment_b / (1.0 - self.__beta_1**self.__timestamp)
 
     def __get_second_moment_b(self, layer_index, delta_b):
-
+        """
+        Compute the second moment estimate for biases.
+        """
         second_moment_b = self.__second_moment_b[layer_index - 1]
         second_moment_b = self.__beta_2 * second_moment_b + (1.0 - self.__beta_2) * (
             delta_b[layer_index - 1] ** 2

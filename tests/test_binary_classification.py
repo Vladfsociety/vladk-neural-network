@@ -1,30 +1,34 @@
-import pytest
-import time
 import random
-import torch
+import time
+
 import pandas as pd
+import pytest
+import torch
 
-from src.model.base import NeuralNetwork
-from src.model.layer import Input, FullyConnected
-from src.model.loss import BinaryCrossEntropy
-from src.model.optimizer import Adam
-from src.model.metric import Accuracy
 from src.model.activation import LeakyRelu, Sigmoid
-
+from src.model.base import NeuralNetwork
+from src.model.layer import FullyConnected, Input
+from src.model.loss import BinaryCrossEntropy
+from src.model.metric import Accuracy
+from src.model.optimizer import Adam
 
 """
-Binary classification on iris dataset
+Binary classification on iris dataset.
 """
 
 
 def get_iris_dataset(species_to_compare, specie_to_exclude):
+    """Load and preprocess the Iris dataset for binary classification."""
     data = pd.read_csv("data/iris/Iris.csv")
     data.drop("Id", axis=1, inplace=True)
     data = data[data["Species"] != specie_to_exclude]
+
     with pd.option_context("future.no_silent_downcasting", True):
         data["Species"] = data["Species"].replace(species_to_compare[0], 0)
         data["Species"] = data["Species"].replace(species_to_compare[1], 1)
+
     data["Species"] = data["Species"].astype("float32")
+
     feature_columns = ["SepalLengthCm", "SepalWidthCm", "PetalLengthCm", "PetalWidthCm"]
     for feature_column in feature_columns:
         data[feature_column] = (data[feature_column] - data[feature_column].min()) / (
@@ -52,6 +56,7 @@ def run_classification_test(
     acc_threshold=0.98,
     fit_time_threshold=2.0,
 ):
+    """Run a classification test on the given species combination."""
     print(
         f"\nBinary classification. Testing {species_combination[0][0]} - {species_combination[0][1]} combination"
     )
@@ -108,7 +113,7 @@ def run_classification_test(
     ],
 )
 def test_classification(species_combination, bce_threshold, acc_threshold):
+    """Test classification performance on different species combinations."""
     run_classification_test(
         species_combination, bce_threshold=bce_threshold, acc_threshold=acc_threshold
     )
-    return

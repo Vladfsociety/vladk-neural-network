@@ -14,7 +14,6 @@ class BinaryCrossEntropy:
         self.__epsilon = epsilon
 
     def value(self, prediction, actual):
-
         prediction = torch.clamp(
             prediction, min=self.__epsilon, max=1.0 - self.__epsilon
         )
@@ -28,7 +27,6 @@ class BinaryCrossEntropy:
         return losses.sum() / prediction.size(0)
 
     def derivative(self, prediction, actual):
-
         prediction = torch.clamp(
             prediction, min=self.__epsilon, max=1.0 - self.__epsilon
         )
@@ -43,9 +41,7 @@ class CategoricalCrossEntropy:
         self.__epsilon = epsilon
 
     def value(self, prediction, actual):
-
         softmax_prediction = torch.softmax(prediction, dim=1)
-
         softmax_prediction = torch.clamp(
             softmax_prediction, min=self.__epsilon, max=1.0 - self.__epsilon
         )

@@ -1,24 +1,24 @@
-import pytest
-import time
 import random
-import torch
+import time
+
 import pandas as pd
+import pytest
+import torch
 
-from src.model.base import NeuralNetwork
-from src.model.layer import Input, FullyConnected
-from src.model.loss import CategoricalCrossEntropy
-from src.model.optimizer import Adam
-from src.model.metric import AccuracyOneHot
 from src.model.activation import LeakyRelu, Linear
-
+from src.model.base import NeuralNetwork
+from src.model.layer import FullyConnected, Input
+from src.model.loss import CategoricalCrossEntropy
+from src.model.metric import AccuracyOneHot
+from src.model.optimizer import Adam
 
 """
-Multi classification on iris dataset
+Multi-class classification on the Iris dataset.
 """
 
 
 def get_iris_dataset():
-
+    """Load and preprocess the Iris dataset for multi-class classification."""
     data = pd.read_csv("data/iris/Iris.csv")
     data.drop("Id", axis=1, inplace=True)
     feature_columns = ["SepalLengthCm", "SepalWidthCm", "PetalLengthCm", "PetalWidthCm"]
@@ -46,7 +46,8 @@ def get_iris_dataset():
 def run_iris_test(
     learning_rate=0.002, cce_threshold=0.7, acc_threshold=0.9, fit_time_threshold=3.0
 ):
-    print(f"\nMulti classification. Testing on full iris dataset (3 species)")
+    """Run a multi-class classification test on the Iris dataset."""
+    print("\nMulti-class classification. Testing on full Iris dataset (3 species)")
 
     train_dataset, test_dataset = get_iris_dataset()
 
@@ -90,22 +91,24 @@ def run_iris_test(
 
 @pytest.mark.multi_classification_iris
 def test_multi_classification_iris():
+    """Test function for multi-class classification on the Iris dataset."""
     run_iris_test()
 
 
 """
-Multi classification on digits dataset
+Multi-class classification on the Digits dataset.
 """
 
 
 def get_digits_dataset():
-
+    """Load and preprocess the Digits dataset for multi-class classification."""
     dataset = []
     train = pd.read_csv("data/digits/train.csv", header=0, nrows=5000)
 
     output = [1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 
     def rotate_vector(vector, rotate_by):
+        """Rotate a one-hot encoded vector to match the digit label."""
         return vector[-rotate_by:] + vector[:-rotate_by]
 
     for index in train.index:
@@ -126,7 +129,8 @@ def get_digits_dataset():
 def run_digits_test(
     learning_rate=0.001, cce_threshold=1.7, acc_threshold=0.875, fit_time_threshold=30.0
 ):
-    print(f"\nMulti classification. Testing on digits dataset")
+    """Run a multi-class classification test on the Digits dataset."""
+    print("\nMulti-class classification. Testing on Digits dataset")
 
     train_dataset, test_dataset = get_digits_dataset()
 
@@ -170,4 +174,5 @@ def run_digits_test(
 
 @pytest.mark.multi_classification_digits
 def test_multi_classification_digits():
+    """Test function for multi-class classification on the Digits dataset."""
     run_digits_test()
