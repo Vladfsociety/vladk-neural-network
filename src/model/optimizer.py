@@ -24,6 +24,10 @@ class SGD:
         layer_index = len(layers) - 1
 
         while layer_index > 0:
+
+            if ((delta_w[layer_index - 1] == 0) and (delta_b[layer_index - 1] == 0)):
+                continue
+
             layers[layer_index]["w"] -= (self.__learning_rate / batch_size) * delta_w[
                 layer_index - 1
             ]

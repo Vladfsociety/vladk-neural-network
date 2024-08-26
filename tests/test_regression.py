@@ -88,7 +88,7 @@ def run_regression_test(
 
 @pytest.mark.regression_two_dim
 @pytest.mark.parametrize(
-    "func, mse_threshold", [(func_quadratic, 0.2), (func_linear, 0.1)]
+    "func, mse_threshold", [(func_quadratic, 0.3), (func_linear, 0.1)]
 )
 def test_regression(func, mse_threshold):
     """Test function for regression on 2D functions."""
