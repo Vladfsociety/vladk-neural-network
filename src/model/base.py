@@ -79,17 +79,17 @@ class NeuralNetwork:
 
                 z = self.__layers[layer_index]["z"].clone()
                 for filter in range(1):
-                    for x in range(z.size(0)):
-                        for y in range(z.size(1)):
+                    for y in range(z.size(0)):
+                        for x in range(z.size(1)):
 
-                            print('prev_a[x:x+3,y:y+3,:]')
-                            print(prev_a[x:x+3,y:y+3,:])
+                            print('prev_a[y:y+3,x:x+3,:]')
+                            print(prev_a[y:y+3,x:x+3,:])
                             print('self.__layers[layer_index][w][filter]')
                             print(self.__layers[layer_index]['w'][filter])
-                            print('torch.sum(prev_a[x:x+3,y:y+3,:] * self.__layers[layer_index][w][filter]')
-                            print(torch.sum(prev_a[x:x+3,y:y+3,:] * self.__layers[layer_index]['w'][filter]))
+                            print('torch.sum(prev_a[y:y+3,x:x+3,:] * self.__layers[layer_index][w][filter])')
+                            print(torch.sum(prev_a[y:y+3,x:x+3,:] * self.__layers[layer_index]['w'][filter]))
 
-                            z[x][y][filter] = (torch.sum(prev_a[x:x+3,y:y+3,:] * self.__layers[layer_index]['w'][filter])
+                            z[y][x][filter] = (torch.sum(prev_a[y:y+3,x:x+3,:] * self.__layers[layer_index]['w'][filter])
                                                + self.__layers[layer_index]['b'][filter])
                 self.__layers[layer_index]["z"] = z
                 self.__layers[layer_index]["a"] = self.__layers[layer_index][
