@@ -9,9 +9,19 @@ class Layer:
     def __init__(self, size):
         self.size = size
 
+    # def _init_weights(self, size):
+    #     fan_in, fan_out = size[0], size[1]
+    #     limit = math.sqrt(6 / (fan_in + fan_out))
+    #     return torch.tensor(
+    #         [
+    #             [random.uniform(-limit, limit) for _ in range(size[1])]
+    #             for _ in range(size[0])
+    #         ]
+    #     )
+
     def _init_weights(self, size):
         fan_in, fan_out = size[0], size[1]
-        limit = math.sqrt(6 / (fan_in + fan_out))
+        limit = math.sqrt(1 / fan_in)
         return torch.tensor(
             [
                 [random.uniform(-limit, limit) for _ in range(size[1])]
@@ -33,7 +43,10 @@ class Layer:
 
 class Input(Layer):
     def initialize(self):
-        return {"a": torch.zeros((self.size, 1))}
+        return {
+            "type": 'input',
+            "a": torch.zeros((self.size, 1))
+        }
 
 
 class FullyConnected(Layer):
@@ -48,6 +61,8 @@ class FullyConnected(Layer):
         print(previous_layer_size)
 
         return {
+            "type": 'fully_connected',
+            "learnable": True,
             "w": super()._init_weights((self.size, previous_layer_size)),
             "b": super()._init_biases((self.size, 1)),
             "z": torch.zeros((self.size, 1)),
@@ -58,7 +73,12 @@ class FullyConnected(Layer):
 
 class Input3D(Layer):
     def initialize(self):
-        return {"a": torch.zeros((self.size[0], self.size[1], self.size[2]))}
+        print('self.sizeInput3D(Layer)')
+        print(self.size)
+        return {
+            "type": 'input_3d',
+            "a": torch.zeros((self.size[0], self.size[1], self.size[2]))
+        }
 
 
 # class Convolutional(Layer):
@@ -80,37 +100,64 @@ class Input3D(Layer):
 #         }
 
 class Convolutional3x3x16x0x1(Layer):
-    def __init__(self, activation, filters=1, kernel_size=3, padding=0, stride=1):
-        size = (kernel_size, kernel_size, 1)
+    def __init__(self, activation, filters=2, kernel=2, padding=0, stride=1):
+        size = (kernel, kernel, 1)
         super().__init__(size)
         self.__activation = activation
-        self.__kernel_size = kernel_size
+        self.__kernel = kernel
         self.__padding = padding
         self.__stride = stride
+        self.__filters = filters
 
     def initialize(self, previous_layer):
-        res_1 = (previous_layer.size[0] - 3) + 1
-        res_2 = (previous_layer.size[1] - 3) + 1
-        res_3 = 1
-        self.size = (res_3, res_1, res_2)
+        self.__input_c = previous_layer.size[0]
+        self.__input_h = previous_layer.size[1]
+        self.__input_w = previous_layer.size[2]
+
+        print('previous_layer.size')
+        print(previous_layer.size)
+
+        self.__output_c = self.__filters
+        self.__output_h = (self.__input_h - self.__kernel) + 1
+        self.__output_w = (self.__input_w - self.__kernel) + 1
+        self.size = (self.__output_c, self.__output_h, self.__output_w)
         return {
-            "w": self._init_weights((1, 3, 3, 1)),
-            "b": super()._init_biases((1, 1)),
-            "z": torch.zeros((res_1, res_2, res_3)),
+            "type": 'convolutional',
+            "learnable": True,
+            "w": self._init_weights((self.__output_c, self.__input_c, self.__kernel, self.__kernel)),
+            "b": super()._init_biases((self.__output_c, 1)),
+            #"z": torch.zeros((self.__output_c, self.__output_h, self.__output_w, 1)),
+            "z": torch.zeros((self.__output_c, self.__output_h, self.__output_w)),
             "activation_function": self.__activation,
-            "a": torch.zeros((res_1, res_2, res_3)),
+            #"a": torch.zeros((self.__output_c, self.__output_h, self.__output_w, 1)),
+            "a": torch.zeros((self.__output_c, self.__output_h, self.__output_w)),
+            "kernel": self.__kernel,
+            "filters_num": self.__filters,
+            "input_h": self.__input_h,
+            "input_w": self.__input_w,
+            "input_c": self.__input_c,
+            "output_h": self.__output_h,
+            "output_w": self.__output_w,
+            "output_c": self.__output_c,
+            "w_shape": (self.__output_c, self.__input_c, self.__kernel, self.__kernel),
         }
 
     def _init_weights(self, size):
-        n_inputs = size[0] * size[1] * size[2]
+
+        print('size')
+        print(size)
+
+        n_inputs = size[1] * size[2] * size[3]
 
         print('n_inputs')
         print(n_inputs)
 
-        std = math.sqrt(2 / n_inputs)
+        random.seed(41)
+
+        limit = math.sqrt(1 / n_inputs)
         return torch.tensor(
             [
-                [[[random.gauss(0, std) for _ in range(size[3])]
+                [[[random.uniform(-limit, limit) for _ in range(size[3])]
                 for _ in range(size[2])]
                 for _ in range(size[1])]
                 for _ in range(size[0])
@@ -128,8 +175,10 @@ class Flatten:
         print('previous_layer.size')
         print(previous_layer.size)
 
-        self.size = previous_layer.size[0]*previous_layer.size[1]*previous_layer.size[2]
+        self.size = previous_layer.size[0] * previous_layer.size[1] * previous_layer.size[2]
         return {
+            "type": 'flatten',
+            "learnable": False,
             "w": torch.zeros((self.size, 1)),
             "b": torch.zeros((self.size, 1)),
             "z": torch.zeros((self.size, 1)),

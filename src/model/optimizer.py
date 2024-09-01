@@ -23,10 +23,40 @@ class SGD:
         """
         layer_index = len(layers) - 1
 
+        print('delta_w____________________________________')
+        print(delta_w)
+        print('delta_b')
+        print(delta_b)
+
         while layer_index > 0:
 
-            if ((delta_w[layer_index - 1] == 0) and (delta_b[layer_index - 1] == 0)):
+            # print('layer_index_______________________________________________')
+            # print(layer_index)
+
+            if not layers[layer_index]['learnable']:
+                layer_index -= 1
                 continue
+
+            # print('layers[layer_index]["w"]')
+            # print(layers[layer_index]["w"].shape)
+            # print(layers[layer_index]["w"])
+            # print('(self.__learning_rate / batch_size) * delta_w[layer_index - 1]')
+            # print(((self.__learning_rate / batch_size) * delta_w[
+            #     layer_index - 1
+            # ]).shape)
+            # print((self.__learning_rate / batch_size) * delta_w[
+            #     layer_index - 1
+            # ])
+            # print('layers[layer_index]["b"]')
+            # print(layers[layer_index]["b"].shape)
+            # print(layers[layer_index]["b"])
+            # print('(self.__learning_rate / batch_size) * delta_b[layer_index - 1]')
+            # print(((self.__learning_rate / batch_size) * delta_b[
+            #     layer_index - 1
+            # ]).shape)
+            # print((self.__learning_rate / batch_size) * delta_b[
+            #     layer_index - 1
+            # ])
 
             layers[layer_index]["w"] -= (self.__learning_rate / batch_size) * delta_w[
                 layer_index - 1
