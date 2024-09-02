@@ -60,11 +60,11 @@ class FullyConnected(Layer):
         self.__device = device
         previous_layer_size = previous_layer.size
 
-        print('previous_layer_size')
-        print(previous_layer_size)
-
-        print('self.__device__fc')
-        print(self.__device)
+        # print('previous_layer_size')
+        # print(previous_layer_size)
+        #
+        # print('self.__device__fc')
+        # print(self.__device)
 
         return {
             "type": 'fully_connected',
@@ -79,8 +79,8 @@ class FullyConnected(Layer):
 
 class Input3D(Layer):
     def initialize(self, device):
-        print('self.sizeInput3D(Layer)')
-        print(self.size)
+        # print('self.sizeInput3D(Layer)')
+        # print(self.size)
         return {
             "type": 'input_3d',
             "a": torch.zeros((self.size[0], self.size[1], self.size[2]), device=device)
@@ -123,8 +123,8 @@ class Convolutional3x3x16x0x1(Layer):
         self.__input_h = previous_layer.size[1]
         self.__input_w = previous_layer.size[2]
 
-        print('previous_layer.size')
-        print(previous_layer.size)
+        # print('previous_layer.size')
+        # print(previous_layer.size)
 
         self.__output_c = self.__filters
         self.__output_h = (self.__input_h - self.__kernel) + 1
@@ -153,13 +153,13 @@ class Convolutional3x3x16x0x1(Layer):
 
     def _init_weights(self, size, device):
 
-        print('size')
-        print(size)
+        # print('size')
+        # print(size)
 
         n_inputs = size[1] * size[2] * size[3]
 
-        print('n_inputs')
-        print(n_inputs)
+        # print('n_inputs')
+        # print(n_inputs)
 
         random.seed(41)
 
@@ -183,8 +183,8 @@ class Flatten:
         self.__device = device
         #layer_size = previous_layer.numel()
 
-        print('previous_layer.size')
-        print(previous_layer.size)
+        # print('previous_layer.size')
+        # print(previous_layer.size)
 
         self.size = previous_layer.size[0] * previous_layer.size[1] * previous_layer.size[2]
         return {

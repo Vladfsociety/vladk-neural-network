@@ -1,7 +1,7 @@
 import time
 import pprint
 import random
-
+import matplotlib.pyplot as plt
 import torch
 
 from src.model.layer import Convolutional3x3x16x0x1, Flatten, Input3D
@@ -34,8 +34,8 @@ class NeuralNetwork:
         self.__actual = []
         self.__init_layers()
         self.__optimizer.initialize(self.__layers)
-        print('self.__device')
-        print(self.__device)
+        # print('self.__device')
+        # print(self.__device)
         # print('self.__layers__start')
         # pprint.pprint(self.__layers)
 
@@ -131,6 +131,12 @@ class NeuralNetwork:
                 self.__layers[layer_index]["a"] = self.__layers[layer_index][
                     "activation_function"
                 ].apply(self.__layers[layer_index]["z"])
+
+                # print('self.__layers[layer_index]["a"][0]')
+                # self.plot_digit(self.__layers[layer_index]["a"][0])
+                #
+                # print('self.__layers[layer_index]["a"][1]')
+                # self.plot_digit(self.__layers[layer_index]["a"][1])
 
             elif self.__layers[layer_index]['type'] == "flatten":
 
@@ -618,6 +624,14 @@ class NeuralNetwork:
 
         self.__optimizer.update(self.__layers, grads_w, grads_b, len(batch))
 
+    def plot_digit(self, image):
+        image = torch.tensor(image).numpy()
+        plt.figure()
+        plt.imshow(image, cmap="gray")
+        plt.title(f"Predicted digi")
+        plt.axis("off")
+        plt.show()
+
     def fit(
         self, train_dataset, test_dataset=None, epochs=10, batch_size=1, verbose=True
     ):
@@ -625,9 +639,6 @@ class NeuralNetwork:
         Train the neural network on the provided dataset.
         """
         train_dataset = train_dataset.copy()
-
-        print('len(test_dataset)')
-        print(len(test_dataset))
 
         history = []
 
@@ -708,6 +719,8 @@ class NeuralNetwork:
                 epoch_data["test_loss"] = test_loss
                 epoch_data["test_metric"] = test_metric
 
+            epoch_data["epoch_time"] = round(time.time() - start_epoch_time, 3)
+
             if verbose:
                 metric_name = self.__metric.name()
                 if test_dataset:
@@ -716,16 +729,16 @@ class NeuralNetwork:
                         f"train loss: {epoch_data['train_loss']}, "
                         f"train {metric_name}: {epoch_data['train_metric']}, "
                         f"test loss: {epoch_data['test_loss']}, "
-                        f"test {metric_name}: {epoch_data['test_metric']}"
+                        f"test {metric_name}: {epoch_data['test_metric']}, "
+                        f"epoch time: {epoch_data["epoch_time"]}s"
                     )
                 else:
                     print(
                         f"Epoch: {epoch_data['epoch']}/{epochs}, "
                         f"train loss: {epoch_data['train_loss']}, "
-                        f"train {metric_name}: {epoch_data['train_metric']}"
+                        f"train {metric_name}: {epoch_data['train_metric']}, "
+                        f"epoch time: {epoch_data["epoch_time"]}s"
                     )
-
-            print('Epoch time: ', time.time() - start_epoch_time)
 
             history.append(epoch_data)
 

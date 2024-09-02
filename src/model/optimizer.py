@@ -109,6 +109,11 @@ class Adam:
         layer_index = len(layers) - 1
 
         while layer_index > 0:
+
+            if not layers[layer_index]['learnable']:
+                layer_index -= 1
+                continue
+
             first_moment_w = self.__get_first_moment_w(layer_index, delta_w)
             second_moment_w = self.__get_second_moment_w(layer_index, delta_w)
 
