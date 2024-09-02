@@ -17,24 +17,13 @@ class SGD:
         """
         return
 
-    def update(self, layers, delta_w, delta_b, batch_size):
+    def update(self, layers, batch_size):
         """
         Update parameters using SGD.
         """
-        layer_index = len(layers) - 1
+        for layer_index, layer in enumerate(layers[1:]):
 
-        # print('delta_w____________________________________')
-        # print(delta_w)
-        # print('delta_b')
-        # print(delta_b)
-
-        while layer_index > 0:
-
-            # print('layer_index_______________________________________________')
-            # print(layer_index)
-
-            if not layers[layer_index]['learnable']:
-                layer_index -= 1
+            if not layer.learnable:
                 continue
 
             # print('layers[layer_index]["w"]')
@@ -58,14 +47,10 @@ class SGD:
             #     layer_index - 1
             # ])
 
-            layers[layer_index]["w"] -= (self.__learning_rate / batch_size) * delta_w[
-                layer_index - 1
-            ]
-            layers[layer_index]["b"] -= (self.__learning_rate / batch_size) * delta_b[
-                layer_index - 1
-            ]
-
-            layer_index -= 1
+            layers[layer_index + 1].w -= ((self.__learning_rate / batch_size)
+                                         * layer.grad_w)
+            layers[layer_index + 1].b -= ((self.__learning_rate / batch_size)
+                                         * layer.grad_b)
 
         return
 
@@ -92,7 +77,14 @@ class Adam:
         """
         Initialize the optimizer for the given layers by setting up moment estimates.
         """
+        # print('layers')
+        # print(layers)
+
         for layer in layers[1:]:
+
+            # print('layer')
+            # print(layer)
+
             if layer.learnable:
                 self.__first_moment_w.append(torch.zeros_like(layer.w))
                 self.__first_moment_b.append(torch.zeros_like(layer.b))
@@ -106,88 +98,83 @@ class Adam:
 
         return
 
-    def update(self, layers, delta_w, delta_b, batch_size):
+    def update(self, layers, batch_size):
         """
         Update parameters using Adam.
         """
         self.__timestamp += 1
 
-        layer_index = len(layers) - 1
+        for layer_index, layer in enumerate(layers[1:]):
 
-        while layer_index > 0:
-
-            if not layers[layer_index].learnable:
-                #layer_index -= 1
+            if not layer.learnable:
                 continue
 
-            first_moment_w = self.__get_first_moment_w(layer_index, delta_w)
-            second_moment_w = self.__get_second_moment_w(layer_index, delta_w)
+            first_moment_w = self.__get_first_moment_w(layer_index, layer.grad_w)
+            second_moment_w = self.__get_second_moment_w(layer_index, layer.grad_w)
 
-            layers[layer_index]["w"] -= (self.__learning_rate * first_moment_w) / (
+            layers[layer_index + 1].w -= (self.__learning_rate * first_moment_w) / (
                 batch_size * (torch.sqrt(second_moment_w) + self.__epsilon)
             )
 
-            first_moment_b = self.__get_first_moment_b(layer_index, delta_b)
-            second_moment_b = self.__get_second_moment_b(layer_index, delta_b)
+            first_moment_b = self.__get_first_moment_b(layer_index, layer.grad_b)
+            second_moment_b = self.__get_second_moment_b(layer_index, layer.grad_b)
 
-            layers[layer_index]["b"] -= (self.__learning_rate * first_moment_b) / (
+            layers[layer_index + 1].b -= (self.__learning_rate * first_moment_b) / (
                 batch_size * (torch.sqrt(second_moment_b) + self.__epsilon)
             )
 
-            layer_index -= 1
-
         return
 
-    def __get_first_moment_w(self, layer_index, delta_w):
+    def __get_first_moment_w(self, layer_index, grad_w):
         """
         Compute the first moment estimate for weights.
         """
-        first_moment_w = self.__first_moment_w[layer_index - 1]
+        first_moment_w = self.__first_moment_w[layer_index]
         first_moment_w = (
             self.__beta_1 * first_moment_w
-            + (1.0 - self.__beta_1) * delta_w[layer_index - 1]
+            + (1.0 - self.__beta_1) * grad_w
         )
 
-        self.__first_moment_w[layer_index - 1] = first_moment_w
+        self.__first_moment_w[layer_index] = first_moment_w
 
-        return first_moment_w / (1.0 - self.__beta_1**self.__timestamp)
+        return first_moment_w / (1.0 - self.__beta_1 ** self.__timestamp)
 
-    def __get_second_moment_w(self, layer_index, delta_w):
+    def __get_second_moment_w(self, layer_index, grad_w):
         """
         Compute the second moment estimate for weights.
         """
-        second_moment_w = self.__second_moment_w[layer_index - 1]
+        second_moment_w = self.__second_moment_w[layer_index]
         second_moment_w = self.__beta_2 * second_moment_w + (1.0 - self.__beta_2) * (
-            delta_w[layer_index - 1] ** 2
+            grad_w ** 2
         )
 
-        self.__second_moment_w[layer_index - 1] = second_moment_w
+        self.__second_moment_w[layer_index] = second_moment_w
 
-        return second_moment_w / (1.0 - self.__beta_2**self.__timestamp)
+        return second_moment_w / (1.0 - self.__beta_2 ** self.__timestamp)
 
-    def __get_first_moment_b(self, layer_index, delta_b):
+    def __get_first_moment_b(self, layer_index, grad_b):
         """
         Compute the first moment estimate for biases.
         """
-        first_moment_b = self.__first_moment_b[layer_index - 1]
+        first_moment_b = self.__first_moment_b[layer_index]
         first_moment_b = (
             self.__beta_1 * first_moment_b
-            + (1.0 - self.__beta_1) * delta_b[layer_index - 1]
+            + (1.0 - self.__beta_1) * grad_b
         )
 
-        self.__first_moment_b[layer_index - 1] = first_moment_b
+        self.__first_moment_b[layer_index] = first_moment_b
 
-        return first_moment_b / (1.0 - self.__beta_1**self.__timestamp)
+        return first_moment_b / (1.0 - self.__beta_1 ** self.__timestamp)
 
-    def __get_second_moment_b(self, layer_index, delta_b):
+    def __get_second_moment_b(self, layer_index, grad_b):
         """
         Compute the second moment estimate for biases.
         """
-        second_moment_b = self.__second_moment_b[layer_index - 1]
+        second_moment_b = self.__second_moment_b[layer_index]
         second_moment_b = self.__beta_2 * second_moment_b + (1.0 - self.__beta_2) * (
-            delta_b[layer_index - 1] ** 2
+            grad_b ** 2
         )
 
-        self.__second_moment_b[layer_index - 1] = second_moment_b
+        self.__second_moment_b[layer_index] = second_moment_b
 
-        return second_moment_b / (1.0 - self.__beta_2**self.__timestamp)
+        return second_moment_b / (1.0 - self.__beta_2 ** self.__timestamp)

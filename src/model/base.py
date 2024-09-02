@@ -42,8 +42,7 @@ class NeuralNetwork:
         """
         Initialize the layers of the neural network.
         """
-
-        if layers[-1].type is not "fully_connected":
+        if layers[-1].type != "fully_connected":
             raise Exception("Last layer should be fully connected")
 
         self.__layers.append(self.__input_layer)
@@ -93,6 +92,33 @@ class NeuralNetwork:
             layer_index += 1
 
         return self.__layers[-1].a
+
+    def __backward(self, predict, actual):
+        """
+        Perform backward pass to calculate gradients.
+        """
+
+        layer_index = len(self.__layers) - 1
+        layer_error = torch.zeros_like(self.__layers[-1].a)
+
+        while layer_index > 0:
+
+            if layer_index == len(self.__layers) - 1:
+                loss_derivative = self.__loss.derivative(predict, actual)
+                layer_error = self.__layers[layer_index].backward(
+                    loss_derivative,
+                    self.__layers[layer_index - 1],
+                )
+            else:
+                layer_error = self.__layers[layer_index].backward(
+                    layer_error,
+                    self.__layers[layer_index - 1],
+                    self.__layers[layer_index + 1]
+                )
+
+            layer_index -= 1
+
+        return
 
     # def __forward(self):
     #     """
@@ -219,439 +245,429 @@ class NeuralNetwork:
     #
     #     return self.__layers[-1].a
 
-    def __backward(self, predict, actual):
-        """
-        Perform backward pass to calculate gradients.
-        """
-
-        start_backward_time = time.time()
-
-        grads_w_update = [torch.zeros_like(layer.w) for layer in self.__layers[1:]]
-        grads_b_update = [torch.zeros_like(layer.b) for layer in self.__layers[1:]]
-
-        layer_index = len(self.__layers) - 1
-        layer_error = torch.zeros_like(self.__layers[-1]["a"])
-
-        while layer_index > 0:
-
-            if layer_index == len(self.__layers) - 1:
-
-                loss_derivative = self.__loss.derivative(predict, actual)
-
-                layer_error = self.__layers[layer_index].backward(loss_derivative)
-            else:
-
-                if self.__layers[layer_index]['type'] == 'flatten': # flatten layer
-                    layer_error = torch.matmul(
-                        self.__layers[layer_index + 1]["w"].t(), layer_error
-                    ) * torch.ones_like(
-                        self.__layers[layer_index]["z"]
-                    )
-
-                    # print('layer_error_fdsffdsf')
-                    # print(layer_error)
-
-                elif self.__layers[layer_index]['type'] == 'convolutional':
-
-                    start_backward_conv_layer = time.time()
-
-                    if self.__layers[layer_index + 1]['type'] == 'flatten':
-
-                        # print('layer_error.shape_before_reshape')
-                        # print(layer_error.shape)
-                        # print(layer_error)
-
-                        layer_error = layer_error.reshape((
-                            self.__layers[layer_index]["output_c"],
-                            self.__layers[layer_index]["output_h"],
-                            self.__layers[layer_index]["output_w"]
-                        ))
-
-                        # print('layer_error.shape_after_reshape')
-                        # print(layer_error)
-
-                    elif self.__layers[layer_index + 1]['type'] == 'convolutional':
-                        #pass
-                        input_h = self.__layers[layer_index]["input_h"]
-                        input_w = self.__layers[layer_index]["input_w"]
-
-                        output_h = self.__layers[layer_index]["output_h"]
-                        output_w = self.__layers[layer_index]["output_w"]
-                        filters_num = self.__layers[layer_index]["filters_num"]
-
-                        k_next = self.__layers[layer_index + 1]["kernel"]
-                        output_h_next = self.__layers[layer_index + 1]["output_h"]
-                        output_w_next = self.__layers[layer_index + 1]["output_w"]
-                        filters_num_next = self.__layers[layer_index + 1]["filters_num"]
-
-                        error = torch.zeros((
-                            self.__layers[layer_index]["output_c"],
-                            self.__layers[layer_index]["output_h"],
-                            self.__layers[layer_index]["output_w"]
-                        ), device=self.__device)
-
-                        # print('layer_index')
-                        # print(layer_index)
-                        # print('error_Fdf')
-                        # print(error.shape)
-
-                        # print('layer_error')
-                        # print(layer_error.shape)
-                        # print('self.__layers[layer_index + 1]["w"]')
-                        # print(self.__layers[layer_index + 1]["w"].shape)
-                        # print('self.__layers[layer_index]["z"]')
-                        # print(self.__layers[layer_index]["z"].shape)
-
-                        # print('layer_error.device')
-                        # print(layer_error.device)
-
-                        #layer_error_padding = layer_error.clone()
-
-                        #layer_error_padding = []
-
-                        # print('layer_error_before_fdsfd')
-                        # print(layer_error)
-
-                        pad_value = 0.0
-
-                        P_top, P_bottom, P_left, P_right = [k_next - 1]*4
-                        #H, W = layer_error.shape
-
-                        # Create a new array with the padded shape
-                        padded_H = output_h_next + P_top + P_bottom
-                        padded_W = output_w_next + P_left + P_right
-
-
-                        # Copy the original tensor into the center of the padded tensor
-                        # for filter_next in range(filters_num_next):
-                        #     padded = torch.full((padded_H, padded_W), pad_value)
-                        #     padded[P_top:P_top + output_h_next, P_left:P_left + output_w_next] = layer_error[filter_next].clone()
-                        #     layer_error_padding.append(padded)
-                        #
-                        # print('layer_error_padding_Fdf')
-                        # print(layer_error_padding)
-                        #
-                        # layer_error_padding = torch.tensor(layer_error_padding)
-                        # print('layer_error_padding')
-                        # print(layer_error_padding)
-                        layer_error_with_padding = torch.full((filters_num_next, padded_H, padded_W), pad_value, device=self.__device)
-                        layer_error_with_padding[:,P_top:P_top + output_h_next, P_left:P_left + output_w_next] = layer_error[:].clone()
-
-                        # print('layer_error_with_padding')
-                        # print(layer_error_with_padding)
-
-                        # print('self.__layers[layer_index + 1]["w"]')
-                        # print(self.__layers[layer_index + 1]["w"])
-
-                        flipped_w_next = torch.flip(self.__layers[layer_index + 1]["w"], (2, 3))
-
-                        # print('flipped_w_next.device')
-                        # print(flipped_w_next.device)
-
-                        # print('flipped_w_next')
-                        # print(flipped_w_next)
-                        #
-                        # import sys
-                        # sys.exit(1)
-
-                        for f in range(filters_num):
-                            for i in range(output_h):
-                                for j in range(output_w):
-
-                                    # for f_next in range(filters_num_next):
-                                    #
-                                    #     # print('self.__layers[layer_index + 1]["w"][f_next][f]')
-                                    #     # print(self.__layers[layer_index + 1]["w"][f_next][f])
-                                    #     flipped_w_next = torch.flip(self.__layers[layer_index + 1]["w"][f_next][f], (0, 1))
-                                    #     # print('flipped_w_next')
-                                    #     # print(flipped_w_next)
-                                    #     #
-                                    #     # print('layer_error_with_padding[f_next][i:i + k_next, j:j + k_next]')
-                                    #     # print(layer_error_with_padding[f_next][i:i + k_next, j:j + k_next])
-                                    #
-                                    #     error[f][i][j] += (torch.sum(
-                                    #         layer_error_with_padding[f_next][i:i + k_next, j:j + k_next] * flipped_w_next))
-
-                                    error[f][i][j] = (torch.sum(
-                                                layer_error_with_padding[:, i:i + k_next, j:j + k_next] * flipped_w_next[:, f]))
-
-                                    error[f][i][j] = (error[f][i][j]
-                                                     * self.__layers[layer_index]['activation_function'].derivative(self.__layers[layer_index]["z"][f][i][j]))
-                                    # print('-----------------f, i, j - ', f, i, j)
-                                    # print('error[f][i][j]_before')
-                                    # print(error[f][i][j])
-                                    #
-                                    # for f_next in range(filters_num_next):
-                                    #
-                                    #     i_bot = (i-(k_next-1)) if (i-(k_next-1) > 0) else 0
-                                    #     i_top = i+1 if i+1 < output_h_next else output_h_next
-                                    #     j_bot = (j-(k_next-1)) if (j-(k_next-1) > 0) else 0
-                                    #     j_top = j+1 if j+1 < output_w_next else output_w_next
-                                    #
-                                    #     #m_bot =
-                                    #     print('i_bot')
-                                    #     print(i_bot)
-                                    #     print('i_top')
-                                    #     print(i_top)
-                                    #     print('j_bot')
-                                    #     print(j_bot)
-                                    #     print('j_top')
-                                    #     print(j_top)
-                                    #
-                                    #     print('layer_error[f_next][i_bot:i_top,j_bot:j_top]')
-                                    #     print(layer_error[f_next][
-                                    #           i_bot:i_top,
-                                    #           j_bot:j_top
-                                    #           ])
-                                    #     print('self.__layers[layer_index + 1]["w"][f_next][f][0:(k_next-1),0:(k_next-1)]')
-                                    #     print(self.__layers[layer_index + 1]["w"][f_next][f][
-                                    #             0:k_next,
-                                    #             0:k_next
-                                    #         ])
-                                    #
-                                    #     error[f][i][j] = (torch.sum(layer_error[f_next][
-                                    #             i_bot:i_top,
-                                    #             j_bot:j_top
-                                    #         ] * self.__layers[layer_index + 1]["w"][f_next][f][
-                                    #             0:k_next,
-                                    #             0:k_next
-                                    #         ])
-                                    #         * self.__layers[layer_index]['activation_function'].derivative(
-                                    #             self.__layers[layer_index]["z"][f][i][j]
-                                    #         )
-                                    #     )
-                                    #
-                                    #     # error[f][i][j] = (torch.sum(layer_error[f_next].t()[
-                                    #     #                             i_bot:i_top,
-                                    #     #                             j_bot:j_top
-                                    #     #                             ] * self.__layers[layer_index + 1]["w"][f_next][f][
-                                    #     #                                 0:k_next,
-                                    #     #                                 0:k_next
-                                    #     #                                 ])
-                                    #     #                   * self.__layers[layer_index][
-                                    #     #                       'activation_function'].derivative(
-                                    #     #             self.__layers[layer_index]["z"][f][i][j]
-                                    #     #         )
-                                    #     #                   )
-                                    #
-                                    # error[f][i][j] = (error[f][i][j]
-                                    #                 * self.__layers[layer_index]['activation_function'].derivative(self.__layers[layer_index]["z"][f][i][j]))
-
-                                    # for ii in range(k_next):
-                                    #     for jj in range(k_next):
-                                    #         for f_next in range(filters_num_next):
-                                    #
-                                    #             # print('f, i, ii, j, jj - ', f, i, ii, j, jj)
-                                    #             # print('i - ii - ', i - ii)
-                                    #             # print('j - jj - ', j - jj)
-                                    #
-                                    #             if (
-                                    #                 (0 <= i - ii < output_h_next)
-                                    #                 and (0 <= j - jj < output_w_next)
-                                    #             ):
-                                    #
-                                    #                 # error[f][i][j] += (layer_error[f_next][i - ii][j - jj]
-                                    #                 #        * self.__layers[layer_index + 1]["w"][f_next][f][ii][jj]
-                                    #                 #        * self.__layers[layer_index]['activation_function'].derivative(self.__layers[layer_index]["z"][f][i][j])) # Умножение на єту хрень думаю можно делать один раз в другом месте
-                                    #                 error[f][i][j] += (layer_error[f_next][i - ii][j - jj]
-                                    #                                    * self.__layers[layer_index + 1]["w"][f_next][f][ii][jj])
-                                    #
-                                    # error[f][i][j] = (error[f][i][j]
-                                    #                   * self.__layers[layer_index]['activation_function'].derivative(self.__layers[layer_index]["z"][f][i][j]))
-
-                                    # print('error[f][i][j]_after')
-                                    # print(error[f][i][j])
-                                    # print('i-(k-1) : i ', i-(k-1), i)
-                                    # print('j-(k-1) : j ', j-(k-1), j)
-                                    # print('layer_error')
-                                    # print(layer_error[f_next][
-                                    #         i-(k-1):i,
-                                    #         j-(k-1):j
-                                    #     ].shape)
-                                    # print(layer_error[f_next][
-                                    #       i - (k - 1):i,
-                                    #       j - (k - 1):j
-                                    #       ])
-                                    # print('self.__layers[layer_index + 1]["w"]')
-                                    # print(self.__layers[layer_index + 1]["w"][f_next][f][
-                                    #         0:(k-1),
-                                    #         0:(k-1)
-                                    #     ].shape)
-                                    # print(self.__layers[layer_index + 1]["w"][f_next][f][
-                                    #       0:(k - 1),
-                                    #       0:(k - 1)
-                                    #       ])
-                                    # print('self.__layers[layer_index]["z"]')
-                                    # print(self.__layers[layer_index]["z"][f][i][j].shape)
-                                    # print(self.__layers[layer_index]["z"][f][i][j])
-                                    #
-                                    # error[f][i][j] = (torch.sum(layer_error[f_next][
-                                    #         i-(k-1):i,
-                                    #         j-(k-1):j
-                                    #     ] * self.__layers[layer_index + 1]["w"][f_next][f][
-                                    #         0:(k-1),
-                                    #         0:(k-1)
-                                    #     ])
-                                    #     * self.__layers[layer_index]['activation_function'].derivative(
-                                    #         self.__layers[layer_index]["z"][f][i][j]
-                                    #     )
-                                    # )
-                                    #
-                                    # print('error[f][i][j]')
-                                    # print(error[f][i][j])
-
-                        # print('error_AFTER')
-                        # print(type(error))
-                        # print(error)
-
-                        # layer_error = torch.tensor(error)
-                        layer_error = error
-
-                    #print('Backward conv layer exec: ', time.time() - start_backward_conv_layer)
-
-                else:
-                    layer_error = torch.matmul(
-                        self.__layers[layer_index + 1]["w"].t(), layer_error
-                    ) * self.__layers[layer_index]["activation_function"].derivative(
-                        self.__layers[layer_index]["z"]
-                    )
-
-            # print('__________________________________________________self.__layers[layer_index - 1]')
-            # print(self.__layers[layer_index - 1])
-            # print('layer_error')
-            # print(layer_error.shape)
-            # print(layer_error)
-            # print('self.__layers[layer_index - 1]["a"].t()')
-            # print(self.__layers[layer_index - 1]["a"])
-
-            if self.__layers[layer_index]['type'] == 'flatten':
-                grads_w_update[layer_index - 1] = torch.tensor(0)
-                grads_b_update[layer_index - 1] = torch.tensor(0)
-
-            elif self.__layers[layer_index]['type'] == 'convolutional':
-
-                # print('layer_error_convolutional')
-                # print(layer_error.shape)
-                # print(layer_error)
-
-                k = self.__layers[layer_index]["kernel"]
-                filters_num = self.__layers[layer_index]["filters_num"]
-                input_c = self.__layers[layer_index]["input_c"]
-                output_h = self.__layers[layer_index]["output_h"]
-                output_w = self.__layers[layer_index]["output_w"]
-
-                # print('input_c')
-                # print(input_c)
-                # print('output_h')
-                # print(output_h)
-                # print('output_w')
-                # print(output_w)
-                # print('output_w')
-                # print(output_w)
-                # print('layer_error.shape')
-                # print(layer_error.shape)
-
-                for f in range(filters_num):
-                    for c in range(input_c):
-                        for m in range(k):
-                            for n in range(k):
-
-                                # print('m ', m)
-                                # print('n ', n)
-                                # print('self.__layers[layer_index - 1]["a"][m:m+output_h:,n:n+output_w:]')
-                                # print(self.__layers[layer_index - 1]["a"][
-                                #         c,
-                                #         m:m+output_h:,
-                                #         n:n+output_w:
-                                #     ].shape)
-                                # print(self.__layers[layer_index - 1]["a"][
-                                #         c,
-                                #         m:m+output_h:,
-                                #         n:n+output_w:
-                                #     ])
-                                # print('layer_error[f]')
-                                # print(layer_error[f])
-                                # print(layer_error[f] * self.__layers[layer_index - 1]["a"][
-                                #         c,
-                                #         m:m+output_h:,
-                                #         n:n+output_w:
-                                #     ])
-                                # print(layer_error[f].shape)
-                                # print(layer_error[f])
-
-                                grads_w_update[layer_index - 1][f][c][m][n] = torch.sum(
-                                    layer_error[f] * self.__layers[layer_index - 1]["a"][
-                                        c,
-                                        m:m+output_h:,
-                                        n:n+output_w:
-                                    ]
-                                )
-
-                                # print('grads_w_update[layer_index - 1]')
-                                # print(grads_w_update[layer_index - 1].shape)
-                                # print(grads_w_update[layer_index - 1])
-
-                    # print('torch.sum(layer_error[f])')
-                    # print(torch.sum(layer_error[f]))
-
-                    grads_b_update[layer_index - 1][f] = torch.sum(layer_error[f]) # ???
-
-                # print('grads_w_update[layer_index - 1]')
-                # print(grads_w_update[layer_index - 1].shape)
-                # print(grads_w_update[layer_index - 1])
-                # print('grads_b_update[layer_index - 1]')
-                # print(grads_b_update[layer_index - 1].shape)
-                # print(grads_b_update[layer_index - 1])
-
-            else:
-                grads_w_update[layer_index - 1] = torch.matmul(
-                    layer_error, self.__layers[layer_index - 1]["a"].t()
-                )
-                grads_b_update[layer_index - 1] = layer_error
-
-            layer_index -= 1
-
-        #print("Backward exec time: ", time.time() - start_backward_time)
-
-        return grads_w_update, grads_b_update
+    # def __backward(self, predict, actual):
+    #     """
+    #     Perform backward pass to calculate gradients.
+    #     """
+    #
+    #     start_backward_time = time.time()
+    #
+    #     grads_w_update = [torch.zeros_like(layer.w) for layer in self.__layers[1:]]
+    #     grads_b_update = [torch.zeros_like(layer.b) for layer in self.__layers[1:]]
+    #
+    #     layer_index = len(self.__layers) - 1
+    #     layer_error = torch.zeros_like(self.__layers[-1]["a"])
+    #
+    #     while layer_index > 0:
+    #
+    #         if layer_index == len(self.__layers) - 1:
+    #
+    #             loss_derivative = self.__loss.derivative(predict, actual)
+    #
+    #             layer_error = self.__layers[layer_index].backward(loss_derivative)
+    #         else:
+    #
+    #             if self.__layers[layer_index]['type'] == 'flatten': # flatten layer
+    #                 layer_error = torch.matmul(
+    #                     self.__layers[layer_index + 1]["w"].t(), layer_error
+    #                 ) * torch.ones_like(
+    #                     self.__layers[layer_index]["z"]
+    #                 )
+    #
+    #                 # print('layer_error_fdsffdsf')
+    #                 # print(layer_error)
+    #
+    #             elif self.__layers[layer_index]['type'] == 'convolutional':
+    #
+    #                 start_backward_conv_layer = time.time()
+    #
+    #                 if self.__layers[layer_index + 1]['type'] == 'flatten':
+    #
+    #                     # print('layer_error.shape_before_reshape')
+    #                     # print(layer_error.shape)
+    #                     # print(layer_error)
+    #
+    #                     layer_error = layer_error.reshape((
+    #                         self.__layers[layer_index]["output_c"],
+    #                         self.__layers[layer_index]["output_h"],
+    #                         self.__layers[layer_index]["output_w"]
+    #                     ))
+    #
+    #                     # print('layer_error.shape_after_reshape')
+    #                     # print(layer_error)
+    #
+    #                 elif self.__layers[layer_index + 1]['type'] == 'convolutional':
+    #                     #pass
+    #                     input_h = self.__layers[layer_index]["input_h"]
+    #                     input_w = self.__layers[layer_index]["input_w"]
+    #
+    #                     output_h = self.__layers[layer_index]["output_h"]
+    #                     output_w = self.__layers[layer_index]["output_w"]
+    #                     filters_num = self.__layers[layer_index]["filters_num"]
+    #
+    #                     k_next = self.__layers[layer_index + 1]["kernel"]
+    #                     output_h_next = self.__layers[layer_index + 1]["output_h"]
+    #                     output_w_next = self.__layers[layer_index + 1]["output_w"]
+    #                     filters_num_next = self.__layers[layer_index + 1]["filters_num"]
+    #
+    #                     error = torch.zeros((
+    #                         self.__layers[layer_index]["output_c"],
+    #                         self.__layers[layer_index]["output_h"],
+    #                         self.__layers[layer_index]["output_w"]
+    #                     ), device=self.__device)
+    #
+    #                     # print('layer_index')
+    #                     # print(layer_index)
+    #                     # print('error_Fdf')
+    #                     # print(error.shape)
+    #
+    #                     # print('layer_error')
+    #                     # print(layer_error.shape)
+    #                     # print('self.__layers[layer_index + 1]["w"]')
+    #                     # print(self.__layers[layer_index + 1]["w"].shape)
+    #                     # print('self.__layers[layer_index]["z"]')
+    #                     # print(self.__layers[layer_index]["z"].shape)
+    #
+    #                     # print('layer_error.device')
+    #                     # print(layer_error.device)
+    #
+    #                     #layer_error_padding = layer_error.clone()
+    #
+    #                     #layer_error_padding = []
+    #
+    #                     # print('layer_error_before_fdsfd')
+    #                     # print(layer_error)
+    #
+    #                     pad_value = 0.0
+    #
+    #                     P_top, P_bottom, P_left, P_right = [k_next - 1]*4
+    #                     #H, W = layer_error.shape
+    #
+    #                     # Create a new array with the padded shape
+    #                     padded_H = output_h_next + P_top + P_bottom
+    #                     padded_W = output_w_next + P_left + P_right
+    #
+    #
+    #                     # Copy the original tensor into the center of the padded tensor
+    #                     # for filter_next in range(filters_num_next):
+    #                     #     padded = torch.full((padded_H, padded_W), pad_value)
+    #                     #     padded[P_top:P_top + output_h_next, P_left:P_left + output_w_next] = layer_error[filter_next].clone()
+    #                     #     layer_error_padding.append(padded)
+    #                     #
+    #                     # print('layer_error_padding_Fdf')
+    #                     # print(layer_error_padding)
+    #                     #
+    #                     # layer_error_padding = torch.tensor(layer_error_padding)
+    #                     # print('layer_error_padding')
+    #                     # print(layer_error_padding)
+    #                     layer_error_with_padding = torch.full((filters_num_next, padded_H, padded_W), pad_value, device=self.__device)
+    #                     layer_error_with_padding[:,P_top:P_top + output_h_next, P_left:P_left + output_w_next] = layer_error[:].clone()
+    #
+    #                     # print('layer_error_with_padding')
+    #                     # print(layer_error_with_padding)
+    #
+    #                     # print('self.__layers[layer_index + 1]["w"]')
+    #                     # print(self.__layers[layer_index + 1]["w"])
+    #
+    #                     flipped_w_next = torch.flip(self.__layers[layer_index + 1]["w"], (2, 3))
+    #
+    #                     # print('flipped_w_next.device')
+    #                     # print(flipped_w_next.device)
+    #
+    #                     # print('flipped_w_next')
+    #                     # print(flipped_w_next)
+    #                     #
+    #                     # import sys
+    #                     # sys.exit(1)
+    #
+    #                     for f in range(filters_num):
+    #                         for i in range(output_h):
+    #                             for j in range(output_w):
+    #
+    #                                 # for f_next in range(filters_num_next):
+    #                                 #
+    #                                 #     # print('self.__layers[layer_index + 1]["w"][f_next][f]')
+    #                                 #     # print(self.__layers[layer_index + 1]["w"][f_next][f])
+    #                                 #     flipped_w_next = torch.flip(self.__layers[layer_index + 1]["w"][f_next][f], (0, 1))
+    #                                 #     # print('flipped_w_next')
+    #                                 #     # print(flipped_w_next)
+    #                                 #     #
+    #                                 #     # print('layer_error_with_padding[f_next][i:i + k_next, j:j + k_next]')
+    #                                 #     # print(layer_error_with_padding[f_next][i:i + k_next, j:j + k_next])
+    #                                 #
+    #                                 #     error[f][i][j] += (torch.sum(
+    #                                 #         layer_error_with_padding[f_next][i:i + k_next, j:j + k_next] * flipped_w_next))
+    #
+    #                                 error[f][i][j] = (torch.sum(
+    #                                             layer_error_with_padding[:, i:i + k_next, j:j + k_next] * flipped_w_next[:, f]))
+    #
+    #                                 error[f][i][j] = (error[f][i][j]
+    #                                                  * self.__layers[layer_index]['activation_function'].derivative(self.__layers[layer_index]["z"][f][i][j]))
+    #                                 # print('-----------------f, i, j - ', f, i, j)
+    #                                 # print('error[f][i][j]_before')
+    #                                 # print(error[f][i][j])
+    #                                 #
+    #                                 # for f_next in range(filters_num_next):
+    #                                 #
+    #                                 #     i_bot = (i-(k_next-1)) if (i-(k_next-1) > 0) else 0
+    #                                 #     i_top = i+1 if i+1 < output_h_next else output_h_next
+    #                                 #     j_bot = (j-(k_next-1)) if (j-(k_next-1) > 0) else 0
+    #                                 #     j_top = j+1 if j+1 < output_w_next else output_w_next
+    #                                 #
+    #                                 #     #m_bot =
+    #                                 #     print('i_bot')
+    #                                 #     print(i_bot)
+    #                                 #     print('i_top')
+    #                                 #     print(i_top)
+    #                                 #     print('j_bot')
+    #                                 #     print(j_bot)
+    #                                 #     print('j_top')
+    #                                 #     print(j_top)
+    #                                 #
+    #                                 #     print('layer_error[f_next][i_bot:i_top,j_bot:j_top]')
+    #                                 #     print(layer_error[f_next][
+    #                                 #           i_bot:i_top,
+    #                                 #           j_bot:j_top
+    #                                 #           ])
+    #                                 #     print('self.__layers[layer_index + 1]["w"][f_next][f][0:(k_next-1),0:(k_next-1)]')
+    #                                 #     print(self.__layers[layer_index + 1]["w"][f_next][f][
+    #                                 #             0:k_next,
+    #                                 #             0:k_next
+    #                                 #         ])
+    #                                 #
+    #                                 #     error[f][i][j] = (torch.sum(layer_error[f_next][
+    #                                 #             i_bot:i_top,
+    #                                 #             j_bot:j_top
+    #                                 #         ] * self.__layers[layer_index + 1]["w"][f_next][f][
+    #                                 #             0:k_next,
+    #                                 #             0:k_next
+    #                                 #         ])
+    #                                 #         * self.__layers[layer_index]['activation_function'].derivative(
+    #                                 #             self.__layers[layer_index]["z"][f][i][j]
+    #                                 #         )
+    #                                 #     )
+    #                                 #
+    #                                 #     # error[f][i][j] = (torch.sum(layer_error[f_next].t()[
+    #                                 #     #                             i_bot:i_top,
+    #                                 #     #                             j_bot:j_top
+    #                                 #     #                             ] * self.__layers[layer_index + 1]["w"][f_next][f][
+    #                                 #     #                                 0:k_next,
+    #                                 #     #                                 0:k_next
+    #                                 #     #                                 ])
+    #                                 #     #                   * self.__layers[layer_index][
+    #                                 #     #                       'activation_function'].derivative(
+    #                                 #     #             self.__layers[layer_index]["z"][f][i][j]
+    #                                 #     #         )
+    #                                 #     #                   )
+    #                                 #
+    #                                 # error[f][i][j] = (error[f][i][j]
+    #                                 #                 * self.__layers[layer_index]['activation_function'].derivative(self.__layers[layer_index]["z"][f][i][j]))
+    #
+    #                                 # for ii in range(k_next):
+    #                                 #     for jj in range(k_next):
+    #                                 #         for f_next in range(filters_num_next):
+    #                                 #
+    #                                 #             # print('f, i, ii, j, jj - ', f, i, ii, j, jj)
+    #                                 #             # print('i - ii - ', i - ii)
+    #                                 #             # print('j - jj - ', j - jj)
+    #                                 #
+    #                                 #             if (
+    #                                 #                 (0 <= i - ii < output_h_next)
+    #                                 #                 and (0 <= j - jj < output_w_next)
+    #                                 #             ):
+    #                                 #
+    #                                 #                 # error[f][i][j] += (layer_error[f_next][i - ii][j - jj]
+    #                                 #                 #        * self.__layers[layer_index + 1]["w"][f_next][f][ii][jj]
+    #                                 #                 #        * self.__layers[layer_index]['activation_function'].derivative(self.__layers[layer_index]["z"][f][i][j])) # Умножение на єту хрень думаю можно делать один раз в другом месте
+    #                                 #                 error[f][i][j] += (layer_error[f_next][i - ii][j - jj]
+    #                                 #                                    * self.__layers[layer_index + 1]["w"][f_next][f][ii][jj])
+    #                                 #
+    #                                 # error[f][i][j] = (error[f][i][j]
+    #                                 #                   * self.__layers[layer_index]['activation_function'].derivative(self.__layers[layer_index]["z"][f][i][j]))
+    #
+    #                                 # print('error[f][i][j]_after')
+    #                                 # print(error[f][i][j])
+    #                                 # print('i-(k-1) : i ', i-(k-1), i)
+    #                                 # print('j-(k-1) : j ', j-(k-1), j)
+    #                                 # print('layer_error')
+    #                                 # print(layer_error[f_next][
+    #                                 #         i-(k-1):i,
+    #                                 #         j-(k-1):j
+    #                                 #     ].shape)
+    #                                 # print(layer_error[f_next][
+    #                                 #       i - (k - 1):i,
+    #                                 #       j - (k - 1):j
+    #                                 #       ])
+    #                                 # print('self.__layers[layer_index + 1]["w"]')
+    #                                 # print(self.__layers[layer_index + 1]["w"][f_next][f][
+    #                                 #         0:(k-1),
+    #                                 #         0:(k-1)
+    #                                 #     ].shape)
+    #                                 # print(self.__layers[layer_index + 1]["w"][f_next][f][
+    #                                 #       0:(k - 1),
+    #                                 #       0:(k - 1)
+    #                                 #       ])
+    #                                 # print('self.__layers[layer_index]["z"]')
+    #                                 # print(self.__layers[layer_index]["z"][f][i][j].shape)
+    #                                 # print(self.__layers[layer_index]["z"][f][i][j])
+    #                                 #
+    #                                 # error[f][i][j] = (torch.sum(layer_error[f_next][
+    #                                 #         i-(k-1):i,
+    #                                 #         j-(k-1):j
+    #                                 #     ] * self.__layers[layer_index + 1]["w"][f_next][f][
+    #                                 #         0:(k-1),
+    #                                 #         0:(k-1)
+    #                                 #     ])
+    #                                 #     * self.__layers[layer_index]['activation_function'].derivative(
+    #                                 #         self.__layers[layer_index]["z"][f][i][j]
+    #                                 #     )
+    #                                 # )
+    #                                 #
+    #                                 # print('error[f][i][j]')
+    #                                 # print(error[f][i][j])
+    #
+    #                     # print('error_AFTER')
+    #                     # print(type(error))
+    #                     # print(error)
+    #
+    #                     # layer_error = torch.tensor(error)
+    #                     layer_error = error
+    #
+    #                 #print('Backward conv layer exec: ', time.time() - start_backward_conv_layer)
+    #
+    #             else:
+    #                 layer_error = torch.matmul(
+    #                     self.__layers[layer_index + 1]["w"].t(), layer_error
+    #                 ) * self.__layers[layer_index]["activation_function"].derivative(
+    #                     self.__layers[layer_index]["z"]
+    #                 )
+    #
+    #         # print('__________________________________________________self.__layers[layer_index - 1]')
+    #         # print(self.__layers[layer_index - 1])
+    #         # print('layer_error')
+    #         # print(layer_error.shape)
+    #         # print(layer_error)
+    #         # print('self.__layers[layer_index - 1]["a"].t()')
+    #         # print(self.__layers[layer_index - 1]["a"])
+    #
+    #         if self.__layers[layer_index]['type'] == 'flatten':
+    #             grads_w_update[layer_index - 1] = torch.tensor(0)
+    #             grads_b_update[layer_index - 1] = torch.tensor(0)
+    #
+    #         elif self.__layers[layer_index]['type'] == 'convolutional':
+    #
+    #             # print('layer_error_convolutional')
+    #             # print(layer_error.shape)
+    #             # print(layer_error)
+    #
+    #             k = self.__layers[layer_index]["kernel"]
+    #             filters_num = self.__layers[layer_index]["filters_num"]
+    #             input_c = self.__layers[layer_index]["input_c"]
+    #             output_h = self.__layers[layer_index]["output_h"]
+    #             output_w = self.__layers[layer_index]["output_w"]
+    #
+    #             # print('input_c')
+    #             # print(input_c)
+    #             # print('output_h')
+    #             # print(output_h)
+    #             # print('output_w')
+    #             # print(output_w)
+    #             # print('output_w')
+    #             # print(output_w)
+    #             # print('layer_error.shape')
+    #             # print(layer_error.shape)
+    #
+    #             for f in range(filters_num):
+    #                 for c in range(input_c):
+    #                     for m in range(k):
+    #                         for n in range(k):
+    #
+    #                             # print('m ', m)
+    #                             # print('n ', n)
+    #                             # print('self.__layers[layer_index - 1]["a"][m:m+output_h:,n:n+output_w:]')
+    #                             # print(self.__layers[layer_index - 1]["a"][
+    #                             #         c,
+    #                             #         m:m+output_h:,
+    #                             #         n:n+output_w:
+    #                             #     ].shape)
+    #                             # print(self.__layers[layer_index - 1]["a"][
+    #                             #         c,
+    #                             #         m:m+output_h:,
+    #                             #         n:n+output_w:
+    #                             #     ])
+    #                             # print('layer_error[f]')
+    #                             # print(layer_error[f])
+    #                             # print(layer_error[f] * self.__layers[layer_index - 1]["a"][
+    #                             #         c,
+    #                             #         m:m+output_h:,
+    #                             #         n:n+output_w:
+    #                             #     ])
+    #                             # print(layer_error[f].shape)
+    #                             # print(layer_error[f])
+    #
+    #                             grads_w_update[layer_index - 1][f][c][m][n] = torch.sum(
+    #                                 layer_error[f] * self.__layers[layer_index - 1]["a"][
+    #                                     c,
+    #                                     m:m+output_h:,
+    #                                     n:n+output_w:
+    #                                 ]
+    #                             )
+    #
+    #                             # print('grads_w_update[layer_index - 1]')
+    #                             # print(grads_w_update[layer_index - 1].shape)
+    #                             # print(grads_w_update[layer_index - 1])
+    #
+    #                 # print('torch.sum(layer_error[f])')
+    #                 # print(torch.sum(layer_error[f]))
+    #
+    #                 grads_b_update[layer_index - 1][f] = torch.sum(layer_error[f]) # ???
+    #
+    #             # print('grads_w_update[layer_index - 1]')
+    #             # print(grads_w_update[layer_index - 1].shape)
+    #             # print(grads_w_update[layer_index - 1])
+    #             # print('grads_b_update[layer_index - 1]')
+    #             # print(grads_b_update[layer_index - 1].shape)
+    #             # print(grads_b_update[layer_index - 1])
+    #
+    #         else:
+    #             grads_w_update[layer_index - 1] = torch.matmul(
+    #                 layer_error, self.__layers[layer_index - 1]["a"].t()
+    #             )
+    #             grads_b_update[layer_index - 1] = layer_error
+    #
+    #         layer_index -= 1
+    #
+    #     #print("Backward exec time: ", time.time() - start_backward_time)
+    #
+    #     return grads_w_update, grads_b_update
 
     def __process_batch(self, batch):
         """
         Process a batch of data.
         """
-        # grads_w = [torch.zeros_like(layer["w"]) for layer in self.__layers[1:]]
-        # grads_b = [torch.zeros_like(layer["b"]) for layer in self.__layers[1:]]
-
         for layer in self.__layers[1:]:
             if layer.learnable:
                 layer.zero_grad()
 
-
         for sample in batch:
             input_data = sample["input"]
 
-            # print('self.__layers_objects[0]')
-            # print(self.__layers_objects[0])
-
-            if isinstance(self.__input_layer, Input3D):
-                self.__layers[0]["a"] = torch.tensor(input_data, device=self.__device)
+            if self.__input_layer.type == 'input_3d':
+                self.__layers[0].a = torch.tensor(input_data)
             else:
-                self.__layers[0]["a"] = torch.tensor(input_data, device=self.__device).reshape(len(input_data), 1)
+                self.__layers[0].a = torch.tensor(input_data).reshape(len(input_data), 1)
 
             predict = self.__forward()
 
             self.__prediction.append(predict)
 
-            output = torch.tensor(sample["output"], device=self.__device).unsqueeze(1)
+            output = torch.tensor(sample["output"]).unsqueeze(1)
 
             self.__actual.append(output)
 
-            grads_w_update, grads_b_update = self.__backward(predict, output)
+            self.__backward(predict, output)
 
-            grads_w = [value + update for value, update in zip(grads_w, grads_w_update)]
-            grads_b = [value + update for value, update in zip(grads_b, grads_b_update)]
-
-        self.__optimizer.update(self.__layers, grads_w, grads_b, len(batch))
+        self.__optimizer.update(self.__layers, len(batch))
 
     def plot_digit(self, image):
         image = torch.tensor(image).numpy()
@@ -712,10 +728,10 @@ class NeuralNetwork:
                 for test_sample in test_dataset:
                     input_data = test_sample["input"]
 
-                    if isinstance(self.__input_layer, Input3D):
-                        self.__layers[0]["a"] = torch.tensor(input_data, device=self.__device)
+                    if self.__input_layer.type == 'input_3d':
+                        self.__layers[0].a = torch.tensor(input_data)
                     else:
-                        self.__layers[0]["a"] = torch.tensor(input_data, device=self.__device).reshape(
+                        self.__layers[0].a = torch.tensor(input_data).reshape(
                             len(input_data), 1
                         )
 
@@ -785,10 +801,10 @@ class NeuralNetwork:
         for sample in data:
             input_data = sample["input"]
 
-            if isinstance(self.__input_layer, Input3D):
-                self.__layers[0]["a"] = torch.tensor(input_data, device=self.__device)
+            if self.__input_layer.type == 'input_3d':
+                self.__layers[0].a = torch.tensor(input_data, device=self.__device)
             else:
-                self.__layers[0]["a"] = torch.tensor(input_data, device=self.__device).reshape(
+                self.__layers[0].a = torch.tensor(input_data, device=self.__device).reshape(
                     len(input_data), 1
                 )
 
