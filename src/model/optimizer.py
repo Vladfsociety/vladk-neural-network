@@ -93,10 +93,16 @@ class Adam:
         Initialize the optimizer for the given layers by setting up moment estimates.
         """
         for layer in layers[1:]:
-            self.__first_moment_w.append(torch.zeros_like(layer["w"]))
-            self.__first_moment_b.append(torch.zeros_like(layer["b"]))
-            self.__second_moment_w.append(torch.zeros_like(layer["w"]))
-            self.__second_moment_b.append(torch.zeros_like(layer["b"]))
+            if layer.learnable:
+                self.__first_moment_w.append(torch.zeros_like(layer.w))
+                self.__first_moment_b.append(torch.zeros_like(layer.b))
+                self.__second_moment_w.append(torch.zeros_like(layer.w))
+                self.__second_moment_b.append(torch.zeros_like(layer.b))
+            else:
+                self.__first_moment_w.append(torch.zeros(1))
+                self.__first_moment_b.append(torch.zeros(1))
+                self.__second_moment_w.append(torch.zeros(1))
+                self.__second_moment_b.append(torch.zeros(1))
 
         return
 
@@ -110,8 +116,8 @@ class Adam:
 
         while layer_index > 0:
 
-            if not layers[layer_index]['learnable']:
-                layer_index -= 1
+            if not layers[layer_index].learnable:
+                #layer_index -= 1
                 continue
 
             first_moment_w = self.__get_first_moment_w(layer_index, delta_w)

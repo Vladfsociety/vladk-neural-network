@@ -4,7 +4,7 @@ import random
 import matplotlib.pyplot as plt
 import torch
 
-from src.model.layer import Convolutional3x3x16x0x1, Flatten, Input3D
+from src.model.layer import Convolutional, Flatten, Input3D
 
 
 class NeuralNetwork:
@@ -23,30 +23,33 @@ class NeuralNetwork:
         on_cuda=False,
     ):
         self.__input_layer = input_layer
-        self.__layers_objects = layers
+        self.__layers = []
+        self.__init_layers(layers)
         self.__optimizer = optimizer
         self.__loss = loss
         self.__metric = metric
         self.__convert_prediction = convert_prediction
         self.__device = torch.device("cuda" if on_cuda and torch.cuda.is_available() else "cpu")
-        self.__layers = []
         self.__prediction = []
         self.__actual = []
-        self.__init_layers()
         self.__optimizer.initialize(self.__layers)
         # print('self.__device')
         # print(self.__device)
         # print('self.__layers__start')
         # pprint.pprint(self.__layers)
 
-    def __init_layers(self):
+    def __init_layers(self, layers):
         """
         Initialize the layers of the neural network.
         """
-        self.__layers.append(self.__input_layer.initialize(device=self.__device))
+
+        if layers[-1].type is not "fully_connected":
+            raise Exception("Last layer should be fully connected")
+
+        self.__layers.append(self.__input_layer)
         previous_layer = self.__input_layer
-        for layer in self.__layers_objects:
-            self.__layers.append(layer.initialize(previous_layer, device=self.__device))
+        for layer in layers:
+            self.__layers.append(layer.initialize(previous_layer))
             previous_layer = layer
 
     def __binary_convert(self, prediction, threshold=0.5):
@@ -81,120 +84,140 @@ class NeuralNetwork:
         """
         layer_index = 1
 
-        start_forward_time = time.time()
-
         while layer_index < len(self.__layers):
 
-            if self.__layers[layer_index]['type'] == 'convolutional':
-                prev_a = self.__layers[layer_index - 1]["a"]
+            input = self.__layers[layer_index - 1].a
 
-                # print('type(self.__layers[layer_index]["z"])')
-                # print(type(self.__layers[layer_index]["z"]))
-                # print(self.__layers[layer_index]["z"])
-
-                z = self.__layers[layer_index]["z"].clone()
-
-                # print('prev_a.shape')
-                # print(prev_a.shape)
-                # print('z.shape_dffdf')
-                # print(z.shape)
-
-                k = self.__layers[layer_index]["kernel"]
-                input_c = self.__layers[layer_index]["input_c"]
-                output_h = self.__layers[layer_index]["output_h"]
-                output_w = self.__layers[layer_index]["output_w"]
-                filters_num = self.__layers[layer_index]["filters_num"]
-
-                for f in range(filters_num):
-                    for i in range(output_h):
-                        for j in range(output_w):
-
-                            # print('f ', f)
-                            # print('i ', i)
-                            # print('j ', j)
-                            # print('prev_a[:,i:i+k,j:j+k]')
-                            # print(prev_a[:,i:i+k,j:j+k])
-                            # print('self.__layers[layer_index][w][f]')
-                            # print(self.__layers[layer_index]['w'][f])
-                            # print('(torch.sum(prev_a[:,i:i+k,j:j+k] * self.__layers[layer_index][w][f]) + self.__layers[layer_index][b][f])')
-                            # print((torch.sum(prev_a[:,i:i+k,j:j+k] * self.__layers[layer_index]['w'][f])
-                            #                    + self.__layers[layer_index]['b'][f]))
-
-                            z[f][i][j] = (torch.sum(prev_a[:,i:i+k,j:j+k] * self.__layers[layer_index]['w'][f])
-                                               + self.__layers[layer_index]['b'][f])
-
-                self.__layers[layer_index]["z"] = z
-
-                # print('z___________________________________________________________')
-                # print(z)
-
-                self.__layers[layer_index]["a"] = self.__layers[layer_index][
-                    "activation_function"
-                ].apply(self.__layers[layer_index]["z"])
-
-                # print('self.__layers[layer_index]["a"][0]')
-                # self.plot_digit(self.__layers[layer_index]["a"][0])
-                #
-                # print('self.__layers[layer_index]["a"][1]')
-                # self.plot_digit(self.__layers[layer_index]["a"][1])
-
-            elif self.__layers[layer_index]['type'] == "flatten":
-
-                # print('self.__layers[layer_index - 1]["a"]')
-                # print(self.__layers[layer_index - 1]["a"].shape)
-                # print(self.__layers[layer_index - 1]["a"])
-
-                self.__layers[layer_index]["z"] = self.__layers[layer_index - 1]["a"].flatten()
-
-                # print('self.__layers[layer_index]["z"]_before')
-                # print(self.__layers[layer_index]["z"].shape)
-                # print(self.__layers[layer_index]["z"])
-
-                self.__layers[layer_index]["z"] = self.__layers[layer_index]["z"].reshape(self.__layers[layer_index]["z"].size(0), 1)
-                self.__layers[layer_index]["a"] = self.__layers[layer_index]["z"].clone()
-
-                # print('self.__layers[layer_index]["a"]_after')
-                # print(self.__layers[layer_index]["a"].shape)
-                # print(self.__layers[layer_index]["a"])
-            else:
-
-                # print('devices_fdsfsdfds')
-                # print(self.__layers[layer_index]['type'])
-                # print(self.__layers[layer_index]["w"].device)
-                # print(self.__layers[layer_index]["b"].device)
-                # print(self.__layers[layer_index]["z"].device)
-                # print(self.__layers[layer_index]["a"].device)
-                # print(self.__layers[layer_index - 1]["type"])
-                # print(self.__layers[layer_index - 1]["a"].device)
-
-                self.__layers[layer_index]["z"] = (
-                    torch.matmul(
-                        self.__layers[layer_index]["w"], self.__layers[layer_index - 1]["a"]
-                    )
-                    + self.__layers[layer_index]["b"]
-                )
-
-                # print('self.__layers[layer_index]["z"]_fdsfds')
-                # print(self.__layers[layer_index]["z"])
-                # print('self.__layers[layer_index]["w"]')
-                # print(self.__layers[layer_index]["w"])
-                # print('self.__layers[layer_index - 1]["a"]')
-                # print(self.__layers[layer_index - 1]["a"])
-                # print('self.__layers[layer_index]["b"]')
-                # print(self.__layers[layer_index]["b"])
-
-                self.__layers[layer_index]["a"] = self.__layers[layer_index][
-                    "activation_function"
-                ].apply(self.__layers[layer_index]["z"])
-
-            # print('self.__layers[layer_index]["a"]_______')
-            # print(self.__layers[layer_index]["a"])
+            self.__layers[layer_index].forward(input)
 
             layer_index += 1
 
-        #print("Forward exec time: ", time.time() - start_forward_time)
+        return self.__layers[-1].a
 
-        return self.__layers[-1]["a"]
+    # def __forward(self):
+    #     """
+    #     Perform forward pass through the network.
+    #     """
+    #     layer_index = 1
+    #
+    #     start_forward_time = time.time()
+    #
+    #     while layer_index < len(self.__layers):
+    #
+    #         input = self.__layers[layer_index - 1].a
+    #
+    #         self.__layers[layer_index].forward(input)
+    #
+    #         if self.__layers[layer_index]['type'] == 'convolutional':
+    #             prev_a = self.__layers[layer_index - 1]["a"]
+    #
+    #             # print('type(self.__layers[layer_index]["z"])')
+    #             # print(type(self.__layers[layer_index]["z"]))
+    #             # print(self.__layers[layer_index]["z"])
+    #
+    #             z = self.__layers[layer_index]["z"].clone()
+    #
+    #             # print('prev_a.shape')
+    #             # print(prev_a.shape)
+    #             # print('z.shape_dffdf')
+    #             # print(z.shape)
+    #
+    #             k = self.__layers[layer_index]["kernel"]
+    #             input_c = self.__layers[layer_index]["input_c"]
+    #             output_h = self.__layers[layer_index]["output_h"]
+    #             output_w = self.__layers[layer_index]["output_w"]
+    #             filters_num = self.__layers[layer_index]["filters_num"]
+    #
+    #             for f in range(filters_num):
+    #                 for i in range(output_h):
+    #                     for j in range(output_w):
+    #
+    #                         # print('f ', f)
+    #                         # print('i ', i)
+    #                         # print('j ', j)
+    #                         # print('prev_a[:,i:i+k,j:j+k]')
+    #                         # print(prev_a[:,i:i+k,j:j+k])
+    #                         # print('self.__layers[layer_index][w][f]')
+    #                         # print(self.__layers[layer_index]['w'][f])
+    #                         # print('(torch.sum(prev_a[:,i:i+k,j:j+k] * self.__layers[layer_index][w][f]) + self.__layers[layer_index][b][f])')
+    #                         # print((torch.sum(prev_a[:,i:i+k,j:j+k] * self.__layers[layer_index]['w'][f])
+    #                         #                    + self.__layers[layer_index]['b'][f]))
+    #
+    #                         z[f][i][j] = (torch.sum(prev_a[:,i:i+k,j:j+k] * self.__layers[layer_index]['w'][f])
+    #                                            + self.__layers[layer_index]['b'][f])
+    #
+    #             self.__layers[layer_index]["z"] = z
+    #
+    #             # print('z___________________________________________________________')
+    #             # print(z)
+    #
+    #             self.__layers[layer_index]["a"] = self.__layers[layer_index][
+    #                 "activation_function"
+    #             ].apply(self.__layers[layer_index]["z"])
+    #
+    #             # print('self.__layers[layer_index]["a"][0]')
+    #             # self.plot_digit(self.__layers[layer_index]["a"][0])
+    #             #
+    #             # print('self.__layers[layer_index]["a"][1]')
+    #             # self.plot_digit(self.__layers[layer_index]["a"][1])
+    #
+    #         elif self.__layers[layer_index]['type'] == "flatten":
+    #
+    #             # print('self.__layers[layer_index - 1]["a"]')
+    #             # print(self.__layers[layer_index - 1]["a"].shape)
+    #             # print(self.__layers[layer_index - 1]["a"])
+    #
+    #             self.__layers[layer_index]["z"] = self.__layers[layer_index - 1]["a"].flatten()
+    #
+    #             # print('self.__layers[layer_index]["z"]_before')
+    #             # print(self.__layers[layer_index]["z"].shape)
+    #             # print(self.__layers[layer_index]["z"])
+    #
+    #             self.__layers[layer_index]["z"] = self.__layers[layer_index]["z"].reshape(self.__layers[layer_index]["z"].size(0), 1)
+    #             self.__layers[layer_index]["a"] = self.__layers[layer_index]["z"].clone()
+    #
+    #             # print('self.__layers[layer_index]["a"]_after')
+    #             # print(self.__layers[layer_index]["a"].shape)
+    #             # print(self.__layers[layer_index]["a"])
+    #         else:
+    #
+    #             # print('devices_fdsfsdfds')
+    #             # print(self.__layers[layer_index]['type'])
+    #             # print(self.__layers[layer_index]["w"].device)
+    #             # print(self.__layers[layer_index]["b"].device)
+    #             # print(self.__layers[layer_index]["z"].device)
+    #             # print(self.__layers[layer_index]["a"].device)
+    #             # print(self.__layers[layer_index - 1]["type"])
+    #             # print(self.__layers[layer_index - 1]["a"].device)
+    #
+    #             self.__layers[layer_index]["z"] = (
+    #                 torch.matmul(
+    #                     self.__layers[layer_index]["w"], self.__layers[layer_index - 1]["a"]
+    #                 )
+    #                 + self.__layers[layer_index]["b"]
+    #             )
+    #
+    #             # print('self.__layers[layer_index]["z"]_fdsfds')
+    #             # print(self.__layers[layer_index]["z"])
+    #             # print('self.__layers[layer_index]["w"]')
+    #             # print(self.__layers[layer_index]["w"])
+    #             # print('self.__layers[layer_index - 1]["a"]')
+    #             # print(self.__layers[layer_index - 1]["a"])
+    #             # print('self.__layers[layer_index]["b"]')
+    #             # print(self.__layers[layer_index]["b"])
+    #
+    #             self.__layers[layer_index]["a"] = self.__layers[layer_index][
+    #                 "activation_function"
+    #             ].apply(self.__layers[layer_index]["z"])
+    #
+    #         # print('self.__layers[layer_index]["a"]_______')
+    #         # print(self.__layers[layer_index]["a"])
+    #
+    #         layer_index += 1
+    #
+    #     #print("Forward exec time: ", time.time() - start_forward_time)
+    #
+    #     return self.__layers[-1].a
 
     def __backward(self, predict, actual):
         """
@@ -203,8 +226,8 @@ class NeuralNetwork:
 
         start_backward_time = time.time()
 
-        grads_w_update = [torch.zeros_like(layer["w"]) for layer in self.__layers[1:]]
-        grads_b_update = [torch.zeros_like(layer["b"]) for layer in self.__layers[1:]]
+        grads_w_update = [torch.zeros_like(layer.w) for layer in self.__layers[1:]]
+        grads_b_update = [torch.zeros_like(layer.b) for layer in self.__layers[1:]]
 
         layer_index = len(self.__layers) - 1
         layer_error = torch.zeros_like(self.__layers[-1]["a"])
@@ -212,9 +235,10 @@ class NeuralNetwork:
         while layer_index > 0:
 
             if layer_index == len(self.__layers) - 1:
-                layer_error = self.__loss.derivative(predict, actual) * self.__layers[
-                    -1
-                ]["activation_function"].derivative(self.__layers[-1]["z"])
+
+                loss_derivative = self.__loss.derivative(predict, actual)
+
+                layer_error = self.__layers[layer_index].backward(loss_derivative)
             else:
 
                 if self.__layers[layer_index]['type'] == 'flatten': # flatten layer
@@ -595,8 +619,13 @@ class NeuralNetwork:
         """
         Process a batch of data.
         """
-        grads_w = [torch.zeros_like(layer["w"]) for layer in self.__layers[1:]]
-        grads_b = [torch.zeros_like(layer["b"]) for layer in self.__layers[1:]]
+        # grads_w = [torch.zeros_like(layer["w"]) for layer in self.__layers[1:]]
+        # grads_b = [torch.zeros_like(layer["b"]) for layer in self.__layers[1:]]
+
+        for layer in self.__layers[1:]:
+            if layer.learnable:
+                layer.zero_grad()
+
 
         for sample in batch:
             input_data = sample["input"]
