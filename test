@@ -681,3 +681,62 @@ MSE: 0.004, r2: 0.9918, Fit time: 27.0536 seconds
 ========================= 9 passed in 87.67s (0:01:27) =========================
 
 
+
+
+
+
+
+
+
+
+Epoch: 1/10, train loss: 2.0412, train Accuracy: 0.565, test loss: 1.8861, test Accuracy: 0.79, epoch time: 94.741 s
+Epoch: 2/10, train loss: 1.7296, train Accuracy: 0.91, test loss: 1.7429, test Accuracy: 0.84, epoch time: 95.952 s
+Epoch: 3/10, train loss: 1.61, train Accuracy: 0.985, test loss: 1.8214, test Accuracy: 0.79, epoch time: 95.057 s
+Epoch: 4/10, train loss: 1.5484, train Accuracy: 0.9925, test loss: 1.8267, test Accuracy: 0.84, epoch time: 95.92 s
+Epoch: 5/10, train loss: 1.507, train Accuracy: 0.9975, test loss: 1.7869, test Accuracy: 0.82, epoch time: 94.766 s
+Epoch: 6/10, train loss: 1.4937, train Accuracy: 1.0, test loss: 1.7903, test Accuracy: 0.85, epoch time: 94.791 s
+Epoch: 7/10, train loss: 1.4918, train Accuracy: 1.0, test loss: 1.7841, test Accuracy: 0.83, epoch time: 94.735 s
+Epoch: 8/10, train loss: 1.4882, train Accuracy: 1.0, test loss: 1.7989, test Accuracy: 0.79, epoch time: 94.923 s
+Epoch: 9/10, train loss: 1.501, train Accuracy: 1.0, test loss: 1.8038, test Accuracy: 0.83, epoch time: 95.724 s
+Epoch: 10/10, train loss: 1.4946, train Accuracy: 1.0, test loss: 1.7927, test Accuracy: 0.81, epoch time: 94.916 s
+exec time:  951.5250964164734
+
+
+
+platform linux -- Python 3.12.3, pytest-8.3.2, pluggy-1.5.0
+rootdir: /home/vlad/Documents/Projects/vladk-neural-network
+configfile: pyproject.toml
+testpaths: tests
+plugins: anyio-4.4.0
+collected 9 items
+
+tests/test_binary_classification.py
+Binary classification. Testing Iris-setosa - Iris-versicolor combination
+BCE: 0.0001, Accuracy: 1.0, Fit time: 2.3385 seconds
+.
+Binary classification. Testing Iris-versicolor - Iris-virginica combination
+BCE: 0.0876, Accuracy: 0.9667, Fit time: 2.4131 seconds
+.
+Binary classification. Testing Iris-setosa - Iris-virginica combination
+BCE: 0.0, Accuracy: 1.0, Fit time: 2.3376 seconds
+.
+tests/test_multi_classification.py
+Multi-class classification. Testing on full Iris dataset (3 species)
+CCE: 0.5975, Accuracy: 0.9714, Fit time: 3.4826 seconds
+.
+Multi-class classification. Testing on Digits dataset
+CCE: 1.6147, Accuracy: 0.92, Fit time: 21.3928 seconds
+.
+tests/test_regression.py
+Regression. Testing func_quadratic
+MSE: 0.066, R2: 0.9974, Fit time: 2.306 seconds
+.
+Regression. Testing func_linear
+MSE: 0.0, R2: 1.0, Fit time: 2.1879 seconds
+.
+Regression. Testing func_quadratic_3d
+MSE: 0.0015, R2: 0.9994, Fit time: 14.5469 seconds
+.
+Regression. Testing func_sin_plus_cos_3d
+MSE: 0.006, R2: 0.9876, Fit time: 13.7865 seconds
+.
