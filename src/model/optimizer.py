@@ -23,10 +23,10 @@ class SGD:
         """
         layer_index = len(layers) - 1
 
-        print('delta_w____________________________________')
-        print(delta_w)
-        print('delta_b')
-        print(delta_b)
+        # print('delta_w____________________________________')
+        # print(delta_w)
+        # print('delta_b')
+        # print(delta_b)
 
         while layer_index > 0:
 
