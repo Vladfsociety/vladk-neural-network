@@ -22,30 +22,8 @@ class SGD:
         Update parameters using SGD.
         """
         for layer_index, layer in enumerate(layers[1:]):
-
             if not layer.learnable:
                 continue
-
-            # print('layers[layer_index]["w"]')
-            # print(layers[layer_index]["w"].shape)
-            # print(layers[layer_index]["w"])
-            # print('(self.__learning_rate / batch_size) * delta_w[layer_index - 1]')
-            # print(((self.__learning_rate / batch_size) * delta_w[
-            #     layer_index - 1
-            # ]).shape)
-            # print((self.__learning_rate / batch_size) * delta_w[
-            #     layer_index - 1
-            # ])
-            # print('layers[layer_index]["b"]')
-            # print(layers[layer_index]["b"].shape)
-            # print(layers[layer_index]["b"])
-            # print('(self.__learning_rate / batch_size) * delta_b[layer_index - 1]')
-            # print(((self.__learning_rate / batch_size) * delta_b[
-            #     layer_index - 1
-            # ]).shape)
-            # print((self.__learning_rate / batch_size) * delta_b[
-            #     layer_index - 1
-            # ])
 
             layers[layer_index + 1].w -= ((self.__learning_rate / batch_size)
                                          * layer.grad_w)
@@ -77,14 +55,7 @@ class Adam:
         """
         Initialize the optimizer for the given layers by setting up moment estimates.
         """
-        # print('layers')
-        # print(layers)
-
         for layer in layers[1:]:
-
-            # print('layer')
-            # print(layer)
-
             if layer.learnable:
                 self.__first_moment_w.append(torch.zeros_like(layer.w))
                 self.__first_moment_b.append(torch.zeros_like(layer.b))
@@ -103,9 +74,7 @@ class Adam:
         Update parameters using Adam.
         """
         self.__timestamp += 1
-
         for layer_index, layer in enumerate(layers[1:]):
-
             if not layer.learnable:
                 continue
 

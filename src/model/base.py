@@ -84,11 +84,8 @@ class NeuralNetwork:
         layer_index = 1
 
         while layer_index < len(self.__layers):
-
             input = self.__layers[layer_index - 1].a
-
             self.__layers[layer_index].forward(input)
-
             layer_index += 1
 
         return self.__layers[-1].a
@@ -102,7 +99,6 @@ class NeuralNetwork:
         layer_error = torch.zeros_like(self.__layers[-1].a)
 
         while layer_index > 0:
-
             if layer_index == len(self.__layers) - 1:
                 loss_derivative = self.__loss.derivative(predict, actual)
                 layer_error = self.__layers[layer_index].backward(
@@ -115,7 +111,6 @@ class NeuralNetwork:
                     self.__layers[layer_index - 1],
                     self.__layers[layer_index + 1]
                 )
-
             layer_index -= 1
 
         return
@@ -668,14 +663,6 @@ class NeuralNetwork:
             self.__backward(predict, output)
 
         self.__optimizer.update(self.__layers, len(batch))
-
-    def plot_digit(self, image):
-        image = torch.tensor(image).numpy()
-        plt.figure()
-        plt.imshow(image, cmap="gray")
-        plt.title(f"Predicted digi")
-        plt.axis("off")
-        plt.show()
 
     def fit(
         self, train_dataset, test_dataset=None, epochs=10, batch_size=1, verbose=True
