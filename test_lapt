@@ -1,0 +1,857 @@
+[tool.poetry]
+name = "vladk-neural-network"
+version = "0.1.0"
+description = "A description of your project"
+authors = ["Your Name <you@example.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+# Add other dependencies here
+
+[tool.poetry.packages]
+include = ["vladk_neural_network"]
+
+
+test_predictions
+[[tensor([0.0133])], [tensor([3.4210])], [tensor([1.7721])]]
+
+test_predictions
+[[tensor([-0.0902])], [tensor([2.8185])], [tensor([1.4110])]]
+
+
+[[tensor([-0.2594])], [tensor([1.7169])], [tensor([0.7606])]]
+
+
+[[tensor([-0.2912])], [tensor([1.2591])], [tensor([0.5090])]]
+
+[[tensor([-0.1964])],
+ [tensor([1.0806])],
+ [tensor([0.4627])],
+ [tensor([0.6686])]]
+
+ [[tensor([-0.0863])],
+ [tensor([1.0168])],
+ [tensor([0.4830])],
+ [tensor([0.6609])]]
+
+ [[tensor([-0.0070])],
+ [tensor([0.9716])],
+ [tensor([0.4981])],
+ [tensor([0.6560])]]
+
+
+  /home/vlad/Documents/Projects/vladk-neural-network/src/main.py:45: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.show()
+/home/vlad/Documents/Projects/vladk-neural-network/src/model/base.py:94: UserWarning: To copy construct from a tensor, it is recommended to use sourceTensor.clone().detach() or sourceTensor.clone().detach().requires_grad_(True), rather than torch.tensor(sourceTensor).
+  self.loss.backward(self.optimizer, self._layers, torch.tensor(predict), torch.tensor(train_sample['output']))
+/home/vlad/Documents/Projects/vladk-neural-network/src/main.py:57: UserWarning: To copy construct from a tensor, it is recommended to use sourceTensor.clone().detach() or sourceTensor.clone().detach().requires_grad_(True), rather than torch.tensor(sourceTensor).
+  x = torch.tensor(x)
+/home/vlad/Documents/Projects/vladk-neural-network/src/main.py:58: UserWarning: To copy construct from a tensor, it is recommended to use sourceTensor.clone().detach() or sourceTensor.clone().detach().requires_grad_(True), rather than torch.tensor(sourceTensor).
+  y = torch.tensor(y)
+/home/vlad/Documents/Projects/vladk-neural-network/src/main.py:59: UserWarning: To copy construct from a tensor, it is recommended to use sourceTensor.clone().detach() or sourceTensor.clone().detach().requires_grad_(True), rather than torch.tensor(sourceTensor).
+  z = torch.tensor(z)
+/home/vlad/Documents/Projects/vladk-neural-network/src/main.py:72: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.show()
+/home/vlad/Documents/Projects/vladk-neural-network/src/main.py:57: UserWarning: To copy construct from a tensor, it is recommended to use sourceTensor.clone().detach() or sourceTensor.clone().detach().requires_grad_(True), rather than torch.tensor(sourceTensor).
+  x = torch.tensor(x)
+/home/vlad/Documents/Projects/vladk-neural-network/src/main.py:58: UserWarning: To copy construct from a tensor, it is recommended to use sourceTensor.clone().detach() or sourceTensor.clone().detach().requires_grad_(True), rather than torch.tensor(sourceTensor).
+  y = torch.tensor(y)
+/home/vlad/Documents/Projects/vladk-neural-network/src/main.py:59: UserWarning: To copy construct from a tensor, it is recommended to use sourceTensor.clone().detach() or sourceTensor.clone().detach().requires_grad_(True), rather than torch.tensor(sourceTensor).
+  z = torch.tensor(z)
+/home/vlad/Documents/Projects/vladk-neural-network/src/main.py:72: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.show()
+
+
+
+
+  if no use output layer
+  poetry run python src/main.py > output.txt
+/home/vlad/Documents/Projects/vladk-neural-network/src/model/base.py:93: UserWarning: To copy construct from a tensor, it is recommended to use sourceTensor.clone().detach() or sourceTensor.clone().detach().requires_grad_(True), rather than torch.tensor(sourceTensor).
+  self.loss.backward(self.optimizer, self._layers, torch.tensor(predict), torch.tensor(train_sample['output']))
+Traceback (most recent call last):
+  File "/home/vlad/Documents/Projects/vladk-neural-network/src/main.py", line 188, in <module>
+    nn.fit(train_dataset, test_dataset, epochs=epochs)
+  File "/home/vlad/Documents/Projects/vladk-neural-network/src/model/base.py", line 95, in fit
+    loss = self.loss.calculate(torch.tensor(self._prediction), torch.tensor(self._actual))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: only one element tensors can be converted to Python scalars
+
+
+Первым делом добавить тесты
+
+
+
+
+
+batch 1 
+Epoch: 49/50, Loss: 0.0113, r2 score: 0.9987
+Test dataset validation. Loss: 0.0139, r2 score: 0.9984
+--- 16.43903636932373 seconds ---
+
+
+batch 2
+Epoch: 49/50, Loss: 0.1676, r2 score: 0.9803
+Test dataset validation. Loss: 0.1775, r2 score: 0.9801
+--- 16.935725212097168 seconds ---
+
+batch 1
+Epoch: 49/50, Loss: 0.0095, r2 score: 0.9989
+Test dataset validation. Loss: 0.0114, r2 score: 0.9987
+--- 16.717719554901123 seconds ---
+
+batch 4
+Epoch: 49/50, Loss: 5.8183, r2 score: 0.3156
+Test dataset validation. Loss: 5.9799, r2 score: 0.3287
+--- 18.0739266872406 seconds ---
+
+batch 4 lr 0.01
+Epoch: 49/50, Loss: 0.0004, r2 score: 1.0
+Test dataset validation. Loss: 0.0005, r2 score: 0.9999
+--- 17.332524061203003 seconds ---
+
+batch 1 lr 0.01
+Epoch: 49/50, Loss: 0.001, r2 score: 0.9999
+Test dataset validation. Loss: 0.0062, r2 score: 0.9993
+--- 15.673651456832886 seconds ---
+
+
+more complic model
+batch 1
+Epoch: 99/100, Loss: 0.4454, r2 score: 0.9908
+Test dataset validation. Loss: 0.7514, r2 score: 0.9854
+--- 3.9565186500549316 seconds ---
+
+
+batch 4
+Epoch: 99/100, Loss: 1.1448, r2 score: 0.9764
+Test dataset validation. Loss: 1.313, r2 score: 0.9745
+--- 3.285139322280884 seconds ---
+
+batch 8
+Epoch: 99/100, Loss: 1.3276, r2 score: 0.9726
+Test dataset validation. Loss: 1.424, r2 score: 0.9723
+--- 3.2789177894592285 seconds ---
+
+batch 16
+Epoch: 99/100, Loss: 2.0787, r2 score: 0.9571
+Test dataset validation. Loss: 2.0876, r2 score: 0.9594
+--- 3.0714268684387207 seconds ---
+
+
+3d quad
+batch 1
+Epoch: 19/20, Loss: 0.0006, r2 score: 0.9999
+Test dataset validation. Loss: 0.1335, r2 score: 0.9736
+--- 423.70688581466675 seconds ---
+
+batch 32
+Epoch: 20/20, Loss: 0.0146, r2 score: 0.9969
+Test dataset validation. Loss: 0.0601, r2 score: 0.9881
+--- 156.04590106010437 seconds ---
+
+batch 64
+Epoch: 20/20, Loss: 0.0275, r2 score: 0.9941
+Test dataset validation. Loss: 0.0635, r2 score: 0.9875
+--- 138.64127945899963 seconds ---
+
+batch 128
+Epoch: 20/20, Loss: 0.0824, r2 score: 0.9822
+Test dataset validation. Loss: 0.1834, r2 score: 0.9638
+--- 153.09762501716614 seconds ---
+
+batch 256
+Epoch: 20/20, Loss: 1.0324, r2 score: 0.7767
+Test dataset validation. Loss: 1.2249, r2 score: 0.758
+--- 144.80464816093445 seconds ---
+
+batch 64
+Epoch: 20/20, Loss: 0.032, r2 score: 0.9931
+Test dataset validation. Loss: 0.0784, r2 score: 0.9845
+--- 148.19429850578308 seconds ---
+
+batch 64 shuffle
+Epoch: 20/20, Loss: 0.0283, r2 score: 0.9939
+Test dataset validation. Loss: 0.0329, r2 score: 0.9935
+--- 156.4179859161377 seconds --
+
+
+
+
+
+
+
+Epoch: 40/40, Loss: 0.5841, R2 score: 0.9759
+Test dataset validation. Loss: 0.6434, R2 score: 0.975
+--- 16.375547409057617 seconds ---
+
+
+Epoch: 40/40, Loss: 0.5669, R2 score: 0.9766
+Test dataset validation. Loss: 0.6277, R2 score: 0.9756
+--- 14.545613050460815 seconds ---
+
+
+'b': tensor([[ 0.3932],
+        [ 0.2622],
+        [-0.1065],
+        [ 0.1861],
+        [ 0.4144],
+        [ 0.2395],
+        [-0.5613],
+        [ 0.1152],
+        [-0.1406],
+        [ 0.4850],
+        [-0.5589],
+        [ 0.5319],
+        [ 0.3562],
+        [-0.1339],
+        [ 0.2887],
+        [-0.3296]]),
+
+'w': tensor([[-0.1276, -0.2779,  0.4979,  0.5601,  0.2960, -0.2253,  0.2908,  0.1090,
+          0.4300, -0.0269,  0.3568, -0.3834, -0.0432,  0.3246, -0.4088,  0.5653]]),
+
+
+
+'b': tensor([[ 0.4043],
+        [ 0.3085],
+        [-0.1065],
+        [ 0.1836],
+        [ 0.3595],
+        [ 0.1364],
+        [-0.5613],
+        [ 0.1327],
+        [-0.1406],
+        [ 0.4958],
+        [-0.5589],
+        [ 0.4930],
+        [ 0.3183],
+        [-0.1339],
+        [ 0.2830],
+        [-0.3296]])
+
+'w': tensor([[-0.1167, -0.2779,  0.4979,  0.6723,  0.2960, -0.2881,  0.2908,  0.1792,
+          0.4300, -0.0454,  0.3364, -0.3834, -0.0432,  0.3246, -0.4088,  0.6313]]),
+
+
+Похоже что стоит попробовать с leaky relu
+
+
+
+
+
+
+
+Так на ирисе воспроизводится хороший но не идеальній результат
+layers = [
+    FullyConnected(4, Relu()),
+    FullyConnected(1, Sigmoid())
+]
+nn = NeuralNetwork(
+    Input(4),
+    layers,
+    optimizer=SGD(learning_rate=0.001),
+    loss=BinaryCrossEntropy(),
+    metric=Accuracy(),
+    convert_prediction='binary'
+)
+
+epochs = 30
+nn.fit(train_dataset, test_dataset, epochs=epochs, batch_size=1, verbose=True)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-8.3.2, pluggy-1.5.0
+rootdir: /home/vlad/Documents/Projects/vladk-neural-network
+configfile: pyproject.toml
+testpaths: tests
+collected 9 items
+
+tests/test_binary_classification.py 
+Binary classification. Testing Iris-setosa - Iris-versicolor combination
+Epoch: 1/50, Loss: 0.66, Accuracy: 0.5857
+Epoch: 2/50, Loss: 0.6436, Accuracy: 0.5857
+Epoch: 3/50, Loss: 0.63, Accuracy: 0.5857
+Epoch: 4/50, Loss: 0.6182, Accuracy: 0.5857
+Epoch: 5/50, Loss: 0.6062, Accuracy: 0.5857
+Epoch: 6/50, Loss: 0.5933, Accuracy: 0.5857
+Epoch: 7/50, Loss: 0.5797, Accuracy: 0.5857
+Epoch: 8/50, Loss: 0.5651, Accuracy: 0.5857
+Epoch: 9/50, Loss: 0.5498, Accuracy: 0.5857
+Epoch: 10/50, Loss: 0.5336, Accuracy: 0.5857
+Epoch: 11/50, Loss: 0.5162, Accuracy: 0.7714
+Epoch: 12/50, Loss: 0.4976, Accuracy: 0.7286
+Epoch: 13/50, Loss: 0.478, Accuracy: 0.9571
+Epoch: 14/50, Loss: 0.4571, Accuracy: 0.9714
+Epoch: 15/50, Loss: 0.4345, Accuracy: 1.0
+Epoch: 16/50, Loss: 0.4117, Accuracy: 1.0
+Epoch: 17/50, Loss: 0.3879, Accuracy: 1.0
+Epoch: 18/50, Loss: 0.3641, Accuracy: 1.0
+Epoch: 19/50, Loss: 0.34, Accuracy: 1.0
+Epoch: 20/50, Loss: 0.3161, Accuracy: 1.0
+Epoch: 21/50, Loss: 0.2922, Accuracy: 1.0
+Epoch: 22/50, Loss: 0.2698, Accuracy: 1.0
+Epoch: 23/50, Loss: 0.2479, Accuracy: 1.0
+Epoch: 24/50, Loss: 0.2274, Accuracy: 1.0
+Epoch: 25/50, Loss: 0.208, Accuracy: 1.0
+Epoch: 26/50, Loss: 0.1905, Accuracy: 1.0
+Epoch: 27/50, Loss: 0.1742, Accuracy: 1.0
+Epoch: 28/50, Loss: 0.1592, Accuracy: 1.0
+Epoch: 29/50, Loss: 0.1458, Accuracy: 1.0
+Epoch: 30/50, Loss: 0.1335, Accuracy: 1.0
+Epoch: 31/50, Loss: 0.1225, Accuracy: 1.0
+Epoch: 32/50, Loss: 0.1125, Accuracy: 1.0
+Epoch: 33/50, Loss: 0.1035, Accuracy: 1.0
+Epoch: 34/50, Loss: 0.0954, Accuracy: 1.0
+Epoch: 35/50, Loss: 0.0881, Accuracy: 1.0
+Epoch: 36/50, Loss: 0.0815, Accuracy: 1.0
+Epoch: 37/50, Loss: 0.0756, Accuracy: 1.0
+Epoch: 38/50, Loss: 0.0703, Accuracy: 1.0
+Epoch: 39/50, Loss: 0.0654, Accuracy: 1.0
+Epoch: 40/50, Loss: 0.0611, Accuracy: 1.0
+Epoch: 41/50, Loss: 0.0572, Accuracy: 1.0
+Epoch: 42/50, Loss: 0.0536, Accuracy: 1.0
+Epoch: 43/50, Loss: 0.0504, Accuracy: 1.0
+Epoch: 44/50, Loss: 0.0474, Accuracy: 1.0
+Epoch: 45/50, Loss: 0.0447, Accuracy: 1.0
+Epoch: 46/50, Loss: 0.0422, Accuracy: 1.0
+Epoch: 47/50, Loss: 0.0399, Accuracy: 1.0
+Epoch: 48/50, Loss: 0.0378, Accuracy: 1.0
+Epoch: 49/50, Loss: 0.0359, Accuracy: 1.0
+Epoch: 50/50, Loss: 0.0341, Accuracy: 1.0
+BCE: 0.04, Accuracy: 1.0, Fit time: 1.229 seconds
+.
+Binary classification. Testing Iris-versicolor - Iris-virginica combination
+Epoch: 1/50, Loss: 0.6893, Accuracy: 0.4714
+Epoch: 2/50, Loss: 0.6693, Accuracy: 0.7857
+Epoch: 3/50, Loss: 0.6553, Accuracy: 0.7
+Epoch: 4/50, Loss: 0.6437, Accuracy: 0.7143
+Epoch: 5/50, Loss: 0.6349, Accuracy: 0.5857
+Epoch: 6/50, Loss: 0.6271, Accuracy: 0.6
+Epoch: 7/50, Loss: 0.6199, Accuracy: 0.5857
+Epoch: 8/50, Loss: 0.6129, Accuracy: 0.6
+Epoch: 9/50, Loss: 0.6062, Accuracy: 0.6286
+Epoch: 10/50, Loss: 0.5992, Accuracy: 0.6857
+Epoch: 11/50, Loss: 0.592, Accuracy: 0.6857
+Epoch: 12/50, Loss: 0.5844, Accuracy: 0.6429
+Epoch: 13/50, Loss: 0.5773, Accuracy: 0.7714
+Epoch: 14/50, Loss: 0.5697, Accuracy: 0.7429
+Epoch: 15/50, Loss: 0.5618, Accuracy: 0.7571
+Epoch: 16/50, Loss: 0.5537, Accuracy: 0.7571
+Epoch: 17/50, Loss: 0.5454, Accuracy: 0.8
+Epoch: 18/50, Loss: 0.5367, Accuracy: 0.8143
+Epoch: 19/50, Loss: 0.5278, Accuracy: 0.8143
+Epoch: 20/50, Loss: 0.5189, Accuracy: 0.8143
+Epoch: 21/50, Loss: 0.5095, Accuracy: 0.8286
+Epoch: 22/50, Loss: 0.4997, Accuracy: 0.8857
+Epoch: 23/50, Loss: 0.4898, Accuracy: 0.8571
+Epoch: 24/50, Loss: 0.4802, Accuracy: 0.8714
+Epoch: 25/50, Loss: 0.4697, Accuracy: 0.8857
+Epoch: 26/50, Loss: 0.4595, Accuracy: 0.8857
+Epoch: 27/50, Loss: 0.4497, Accuracy: 0.8714
+Epoch: 28/50, Loss: 0.4392, Accuracy: 0.8857
+Epoch: 29/50, Loss: 0.429, Accuracy: 0.8857
+Epoch: 30/50, Loss: 0.418, Accuracy: 0.9
+Epoch: 31/50, Loss: 0.4078, Accuracy: 0.9
+Epoch: 32/50, Loss: 0.398, Accuracy: 0.9
+Epoch: 33/50, Loss: 0.3877, Accuracy: 0.9143
+Epoch: 34/50, Loss: 0.3775, Accuracy: 0.9
+Epoch: 35/50, Loss: 0.3676, Accuracy: 0.9286
+Epoch: 36/50, Loss: 0.357, Accuracy: 0.9143
+Epoch: 37/50, Loss: 0.346, Accuracy: 0.9143
+Epoch: 38/50, Loss: 0.3384, Accuracy: 0.9286
+Epoch: 39/50, Loss: 0.3289, Accuracy: 0.9286
+Epoch: 40/50, Loss: 0.3189, Accuracy: 0.9286
+Epoch: 41/50, Loss: 0.3112, Accuracy: 0.9143
+Epoch: 42/50, Loss: 0.3023, Accuracy: 0.9143
+Epoch: 43/50, Loss: 0.2942, Accuracy: 0.9286
+Epoch: 44/50, Loss: 0.2851, Accuracy: 0.9286
+Epoch: 45/50, Loss: 0.2788, Accuracy: 0.9286
+Epoch: 46/50, Loss: 0.2703, Accuracy: 0.9286
+Epoch: 47/50, Loss: 0.2645, Accuracy: 0.9286
+Epoch: 48/50, Loss: 0.2577, Accuracy: 0.9286
+Epoch: 49/50, Loss: 0.2502, Accuracy: 0.9429
+Epoch: 50/50, Loss: 0.2455, Accuracy: 0.9286
+BCE: 0.227, Accuracy: 0.9333, Fit time: 1.2268 seconds
+.
+Binary classification. Testing Iris-setosa - Iris-virginica combination
+Epoch: 1/50, Loss: 0.7856, Accuracy: 0.5
+Epoch: 2/50, Loss: 0.706, Accuracy: 0.5
+Epoch: 3/50, Loss: 0.6445, Accuracy: 0.5
+Epoch: 4/50, Loss: 0.5955, Accuracy: 0.5857
+Epoch: 5/50, Loss: 0.5551, Accuracy: 0.9286
+Epoch: 6/50, Loss: 0.5213, Accuracy: 0.9857
+Epoch: 7/50, Loss: 0.4914, Accuracy: 1.0
+Epoch: 8/50, Loss: 0.4636, Accuracy: 1.0
+Epoch: 9/50, Loss: 0.4359, Accuracy: 1.0
+Epoch: 10/50, Loss: 0.4092, Accuracy: 1.0
+Epoch: 11/50, Loss: 0.3826, Accuracy: 1.0
+Epoch: 12/50, Loss: 0.3562, Accuracy: 1.0
+Epoch: 13/50, Loss: 0.3305, Accuracy: 1.0
+Epoch: 14/50, Loss: 0.3054, Accuracy: 1.0
+Epoch: 15/50, Loss: 0.2813, Accuracy: 1.0
+Epoch: 16/50, Loss: 0.2582, Accuracy: 1.0
+Epoch: 17/50, Loss: 0.2369, Accuracy: 1.0
+Epoch: 18/50, Loss: 0.2168, Accuracy: 1.0
+Epoch: 19/50, Loss: 0.199, Accuracy: 1.0
+Epoch: 20/50, Loss: 0.1825, Accuracy: 1.0
+Epoch: 21/50, Loss: 0.1676, Accuracy: 1.0
+Epoch: 22/50, Loss: 0.1539, Accuracy: 1.0
+Epoch: 23/50, Loss: 0.1415, Accuracy: 1.0
+Epoch: 24/50, Loss: 0.1303, Accuracy: 1.0
+Epoch: 25/50, Loss: 0.1201, Accuracy: 1.0
+Epoch: 26/50, Loss: 0.1108, Accuracy: 1.0
+Epoch: 27/50, Loss: 0.1025, Accuracy: 1.0
+Epoch: 28/50, Loss: 0.095, Accuracy: 1.0
+Epoch: 29/50, Loss: 0.0883, Accuracy: 1.0
+Epoch: 30/50, Loss: 0.0822, Accuracy: 1.0
+Epoch: 31/50, Loss: 0.0768, Accuracy: 1.0
+Epoch: 32/50, Loss: 0.0719, Accuracy: 1.0
+Epoch: 33/50, Loss: 0.0674, Accuracy: 1.0
+Epoch: 34/50, Loss: 0.0634, Accuracy: 1.0
+Epoch: 35/50, Loss: 0.0598, Accuracy: 1.0
+Epoch: 36/50, Loss: 0.0564, Accuracy: 1.0
+Epoch: 37/50, Loss: 0.0533, Accuracy: 1.0
+Epoch: 38/50, Loss: 0.0505, Accuracy: 1.0
+Epoch: 39/50, Loss: 0.0479, Accuracy: 1.0
+Epoch: 40/50, Loss: 0.0455, Accuracy: 1.0
+Epoch: 41/50, Loss: 0.0433, Accuracy: 1.0
+Epoch: 42/50, Loss: 0.0413, Accuracy: 1.0
+Epoch: 43/50, Loss: 0.0394, Accuracy: 1.0
+Epoch: 44/50, Loss: 0.0376, Accuracy: 1.0
+Epoch: 45/50, Loss: 0.036, Accuracy: 1.0
+Epoch: 46/50, Loss: 0.0345, Accuracy: 1.0
+Epoch: 47/50, Loss: 0.0331, Accuracy: 1.0
+Epoch: 48/50, Loss: 0.0318, Accuracy: 1.0
+Epoch: 49/50, Loss: 0.0306, Accuracy: 1.0
+Epoch: 50/50, Loss: 0.0295, Accuracy: 1.0
+BCE: 0.0258, Accuracy: 1.0, Fit time: 1.2503 seconds
+.
+tests/test_multi_classification.py 
+Multi classification. Testing on full iris dataset (3 species)
+Epoch: 1/50, Loss: 1.0811, Accuracy: 0.4696
+Epoch: 2/50, Loss: 0.9458, Accuracy: 0.7652
+Epoch: 3/50, Loss: 0.8733, Accuracy: 0.7913
+Epoch: 4/50, Loss: 0.8314, Accuracy: 0.8174
+Epoch: 5/50, Loss: 0.8123, Accuracy: 0.8435
+Epoch: 6/50, Loss: 0.7945, Accuracy: 0.8696
+Epoch: 7/50, Loss: 0.781, Accuracy: 0.8957
+Epoch: 8/50, Loss: 0.7641, Accuracy: 0.8522
+Epoch: 9/50, Loss: 0.7515, Accuracy: 0.913
+Epoch: 10/50, Loss: 0.7282, Accuracy: 0.9304
+Epoch: 11/50, Loss: 0.7218, Accuracy: 0.8957
+Epoch: 12/50, Loss: 0.6988, Accuracy: 0.9304
+Epoch: 13/50, Loss: 0.6999, Accuracy: 0.9304
+Epoch: 14/50, Loss: 0.6817, Accuracy: 0.9304
+Epoch: 15/50, Loss: 0.6708, Accuracy: 0.9304
+Epoch: 16/50, Loss: 0.6584, Accuracy: 0.9391
+Epoch: 17/50, Loss: 0.6556, Accuracy: 0.9565
+Epoch: 18/50, Loss: 0.6536, Accuracy: 0.9565
+Epoch: 19/50, Loss: 0.6364, Accuracy: 0.9652
+Epoch: 20/50, Loss: 0.6427, Accuracy: 0.9304
+Epoch: 21/50, Loss: 0.6343, Accuracy: 0.9478
+Epoch: 22/50, Loss: 0.6346, Accuracy: 0.9391
+Epoch: 23/50, Loss: 0.6208, Accuracy: 0.9739
+Epoch: 24/50, Loss: 0.632, Accuracy: 0.9565
+Epoch: 25/50, Loss: 0.6235, Accuracy: 0.9652
+Epoch: 26/50, Loss: 0.6245, Accuracy: 0.9391
+Epoch: 27/50, Loss: 0.6263, Accuracy: 0.9565
+Epoch: 28/50, Loss: 0.6295, Accuracy: 0.9565
+Epoch: 29/50, Loss: 0.6208, Accuracy: 0.9565
+Epoch: 30/50, Loss: 0.6159, Accuracy: 0.9652
+Epoch: 31/50, Loss: 0.6089, Accuracy: 0.9565
+Epoch: 32/50, Loss: 0.6178, Accuracy: 0.9391
+Epoch: 33/50, Loss: 0.6151, Accuracy: 0.9739
+Epoch: 34/50, Loss: 0.6107, Accuracy: 0.9478
+Epoch: 35/50, Loss: 0.6171, Accuracy: 0.9565
+Epoch: 36/50, Loss: 0.6154, Accuracy: 0.9826
+Epoch: 37/50, Loss: 0.5973, Accuracy: 0.9652
+Epoch: 38/50, Loss: 0.609, Accuracy: 0.9652
+Epoch: 39/50, Loss: 0.611, Accuracy: 0.9652
+Epoch: 40/50, Loss: 0.6131, Accuracy: 0.9565
+Epoch: 41/50, Loss: 0.6109, Accuracy: 0.9478
+Epoch: 42/50, Loss: 0.6118, Accuracy: 0.9652
+Epoch: 43/50, Loss: 0.5991, Accuracy: 0.9826
+Epoch: 44/50, Loss: 0.6151, Accuracy: 0.9478
+Epoch: 45/50, Loss: 0.6053, Accuracy: 0.9652
+Epoch: 46/50, Loss: 0.61, Accuracy: 0.9826
+Epoch: 47/50, Loss: 0.6005, Accuracy: 0.9739
+Epoch: 48/50, Loss: 0.6041, Accuracy: 0.9739
+Epoch: 49/50, Loss: 0.606, Accuracy: 0.9565
+Epoch: 50/50, Loss: 0.6021, Accuracy: 0.9739
+CCE: 0.5783, Accuracy: 1.0, Fit time: 1.7031 seconds
+.
+Multi classification. Testing on digits dataset
+Epoch: 1/20, Loss: 2.1376, Accuracy: 0.4805
+Epoch: 2/20, Loss: 1.9571, Accuracy: 0.7755
+Epoch: 3/20, Loss: 1.8708, Accuracy: 0.8455
+Epoch: 4/20, Loss: 1.8127, Accuracy: 0.876
+Epoch: 5/20, Loss: 1.7691, Accuracy: 0.9065
+Epoch: 6/20, Loss: 1.7397, Accuracy: 0.9175
+Epoch: 7/20, Loss: 1.7161, Accuracy: 0.927
+Epoch: 8/20, Loss: 1.6956, Accuracy: 0.933
+Epoch: 9/20, Loss: 1.6828, Accuracy: 0.9395
+Epoch: 10/20, Loss: 1.6669, Accuracy: 0.947
+Epoch: 11/20, Loss: 1.6558, Accuracy: 0.9525
+Epoch: 12/20, Loss: 1.6447, Accuracy: 0.956
+Epoch: 13/20, Loss: 1.6376, Accuracy: 0.9595
+Epoch: 14/20, Loss: 1.627, Accuracy: 0.966
+Epoch: 15/20, Loss: 1.6204, Accuracy: 0.9675
+Epoch: 16/20, Loss: 1.6139, Accuracy: 0.97
+Epoch: 17/20, Loss: 1.6074, Accuracy: 0.972
+Epoch: 18/20, Loss: 1.602, Accuracy: 0.974
+Epoch: 19/20, Loss: 1.5966, Accuracy: 0.979
+Epoch: 20/20, Loss: 1.5904, Accuracy: 0.979
+CCE: 1.6406, Accuracy: 0.92, Fit time: 21.6939 seconds
+.
+tests/test_regression.py 
+Regression. Testing func_quadratic
+Epoch: 1/50, Loss: 13.5262, R2 score: 0.4417
+Epoch: 2/50, Loss: 1.6751, R2 score: 0.9309
+Epoch: 3/50, Loss: 1.0717, R2 score: 0.9558
+Epoch: 4/50, Loss: 0.9152, R2 score: 0.9622
+Epoch: 5/50, Loss: 0.7106, R2 score: 0.9707
+Epoch: 6/50, Loss: 0.6319, R2 score: 0.9739
+Epoch: 7/50, Loss: 0.506, R2 score: 0.9791
+Epoch: 8/50, Loss: 0.4816, R2 score: 0.9801
+Epoch: 9/50, Loss: 0.4381, R2 score: 0.9819
+Epoch: 10/50, Loss: 0.4551, R2 score: 0.9812
+Epoch: 11/50, Loss: 0.4259, R2 score: 0.9824
+Epoch: 12/50, Loss: 0.3389, R2 score: 0.986
+Epoch: 13/50, Loss: 0.3156, R2 score: 0.987
+Epoch: 14/50, Loss: 0.3511, R2 score: 0.9855
+Epoch: 15/50, Loss: 0.304, R2 score: 0.9875
+Epoch: 16/50, Loss: 0.3121, R2 score: 0.9871
+Epoch: 17/50, Loss: 0.2912, R2 score: 0.988
+Epoch: 18/50, Loss: 0.2782, R2 score: 0.9885
+Epoch: 19/50, Loss: 0.2485, R2 score: 0.9897
+Epoch: 20/50, Loss: 0.2531, R2 score: 0.9896
+Epoch: 21/50, Loss: 0.2252, R2 score: 0.9907
+Epoch: 22/50, Loss: 0.2079, R2 score: 0.9914
+Epoch: 23/50, Loss: 0.1449, R2 score: 0.994
+Epoch: 24/50, Loss: 0.2041, R2 score: 0.9916
+Epoch: 25/50, Loss: 0.1776, R2 score: 0.9927
+Epoch: 26/50, Loss: 0.1755, R2 score: 0.9928
+Epoch: 27/50, Loss: 0.169, R2 score: 0.993
+Epoch: 28/50, Loss: 0.1496, R2 score: 0.9938
+Epoch: 29/50, Loss: 0.1343, R2 score: 0.9945
+Epoch: 30/50, Loss: 0.1523, R2 score: 0.9937
+Epoch: 31/50, Loss: 0.1313, R2 score: 0.9946
+Epoch: 32/50, Loss: 0.087, R2 score: 0.9964
+Epoch: 33/50, Loss: 0.1179, R2 score: 0.9951
+Epoch: 34/50, Loss: 0.0936, R2 score: 0.9961
+Epoch: 35/50, Loss: 0.0892, R2 score: 0.9963
+Epoch: 36/50, Loss: 0.0852, R2 score: 0.9965
+Epoch: 37/50, Loss: 0.0939, R2 score: 0.9961
+Epoch: 38/50, Loss: 0.0883, R2 score: 0.9964
+Epoch: 39/50, Loss: 0.063, R2 score: 0.9974
+Epoch: 40/50, Loss: 0.079, R2 score: 0.9967
+Epoch: 41/50, Loss: 0.0675, R2 score: 0.9972
+Epoch: 42/50, Loss: 0.0761, R2 score: 0.9969
+Epoch: 43/50, Loss: 0.06, R2 score: 0.9975
+Epoch: 44/50, Loss: 0.06, R2 score: 0.9975
+Epoch: 45/50, Loss: 0.0608, R2 score: 0.9975
+Epoch: 46/50, Loss: 0.062, R2 score: 0.9974
+Epoch: 47/50, Loss: 0.045, R2 score: 0.9981
+Epoch: 48/50, Loss: 0.0477, R2 score: 0.998
+Epoch: 49/50, Loss: 0.0453, R2 score: 0.9981
+Epoch: 50/50, Loss: 0.0424, R2 score: 0.9982
+Test dataset. Loss: 0.0298, R2 score: 0.9988
+MSE: 0.0298, r2: 0.9988, Fit time: 1.5387 seconds
+.
+Regression. Testing func_linear
+Epoch: 1/50, Loss: 2.6196, R2 score: 0.3838
+Epoch: 2/50, Loss: 0.572, R2 score: 0.8654
+Epoch: 3/50, Loss: 0.066, R2 score: 0.9845
+Epoch: 4/50, Loss: 0.0232, R2 score: 0.9945
+Epoch: 5/50, Loss: 0.0167, R2 score: 0.9961
+Epoch: 6/50, Loss: 0.0127, R2 score: 0.997
+Epoch: 7/50, Loss: 0.01, R2 score: 0.9976
+Epoch: 8/50, Loss: 0.008, R2 score: 0.9981
+Epoch: 9/50, Loss: 0.0066, R2 score: 0.9984
+Epoch: 10/50, Loss: 0.0056, R2 score: 0.9987
+Epoch: 11/50, Loss: 0.0048, R2 score: 0.9989
+Epoch: 12/50, Loss: 0.0041, R2 score: 0.999
+Epoch: 13/50, Loss: 0.0036, R2 score: 0.9992
+Epoch: 14/50, Loss: 0.0032, R2 score: 0.9992
+Epoch: 15/50, Loss: 0.0029, R2 score: 0.9993
+Epoch: 16/50, Loss: 0.0026, R2 score: 0.9994
+Epoch: 17/50, Loss: 0.0023, R2 score: 0.9995
+Epoch: 18/50, Loss: 0.0021, R2 score: 0.9995
+Epoch: 19/50, Loss: 0.002, R2 score: 0.9995
+Epoch: 20/50, Loss: 0.0018, R2 score: 0.9996
+Epoch: 21/50, Loss: 0.0017, R2 score: 0.9996
+Epoch: 22/50, Loss: 0.0015, R2 score: 0.9996
+Epoch: 23/50, Loss: 0.0014, R2 score: 0.9997
+Epoch: 24/50, Loss: 0.0013, R2 score: 0.9997
+Epoch: 25/50, Loss: 0.0012, R2 score: 0.9997
+Epoch: 26/50, Loss: 0.0011, R2 score: 0.9997
+Epoch: 27/50, Loss: 0.0011, R2 score: 0.9997
+Epoch: 28/50, Loss: 0.001, R2 score: 0.9998
+Epoch: 29/50, Loss: 0.0009, R2 score: 0.9998
+Epoch: 30/50, Loss: 0.0009, R2 score: 0.9998
+Epoch: 31/50, Loss: 0.0008, R2 score: 0.9998
+Epoch: 32/50, Loss: 0.0008, R2 score: 0.9998
+Epoch: 33/50, Loss: 0.0007, R2 score: 0.9998
+Epoch: 34/50, Loss: 0.0007, R2 score: 0.9998
+Epoch: 35/50, Loss: 0.0007, R2 score: 0.9998
+Epoch: 36/50, Loss: 0.0006, R2 score: 0.9998
+Epoch: 37/50, Loss: 0.0006, R2 score: 0.9999
+Epoch: 38/50, Loss: 0.0006, R2 score: 0.9999
+Epoch: 39/50, Loss: 0.0006, R2 score: 0.9999
+Epoch: 40/50, Loss: 0.0005, R2 score: 0.9999
+Epoch: 41/50, Loss: 0.0005, R2 score: 0.9999
+Epoch: 42/50, Loss: 0.0005, R2 score: 0.9999
+Epoch: 43/50, Loss: 0.0005, R2 score: 0.9999
+Epoch: 44/50, Loss: 0.0005, R2 score: 0.9999
+Epoch: 45/50, Loss: 0.0005, R2 score: 0.9999
+Epoch: 46/50, Loss: 0.0004, R2 score: 0.9999
+Epoch: 47/50, Loss: 0.0004, R2 score: 0.9999
+Epoch: 48/50, Loss: 0.0004, R2 score: 0.9999
+Epoch: 49/50, Loss: 0.0004, R2 score: 0.9999
+Epoch: 50/50, Loss: 0.0004, R2 score: 0.9999
+Test dataset. Loss: 0.0004, R2 score: 0.9999
+MSE: 0.0004, r2: 0.9999, Fit time: 1.5058 seconds
+.
+Regression. Testing func_quadratic_3d
+Epoch: 1/20, Loss: 2.1756, R2 score: 0.0952
+Epoch: 2/20, Loss: 1.0954, R2 score: 0.5444
+Epoch: 3/20, Loss: 0.743, R2 score: 0.691
+Epoch: 4/20, Loss: 0.4506, R2 score: 0.8126
+Epoch: 5/20, Loss: 0.2413, R2 score: 0.8997
+Epoch: 6/20, Loss: 0.1241, R2 score: 0.9484
+Epoch: 7/20, Loss: 0.0675, R2 score: 0.9719
+Epoch: 8/20, Loss: 0.0431, R2 score: 0.9821
+Epoch: 9/20, Loss: 0.0326, R2 score: 0.9865
+Epoch: 10/20, Loss: 0.0271, R2 score: 0.9887
+Epoch: 11/20, Loss: 0.0238, R2 score: 0.9901
+Epoch: 12/20, Loss: 0.0214, R2 score: 0.9911
+Epoch: 13/20, Loss: 0.0197, R2 score: 0.9918
+Epoch: 14/20, Loss: 0.0181, R2 score: 0.9925
+Epoch: 15/20, Loss: 0.0168, R2 score: 0.993
+Epoch: 16/20, Loss: 0.0156, R2 score: 0.9935
+Epoch: 17/20, Loss: 0.0145, R2 score: 0.994
+Epoch: 18/20, Loss: 0.0135, R2 score: 0.9944
+Epoch: 19/20, Loss: 0.0128, R2 score: 0.9947
+Epoch: 20/20, Loss: 0.0119, R2 score: 0.9951
+Test dataset. Loss: 0.0125, R2 score: 0.9951
+MSE: 0.0125, r2: 0.9951, Fit time: 26.8006 seconds
+.
+Regression. Testing func_sin_plus_cos_3d
+Epoch: 1/20, Loss: 0.302, R2 score: 0.3754
+Epoch: 2/20, Loss: 0.1139, R2 score: 0.7645
+Epoch: 3/20, Loss: 0.0604, R2 score: 0.8752
+Epoch: 4/20, Loss: 0.0321, R2 score: 0.9337
+Epoch: 5/20, Loss: 0.0181, R2 score: 0.9626
+Epoch: 6/20, Loss: 0.0158, R2 score: 0.9672
+Epoch: 7/20, Loss: 0.0087, R2 score: 0.982
+Epoch: 8/20, Loss: 0.0073, R2 score: 0.9848
+Epoch: 9/20, Loss: 0.0071, R2 score: 0.9853
+Epoch: 10/20, Loss: 0.006, R2 score: 0.9875
+Epoch: 11/20, Loss: 0.0047, R2 score: 0.9903
+Epoch: 12/20, Loss: 0.005, R2 score: 0.9897
+Epoch: 13/20, Loss: 0.0053, R2 score: 0.989
+Epoch: 14/20, Loss: 0.0039, R2 score: 0.992
+Epoch: 15/20, Loss: 0.0035, R2 score: 0.9928
+Epoch: 16/20, Loss: 0.0035, R2 score: 0.9927
+Epoch: 17/20, Loss: 0.0031, R2 score: 0.9935
+Epoch: 18/20, Loss: 0.0023, R2 score: 0.9952
+Epoch: 19/20, Loss: 0.0022, R2 score: 0.9955
+Epoch: 20/20, Loss: 0.0022, R2 score: 0.9955
+Test dataset. Loss: 0.004, R2 score: 0.9918
+MSE: 0.004, r2: 0.9918, Fit time: 27.0536 seconds
+.
+
+========================= 9 passed in 87.67s (0:01:27) =========================
+
+
+
+
+
+
+
+
+
+
+Epoch: 1/10, train loss: 2.0412, train Accuracy: 0.565, test loss: 1.8861, test Accuracy: 0.79, epoch time: 94.741 s
+Epoch: 2/10, train loss: 1.7296, train Accuracy: 0.91, test loss: 1.7429, test Accuracy: 0.84, epoch time: 95.952 s
+Epoch: 3/10, train loss: 1.61, train Accuracy: 0.985, test loss: 1.8214, test Accuracy: 0.79, epoch time: 95.057 s
+Epoch: 4/10, train loss: 1.5484, train Accuracy: 0.9925, test loss: 1.8267, test Accuracy: 0.84, epoch time: 95.92 s
+Epoch: 5/10, train loss: 1.507, train Accuracy: 0.9975, test loss: 1.7869, test Accuracy: 0.82, epoch time: 94.766 s
+Epoch: 6/10, train loss: 1.4937, train Accuracy: 1.0, test loss: 1.7903, test Accuracy: 0.85, epoch time: 94.791 s
+Epoch: 7/10, train loss: 1.4918, train Accuracy: 1.0, test loss: 1.7841, test Accuracy: 0.83, epoch time: 94.735 s
+Epoch: 8/10, train loss: 1.4882, train Accuracy: 1.0, test loss: 1.7989, test Accuracy: 0.79, epoch time: 94.923 s
+Epoch: 9/10, train loss: 1.501, train Accuracy: 1.0, test loss: 1.8038, test Accuracy: 0.83, epoch time: 95.724 s
+Epoch: 10/10, train loss: 1.4946, train Accuracy: 1.0, test loss: 1.7927, test Accuracy: 0.81, epoch time: 94.916 s
+exec time:  951.5250964164734
+
+
+
+platform linux -- Python 3.12.3, pytest-8.3.2, pluggy-1.5.0
+rootdir: /home/vlad/Documents/Projects/vladk-neural-network
+configfile: pyproject.toml
+testpaths: tests
+plugins: anyio-4.4.0
+collected 9 items
+
+tests/test_binary_classification.py
+Binary classification. Testing Iris-setosa - Iris-versicolor combination
+BCE: 0.0001, Accuracy: 1.0, Fit time: 2.3385 seconds
+.
+Binary classification. Testing Iris-versicolor - Iris-virginica combination
+BCE: 0.0876, Accuracy: 0.9667, Fit time: 2.4131 seconds
+.
+Binary classification. Testing Iris-setosa - Iris-virginica combination
+BCE: 0.0, Accuracy: 1.0, Fit time: 2.3376 seconds
+.
+tests/test_multi_classification.py
+Multi-class classification. Testing on full Iris dataset (3 species)
+CCE: 0.5975, Accuracy: 0.9714, Fit time: 3.4826 seconds
+.
+Multi-class classification. Testing on Digits dataset
+CCE: 1.6147, Accuracy: 0.92, Fit time: 21.3928 seconds
+.
+tests/test_regression.py
+Regression. Testing func_quadratic
+MSE: 0.066, R2: 0.9974, Fit time: 2.306 seconds
+.
+Regression. Testing func_linear
+MSE: 0.0, R2: 1.0, Fit time: 2.1879 seconds
+.
+Regression. Testing func_quadratic_3d
+MSE: 0.0015, R2: 0.9994, Fit time: 14.5469 seconds
+.
+Regression. Testing func_sin_plus_cos_3d
+MSE: 0.006, R2: 0.9876, Fit time: 13.7865 seconds
+.
+
+
+
+layers = [
+    FullyConnected(256, LeakyRelu()),
+    FullyConnected(128, LeakyRelu()),
+    FullyConnected(64, LeakyRelu()),
+    FullyConnected(10, Linear()),
+]
+Epoch: 1/30, train loss: 2.05, train Accuracy: 0.55, test loss: 1.9547, test Accuracy: 0.64, epoch time: 0.605s
+Epoch: 2/30, train loss: 1.7897, train Accuracy: 0.83, test loss: 1.7943, test Accuracy: 0.74, epoch time: 0.575s
+Epoch: 3/30, train loss: 1.6587, train Accuracy: 0.91, test loss: 1.6958, test Accuracy: 0.83, epoch time: 0.598s
+Epoch: 4/30, train loss: 1.5767, train Accuracy: 0.9725, test loss: 1.7187, test Accuracy: 0.82, epoch time: 0.611s
+Epoch: 5/30, train loss: 1.5404, train Accuracy: 0.9775, test loss: 1.7236, test Accuracy: 0.79, epoch time: 0.694s
+Epoch: 6/30, train loss: 1.5183, train Accuracy: 0.99, test loss: 1.8062, test Accuracy: 0.74, epoch time: 0.667s
+Epoch: 7/30, train loss: 1.5053, train Accuracy: 0.995, test loss: 1.6864, test Accuracy: 0.8, epoch time: 0.647s
+Epoch: 8/30, train loss: 1.4905, train Accuracy: 0.9975, test loss: 1.6913, test Accuracy: 0.81, epoch time: 0.562s
+Epoch: 9/30, train loss: 1.4818, train Accuracy: 1.0, test loss: 1.7146, test Accuracy: 0.78, epoch time: 0.65s
+Epoch: 10/30, train loss: 1.4836, train Accuracy: 0.9975, test loss: 1.713, test Accuracy: 0.8, epoch time: 0.58s
+Epoch: 11/30, train loss: 1.476, train Accuracy: 1.0, test loss: 1.7349, test Accuracy: 0.81, epoch time: 0.544s
+Epoch: 12/30, train loss: 1.484, train Accuracy: 1.0, test loss: 1.7891, test Accuracy: 0.78, epoch time: 0.623s
+Epoch: 13/30, train loss: 1.5034, train Accuracy: 0.995, test loss: 1.7161, test Accuracy: 0.8, epoch time: 0.657s
+Epoch: 14/30, train loss: 1.4941, train Accuracy: 0.9975, test loss: 1.707, test Accuracy: 0.81, epoch time: 0.622s
+Epoch: 15/30, train loss: 1.4887, train Accuracy: 0.995, test loss: 1.7622, test Accuracy: 0.77, epoch time: 0.635s
+Epoch: 16/30, train loss: 1.4943, train Accuracy: 0.9925, test loss: 1.6853, test Accuracy: 0.81, epoch time: 0.619s
+Epoch: 17/30, train loss: 1.4748, train Accuracy: 0.9975, test loss: 1.7079, test Accuracy: 0.84, epoch time: 0.607s
+Epoch: 18/30, train loss: 1.4771, train Accuracy: 1.0, test loss: 1.6801, test Accuracy: 0.84, epoch time: 0.574s
+Epoch: 19/30, train loss: 1.4706, train Accuracy: 1.0, test loss: 1.7301, test Accuracy: 0.86, epoch time: 0.591s
+Epoch: 20/30, train loss: 1.4705, train Accuracy: 1.0, test loss: 1.7247, test Accuracy: 0.81, epoch time: 0.759s
+Epoch: 21/30, train loss: 1.4685, train Accuracy: 1.0, test loss: 1.7, test Accuracy: 0.84, epoch time: 0.6s
+Epoch: 22/30, train loss: 1.4687, train Accuracy: 1.0, test loss: 1.7509, test Accuracy: 0.81, epoch time: 0.707s
+Epoch: 23/30, train loss: 1.4928, train Accuracy: 0.9925, test loss: 1.6865, test Accuracy: 0.82, epoch time: 0.595s
+Epoch: 24/30, train loss: 1.4739, train Accuracy: 1.0, test loss: 1.7, test Accuracy: 0.82, epoch time: 0.585s
+Epoch: 25/30, train loss: 1.4687, train Accuracy: 1.0, test loss: 1.702, test Accuracy: 0.84, epoch time: 0.52s
+Epoch: 26/30, train loss: 1.4656, train Accuracy: 1.0, test loss: 1.7013, test Accuracy: 0.83, epoch time: 0.573s
+Epoch: 27/30, train loss: 1.4677, train Accuracy: 0.9975, test loss: 1.7087, test Accuracy: 0.82, epoch time: 0.69s
+Epoch: 28/30, train loss: 1.4682, train Accuracy: 1.0, test loss: 1.6952, test Accuracy: 0.8, epoch time: 0.615s
+Epoch: 29/30, train loss: 1.4752, train Accuracy: 0.9975, test loss: 1.7058, test Accuracy: 0.82, epoch time: 0.68s
+Epoch: 30/30, train loss: 1.4935, train Accuracy: 0.995, test loss: 1.6793, test Accuracy: 0.79, epoch time: 0.706s
+--- 18.692870140075684 seconds ---
+
+
+
+layers = [
+    Convolutional(LeakyRelu(), filters_num=4, kernel_size=3),
+    Convolutional(LeakyRelu(), filters_num=8, kernel_size=3),
+    Convolutional(LeakyRelu(), filters_num=16, kernel_size=3),
+    Flatten(),
+    FullyConnected(128, LeakyRelu()),
+    FullyConnected(10, Linear())
+]
+Epoch: 1/10, train loss: 2.0157, train Accuracy: 0.5975, test loss: 1.8573, test Accuracy: 0.78, epoch time: 168.3s
+Epoch: 2/10, train loss: 1.7288, train Accuracy: 0.9275, test loss: 1.8132, test Accuracy: 0.79, epoch time: 166.449s
+Epoch: 3/10, train loss: 1.5977, train Accuracy: 0.9925, test loss: 1.794, test Accuracy: 0.8, epoch time: 166.599s
+Epoch: 4/10, train loss: 1.5303, train Accuracy: 1.0, test loss: 1.7663, test Accuracy: 0.82, epoch time: 166.721s
+Epoch: 5/10, train loss: 1.507, train Accuracy: 1.0, test loss: 1.75, test Accuracy: 0.83, epoch time: 166.405s
+Epoch: 6/10, train loss: 1.4982, train Accuracy: 1.0, test loss: 1.7988, test Accuracy: 0.88, epoch time: 167.343s
+Epoch: 7/10, train loss: 1.4911, train Accuracy: 1.0, test loss: 1.801, test Accuracy: 0.87, epoch time: 167.419s
+Epoch: 8/10, train loss: 1.4987, train Accuracy: 1.0, test loss: 1.7525, test Accuracy: 0.87, epoch time: 167.939s
+Epoch: 9/10, train loss: 1.498, train Accuracy: 1.0, test loss: 1.7693, test Accuracy: 0.86, epoch time: 167.105s
+Epoch: 10/10, train loss: 1.4931, train Accuracy: 1.0, test loss: 1.7934, test Accuracy: 0.87, epoch time: 167.291s
+exec time:  1671.5720567703247
+
+
+
+return train_dataset[:800], train_dataset[800:1000]
+layers = [
+    FullyConnected(256, LeakyRelu()),
+    FullyConnected(128, LeakyRelu()),
+    FullyConnected(64, LeakyRelu()),
+    FullyConnected(10, Linear()),
+]
+Epoch: 1/15, train loss: 1.9564, train Accuracy: 0.625, test loss: 1.8058, test Accuracy: 0.815, epoch time: 1.279s
+Epoch: 2/15, train loss: 1.6986, train Accuracy: 0.8675, test loss: 1.6776, test Accuracy: 0.845, epoch time: 1.308s
+Epoch: 3/15, train loss: 1.6143, train Accuracy: 0.9325, test loss: 1.7015, test Accuracy: 0.87, epoch time: 1.476s
+Epoch: 4/15, train loss: 1.5668, train Accuracy: 0.9613, test loss: 1.6659, test Accuracy: 0.875, epoch time: 1.515s
+Epoch: 5/15, train loss: 1.5308, train Accuracy: 0.9875, test loss: 1.6414, test Accuracy: 0.895, epoch time: 1.385s
+Epoch: 6/15, train loss: 1.5088, train Accuracy: 0.99, test loss: 1.6321, test Accuracy: 0.875, epoch time: 1.466s
+Epoch: 7/15, train loss: 1.4967, train Accuracy: 0.995, test loss: 1.6244, test Accuracy: 0.87, epoch time: 1.738s
+Epoch: 8/15, train loss: 1.4983, train Accuracy: 0.9938, test loss: 1.6564, test Accuracy: 0.895, epoch time: 1.474s
+Epoch: 9/15, train loss: 1.4932, train Accuracy: 0.9962, test loss: 1.6491, test Accuracy: 0.89, epoch time: 1.524s
+Epoch: 10/15, train loss: 1.4864, train Accuracy: 0.9962, test loss: 1.6088, test Accuracy: 0.88, epoch time: 1.583s
+Epoch: 11/15, train loss: 1.4841, train Accuracy: 0.9975, test loss: 1.5978, test Accuracy: 0.915, epoch time: 1.775s
+Epoch: 12/15, train loss: 1.474, train Accuracy: 0.9975, test loss: 1.6178, test Accuracy: 0.875, epoch time: 1.802s
+Epoch: 13/15, train loss: 1.4781, train Accuracy: 0.9962, test loss: 1.5966, test Accuracy: 0.9, epoch time: 1.53s
+Epoch: 14/15, train loss: 1.484, train Accuracy: 0.9962, test loss: 1.6414, test Accuracy: 0.865, epoch time: 1.438s
+Epoch: 15/15, train loss: 1.4754, train Accuracy: 1.0, test loss: 1.5766, test Accuracy: 0.9, epoch time: 1.321s
+--- 22.615294218063354 seconds ---
+
+
+
+layers = [
+    Convolutional(LeakyRelu(), filters_num=4, kernel_size=3),
+    Convolutional(LeakyRelu(), filters_num=8, kernel_size=3),
+    Convolutional(LeakyRelu(), filters_num=16, kernel_size=3),
+    Flatten(),
+    FullyConnected(128, LeakyRelu()),
+    FullyConnected(10, Linear())
+]
+Epoch: 1/15, train loss: 1.9339, train Accuracy: 0.7113, test loss: 1.7944, test Accuracy: 0.87, epoch time: 332.546s
+Epoch: 2/15, train loss: 1.6755, train Accuracy: 0.9337, test loss: 1.748, test Accuracy: 0.89, epoch time: 335.735s
+Epoch: 3/15, train loss: 1.5813, train Accuracy: 0.9812, test loss: 1.625, test Accuracy: 0.89, epoch time: 335.44s
+Epoch: 4/15, train loss: 1.5448, train Accuracy: 0.9988, test loss: 1.6369, test Accuracy: 0.92, epoch time: 336.25s
+Epoch: 5/15, train loss: 1.5137, train Accuracy: 1.0, test loss: 1.64, test Accuracy: 0.89, epoch time: 336.05s
+Epoch: 6/15, train loss: 1.5041, train Accuracy: 1.0, test loss: 1.6512, test Accuracy: 0.915, epoch time: 334.323s
+Epoch: 7/15, train loss: 1.5012, train Accuracy: 1.0, test loss: 1.6893, test Accuracy: 0.915, epoch time: 335.467s
+Epoch: 8/15, train loss: 1.5056, train Accuracy: 1.0, test loss: 1.7077, test Accuracy: 0.9, epoch time: 335.226s
+Epoch: 9/15, train loss: 1.5053, train Accuracy: 1.0, test loss: 1.6344, test Accuracy: 0.935, epoch time: 334.996s
+Epoch: 10/15, train loss: 1.4884, train Accuracy: 1.0, test loss: 1.648, test Accuracy: 0.94, epoch time: 333.986s
+Epoch: 11/15, train loss: 1.487, train Accuracy: 1.0, test loss: 1.6635, test Accuracy: 0.91, epoch time: 333.743s
+Epoch: 12/15, train loss: 1.4906, train Accuracy: 1.0, test loss: 1.6633, test Accuracy: 0.91, epoch time: 335.017s
+Epoch: 13/15, train loss: 1.4891, train Accuracy: 1.0, test loss: 1.6419, test Accuracy: 0.93, epoch time: 337.155s
+Epoch: 14/15, train loss: 1.4859, train Accuracy: 1.0, test loss: 1.6902, test Accuracy: 0.905, epoch time: 332.846s
+Epoch: 15/15, train loss: 1.4839, train Accuracy: 1.0, test loss: 1.6743, test Accuracy: 0.905, epoch time: 333.331s
+exec time:  5022.111049413681
