@@ -80,7 +80,7 @@ class FullyConnected(Layer):
 
 
 class Convolutional(Layer):
-    def __init__(self, activation, filters_num=2, kernel_size=3, padding=0, stride=1):
+    def __init__(self, activation, filters_num=4, kernel_size=3, padding=0, stride=1):
         self.type = "convolutional"
         self.learnable = True
         self.activation = activation
@@ -112,12 +112,6 @@ class Convolutional(Layer):
             for f in range(self.filters_num):
                 for i in range(self.output_h):
                     for j in range(self.output_w):
-
-                        # print('layer_error_with_padding[:, i:i + k_next, j:j + k_next]')
-                        # print(layer_error_with_padding[:, i:i + k_next, j:j + k_next])
-                        # print('flipped_w_next[:, f]')
-                        # print(flipped_w_next[:, f])
-
                         layer_error[f][i][j] = (
                             torch.sum(
                                 layer_error_with_padding[:, i:i + k_next, j:j + k_next]
