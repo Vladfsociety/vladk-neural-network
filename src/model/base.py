@@ -1,10 +1,7 @@
 import time
 import pprint
 import random
-import matplotlib.pyplot as plt
 import torch
-
-from src.model.layer import Convolutional, Flatten, Input3D
 
 
 class NeuralNetwork:
@@ -94,7 +91,6 @@ class NeuralNetwork:
         """
         Perform backward pass to calculate gradients.
         """
-
         layer_index = len(self.__layers) - 1
         layer_error = torch.zeros_like(self.__layers[-1].a)
 
