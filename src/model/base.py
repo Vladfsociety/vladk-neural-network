@@ -789,9 +789,9 @@ class NeuralNetwork:
             input_data = sample["input"]
 
             if self.__input_layer.type == 'input_3d':
-                self.__layers[0].a = torch.tensor(input_data, device=self.__device)
+                self.__layers[0].a = torch.tensor(input_data)
             else:
-                self.__layers[0].a = torch.tensor(input_data, device=self.__device).reshape(
+                self.__layers[0].a = torch.tensor(input_data).reshape(
                     len(input_data), 1
                 )
 

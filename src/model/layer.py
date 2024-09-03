@@ -117,8 +117,8 @@ class Convolutional(Layer):
                                 layer_error_with_padding[:, i:i + k_next, j:j + k_next]
                                 * flipped_w_next[:, f]
                             )
-                            * self.activation.derivative(self.z[f][i][j])
                         )
+            layer_error *= self.activation.derivative(self.z)
         else:
             layer_error = next_layer_error
 
