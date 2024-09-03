@@ -85,3 +85,63 @@ Epoch: 13/15, train loss: 1.4879, train Accuracy: 1.0, test loss: 1.6226, test A
 Epoch: 14/15, train loss: 1.485, train Accuracy: 1.0, test loss: 1.6146, test Accuracy: 0.915, epoch time: 364.369s
 Epoch: 15/15, train loss: 1.4799, train Accuracy: 1.0, test loss: 1.6611, test Accuracy: 0.93, epoch time: 362.149s
 exec time:  5414.361704349518
+
+
+
+
+
+
+improve forward
+return train_dataset[:800], train_dataset[800:1000]
+layers = [
+    Convolutional(LeakyRelu(), filters_num=4, kernel_size=3),
+    Convolutional(LeakyRelu(), filters_num=8, kernel_size=3),
+    Convolutional(LeakyRelu(), filters_num=16, kernel_size=3),
+    Flatten(),
+    FullyConnected(128, LeakyRelu()),
+    FullyConnected(10, Linear())
+]
+Epoch: 1/15, train loss: 1.9339, train Accuracy: 0.7113, test loss: 1.7944, test Accuracy: 0.87, epoch time: 169.643s
+Epoch: 2/15, train loss: 1.6755, train Accuracy: 0.9337, test loss: 1.7513, test Accuracy: 0.885, epoch time: 170.082s
+Epoch: 3/15, train loss: 1.5844, train Accuracy: 0.98, test loss: 1.6537, test Accuracy: 0.895, epoch time: 169.565s
+Epoch: 4/15, train loss: 1.5443, train Accuracy: 0.9962, test loss: 1.6674, test Accuracy: 0.905, epoch time: 169.569s
+Epoch: 5/15, train loss: 1.5172, train Accuracy: 1.0, test loss: 1.6367, test Accuracy: 0.895, epoch time: 170.58s
+Epoch: 6/15, train loss: 1.5119, train Accuracy: 1.0, test loss: 1.7148, test Accuracy: 0.92, epoch time: 168.383s
+Epoch: 7/15, train loss: 1.4985, train Accuracy: 1.0, test loss: 1.6558, test Accuracy: 0.935, epoch time: 168.766s
+Epoch: 8/15, train loss: 1.5013, train Accuracy: 1.0, test loss: 1.6722, test Accuracy: 0.925, epoch time: 171.251s
+Epoch: 9/15, train loss: 1.4932, train Accuracy: 1.0, test loss: 1.7121, test Accuracy: 0.905, epoch time: 169.6s
+Epoch: 10/15, train loss: 1.4953, train Accuracy: 1.0, test loss: 1.6404, test Accuracy: 0.935, epoch time: 173.25s
+Epoch: 11/15, train loss: 1.4915, train Accuracy: 1.0, test loss: 1.6435, test Accuracy: 0.93, epoch time: 170.191s
+Epoch: 12/15, train loss: 1.4876, train Accuracy: 1.0, test loss: 1.6011, test Accuracy: 0.925, epoch time: 171.865s
+Epoch: 13/15, train loss: 1.4828, train Accuracy: 1.0, test loss: 1.6786, test Accuracy: 0.935, epoch time: 176.82s
+Epoch: 14/15, train loss: 1.4836, train Accuracy: 1.0, test loss: 1.6633, test Accuracy: 0.91, epoch time: 181.258s
+Epoch: 15/15, train loss: 1.4846, train Accuracy: 1.0, test loss: 1.667, test Accuracy: 0.93, epoch time: 182.241s
+exec time:  2583.067637205124
+
+
+improve layer error calc
+return train_dataset[:800], train_dataset[800:1000]
+layers = [
+    Convolutional(LeakyRelu(), filters_num=4, kernel_size=3),
+    Convolutional(LeakyRelu(), filters_num=8, kernel_size=3),
+    Convolutional(LeakyRelu(), filters_num=16, kernel_size=3),
+    Flatten(),
+    FullyConnected(128, LeakyRelu()),
+    FullyConnected(10, Linear())
+]
+Epoch: 1/15, train loss: 1.9339, train Accuracy: 0.7113, test loss: 1.7944, test Accuracy: 0.87, epoch time: 58.688s
+Epoch: 2/15, train loss: 1.6755, train Accuracy: 0.9337, test loss: 1.7513, test Accuracy: 0.885, epoch time: 60.17s
+Epoch: 3/15, train loss: 1.5844, train Accuracy: 0.98, test loss: 1.6537, test Accuracy: 0.895, epoch time: 60.072s
+Epoch: 4/15, train loss: 1.5443, train Accuracy: 0.9962, test loss: 1.6674, test Accuracy: 0.905, epoch time: 60.325s
+Epoch: 5/15, train loss: 1.5172, train Accuracy: 1.0, test loss: 1.6367, test Accuracy: 0.895, epoch time: 62.587s
+Epoch: 6/15, train loss: 1.5119, train Accuracy: 1.0, test loss: 1.7148, test Accuracy: 0.92, epoch time: 60.395s
+Epoch: 7/15, train loss: 1.4985, train Accuracy: 1.0, test loss: 1.6558, test Accuracy: 0.935, epoch time: 61.21s
+Epoch: 8/15, train loss: 1.5013, train Accuracy: 1.0, test loss: 1.6722, test Accuracy: 0.925, epoch time: 60.79s
+Epoch: 9/15, train loss: 1.4932, train Accuracy: 1.0, test loss: 1.7121, test Accuracy: 0.905, epoch time: 61.716s
+Epoch: 10/15, train loss: 1.4953, train Accuracy: 1.0, test loss: 1.6404, test Accuracy: 0.935, epoch time: 64.063s
+Epoch: 11/15, train loss: 1.4915, train Accuracy: 1.0, test loss: 1.6435, test Accuracy: 0.93, epoch time: 61.987s
+Epoch: 12/15, train loss: 1.4876, train Accuracy: 1.0, test loss: 1.6011, test Accuracy: 0.925, epoch time: 65.373s
+Epoch: 13/15, train loss: 1.4828, train Accuracy: 1.0, test loss: 1.6786, test Accuracy: 0.935, epoch time: 61.308s
+Epoch: 14/15, train loss: 1.4836, train Accuracy: 1.0, test loss: 1.6633, test Accuracy: 0.91, epoch time: 62.336s
+Epoch: 15/15, train loss: 1.4846, train Accuracy: 1.0, test loss: 1.667, test Accuracy: 0.93, epoch time: 64.866s
+exec time:  925.8877778053284
