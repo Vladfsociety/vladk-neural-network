@@ -681,8 +681,7 @@ class NeuralNetwork:
             #     print('self.__layers')
             #     print(self.__layers)
 
-            # random.seed(1)
-            # random.shuffle(train_dataset)
+            random.shuffle(train_dataset)
             batches = [
                 train_dataset[k : k + batch_size]
                 for k in range(0, len(train_dataset), batch_size)
