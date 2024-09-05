@@ -142,8 +142,8 @@ class Convolutional(Layer):
                 k_next
             )
 
-            print('layer_error')
-            print(layer_error)
+            # print('layer_error')
+            # print(layer_error)
 
             layer_error *= self.activation.derivative(self.z)
 
@@ -152,44 +152,6 @@ class Convolutional(Layer):
             layer_error = next_layer_error
 
         return layer_error
-
-    def _fast_deconvolution(
-        self,
-        layer_error_next,
-        filters,
-        next_output_c,
-        output_h,
-        output_w,
-        next_input_c,
-        kernel_size
-    ):
-        duplicated_filters = torch.zeros(
-            next_input_c,
-            output_h,
-            output_w,
-            next_output_c,
-            kernel_size,
-            kernel_size
-        )
-        for f in range(next_input_c):
-            expanded_filter = filters[:, f].unsqueeze(0).unsqueeze(0)
-            duplicated_filters[f] = expanded_filter.expand(output_h, output_w, -1, -1, -1)
-
-        separate_regions = torch.zeros(
-            output_h,
-            output_w,
-            next_output_c,
-            kernel_size,
-            kernel_size
-        )
-        for i in range(output_h):
-            for j in range(output_w):
-                separate_regions[i][j] = layer_error_next[:, i:i + kernel_size, j:j + kernel_size]
-
-        expanded_regions = separate_regions.unsqueeze(0)
-        duplicated_separate_regions = expanded_regions.expand(next_input_c, -1, -1, -1, -1, -1)
-
-        return torch.sum(duplicated_separate_regions * duplicated_filters, dim=(3, 4, 5))
 
     # def _fast_deconvolution(
     #     self,
@@ -201,18 +163,54 @@ class Convolutional(Layer):
     #     next_input_c,
     #     kernel_size
     # ):
-    #     # Unfold the layer_error_next to create sliding windows that match the kernel size
-    #     unfolded_regions = layer_error_next.unfold(1, kernel_size, 1).unfold(2, kernel_size, 1)
-    #     unfolded_regions = unfolded_regions.contiguous().view(next_output_c, output_h * output_w,
-    #                                                           -1)  # Reshape for einsum
+    #     duplicated_filters = torch.zeros(
+    #         next_input_c,
+    #         output_h,
+    #         output_w,
+    #         next_output_c,
+    #         kernel_size,
+    #         kernel_size
+    #     )
+    #     for f in range(next_input_c):
+    #         expanded_filter = filters[:, f].unsqueeze(0).unsqueeze(0)
+    #         duplicated_filters[f] = expanded_filter.expand(output_h, output_w, -1, -1, -1)
     #
-    #     # Adjust the filters shape to match unfolded regions
-    #     reshaped_filters = filters.view(next_output_c, next_input_c, kernel_size * kernel_size)
+    #     separate_regions = torch.zeros(
+    #         output_h,
+    #         output_w,
+    #         next_output_c,
+    #         kernel_size,
+    #         kernel_size
+    #     )
+    #     for i in range(output_h):
+    #         for j in range(output_w):
+    #             separate_regions[i][j] = layer_error_next[:, i:i + kernel_size, j:j + kernel_size]
     #
-    #     # Use einsum to compute the deconvolution
-    #     result = torch.einsum('abc,adc->adb', unfolded_regions, reshaped_filters)
+    #     expanded_regions = separate_regions.unsqueeze(0)
+    #     duplicated_separate_regions = expanded_regions.expand(next_input_c, -1, -1, -1, -1, -1)
     #
-    #     return result.view(next_input_c, output_h, output_w)
+    #     return torch.sum(duplicated_separate_regions * duplicated_filters, dim=(3, 4, 5))
+
+    def _fast_deconvolution(
+        self,
+        layer_error_next,
+        filters,
+        next_output_c,
+        output_h,
+        output_w,
+        next_input_c,
+        kernel_size
+    ):
+        unfolded_regions = layer_error_next.unfold(1, kernel_size, 1).unfold(2, kernel_size, 1)
+
+        unfolded_regions = (unfolded_regions.contiguous()
+                            .view(next_output_c, output_h * output_w, -1))
+
+        reshaped_filters = filters.view(next_output_c, next_input_c, kernel_size * kernel_size)
+
+        result = torch.einsum('abc,adc->db', unfolded_regions, reshaped_filters)
+
+        return result.view(next_input_c, output_h, output_w)
 
     def _ordinary_deconvolution(
         self,
@@ -432,8 +430,8 @@ class Convolutional(Layer):
 
     def forward(self, input, cn=None):
 
-        torch.set_printoptions(precision=35, sci_mode=False)
-        torch.set_printoptions(threshold=torch.inf)
+        # torch.set_printoptions(precision=35, sci_mode=False)
+        # torch.set_printoptions(threshold=torch.inf)
 
         start_for_time = time.time()
 
