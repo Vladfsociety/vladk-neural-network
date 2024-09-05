@@ -74,7 +74,7 @@ class NeuralNetwork:
 
         return prediction
 
-    def __forward(self):
+    def __forward(self, cn=None):
         """
         Perform forward pass through the network.
         """
@@ -82,7 +82,7 @@ class NeuralNetwork:
 
         while layer_index < len(self.__layers):
             input = self.__layers[layer_index - 1].a
-            self.__layers[layer_index].forward(input)
+            self.__layers[layer_index].forward(input, cn)
             layer_index += 1
 
         return self.__layers[-1].a
@@ -632,7 +632,7 @@ class NeuralNetwork:
     #
     #     return grads_w_update, grads_b_update
 
-    def __process_batch(self, batch):
+    def __process_batch(self, batch, cn=None):
         """
         Process a batch of data.
         """
@@ -648,7 +648,7 @@ class NeuralNetwork:
             else:
                 self.__layers[0].a = torch.tensor(input_data).reshape(len(input_data), 1)
 
-            predict = self.__forward()
+            predict = self.__forward(cn)
 
             self.__prediction.append(predict)
 
@@ -681,14 +681,18 @@ class NeuralNetwork:
             #     print('self.__layers')
             #     print(self.__layers)
 
-            random.shuffle(train_dataset)
+            # random.seed(1)
+            # random.shuffle(train_dataset)
             batches = [
                 train_dataset[k : k + batch_size]
                 for k in range(0, len(train_dataset), batch_size)
             ]
 
+            cn = 0
             for batch in batches:
-                self.__process_batch(batch)
+                cn += 1
+                #print("Sample_", cn)
+                self.__process_batch(batch, cn)
 
             self.__prediction = torch.stack(self.__prediction)
             self.__actual = torch.stack(self.__actual)
@@ -722,7 +726,7 @@ class NeuralNetwork:
                     #     len(input_data), 1
                     # )
 
-                    predict = self.__forward()
+                    predict = self.__forward(cn)
 
                     self.__prediction.append(predict)
                     self.__actual.append(
