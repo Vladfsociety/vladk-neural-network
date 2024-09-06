@@ -19,12 +19,12 @@ class NeuralNetwork:
         convert_prediction=None,
         use_gpu=False,
     ):
+        self.device = torch.device("cuda" if use_gpu and torch.cuda.is_available() else "cpu")
         self._input_layer = input_layer
         self._optimizer = optimizer
         self._loss = loss
         self._metric = metric
         self._convert_prediction = convert_prediction
-        self._device = torch.device("cuda" if use_gpu and torch.cuda.is_available() else "cpu")
         self._prediction = []
         self._actual = []
         self._layers = []
@@ -38,10 +38,10 @@ class NeuralNetwork:
         if layers[-1].type != "fully_connected":
             raise Exception("Last layer should be fully connected")
 
-        self._layers.append(self._input_layer.initialize(self._device))
+        self._layers.append(self._input_layer.initialize(self.device))
         previous_layer = self._input_layer
         for layer in layers:
-            self._layers.append(layer.initialize(previous_layer, self._device))
+            self._layers.append(layer.initialize(previous_layer, self.device))
             previous_layer = layer
 
     def _binary_convert(self, prediction, threshold=0.5):
@@ -78,7 +78,15 @@ class NeuralNetwork:
 
         while layer_index < len(self._layers):
             input = self._layers[layer_index - 1].a
+
+            # print('self._layers[layer_index].name')
+            # print(self._layers[layer_index].name)
+            # start_time = time.time()
+
             self._layers[layer_index].forward(input)
+
+            #print("Forward time: ", time.time() - start_time)
+
             layer_index += 1
 
         return self._layers[-1].a
@@ -91,6 +99,11 @@ class NeuralNetwork:
         layer_error = torch.zeros_like(self._layers[-1].a)
 
         while layer_index > 0:
+
+            # print('self._layers[layer_index].name')
+            # print(self._layers[layer_index].name)
+            # start_time = time.time()
+
             if layer_index == len(self._layers) - 1:
                 loss_derivative = self._loss.derivative(predict, actual)
                 layer_error = self._layers[layer_index].backward(
@@ -103,6 +116,9 @@ class NeuralNetwork:
                     self._layers[layer_index - 1],
                     self._layers[layer_index + 1]
                 )
+
+            #print("Backward time: ", time.time() - start_time)
+
             layer_index -= 1
 
         return
@@ -301,7 +317,7 @@ class NeuralNetwork:
     #                         self._layers[layer_index]["output_c"],
     #                         self._layers[layer_index]["output_h"],
     #                         self._layers[layer_index]["output_w"]
-    #                     ), device=self._device)
+    #                     ), device=self.device)
     #
     #                     # print('layer_index')
     #                     # print(layer_index)
@@ -347,7 +363,7 @@ class NeuralNetwork:
     #                     # layer_error_padding = torch.tensor(layer_error_padding)
     #                     # print('layer_error_padding')
     #                     # print(layer_error_padding)
-    #                     layer_error_with_padding = torch.full((filters_num_next, padded_H, padded_W), pad_value, device=self._device)
+    #                     layer_error_with_padding = torch.full((filters_num_next, padded_H, padded_W), pad_value, device=self.device)
     #                     layer_error_with_padding[:,P_top:P_top + output_h_next, P_left:P_left + output_w_next] = layer_error[:].clone()
     #
     #                     # print('layer_error_with_padding')
@@ -640,14 +656,14 @@ class NeuralNetwork:
             input_data = sample["input"]
 
             if self._input_layer.type == 'input_3d':
-                self._layers[0].a = torch.tensor(input_data, device=self._device)
+                self._layers[0].a = torch.tensor(input_data, device=self.device)
             else:
-                self._layers[0].a = torch.tensor(input_data, device=self._device).reshape(len(input_data), 1)
+                self._layers[0].a = torch.tensor(input_data, device=self.device).reshape(len(input_data), 1)
 
             predict = self._forward()
             self._prediction.append(predict)
 
-            output = torch.tensor(sample["output"], device=self._device).unsqueeze(1)
+            output = torch.tensor(sample["output"], device=self.device).unsqueeze(1)
             self._actual.append(output)
 
             self._backward(predict, output)
@@ -706,9 +722,9 @@ class NeuralNetwork:
                     input_data = test_sample["input"]
 
                     if self._input_layer.type == 'input_3d':
-                        self._layers[0].a = torch.tensor(input_data, device=self._device)
+                        self._layers[0].a = torch.tensor(input_data, device=self.device)
                     else:
-                        self._layers[0].a = torch.tensor(input_data, device=self._device).reshape(
+                        self._layers[0].a = torch.tensor(input_data, device=self.device).reshape(
                             len(input_data), 1
                         )
 
@@ -719,7 +735,7 @@ class NeuralNetwork:
                     predict = self._forward()
                     self._prediction.append(predict)
                     self._actual.append(
-                        torch.tensor(test_sample["output"], device=self._device).unsqueeze(1)
+                        torch.tensor(test_sample["output"], device=self.device).unsqueeze(1)
                     )
 
                 self._prediction = torch.stack(self._prediction)
@@ -778,9 +794,9 @@ class NeuralNetwork:
             input_data = sample["input"]
 
             if self._input_layer.type == 'input_3d':
-                self._layers[0].a = torch.tensor(input_data, device=self._device)
+                self._layers[0].a = torch.tensor(input_data, device=self.device)
             else:
-                self._layers[0].a = torch.tensor(input_data, device=self._device).reshape(
+                self._layers[0].a = torch.tensor(input_data, device=self.device).reshape(
                     len(input_data), 1
                 )
 
