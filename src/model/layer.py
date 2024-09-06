@@ -7,32 +7,41 @@ import torch
 
 
 class Layer:
-    def _init_weights(self, size):
+    def _init_weights(self, size, device):
         n_inputs = size[0]
         limit = math.sqrt(1 / n_inputs)
         return torch.tensor(
             [
                 [random.uniform(-limit, limit) for _ in range(size[1])]
                 for _ in range(size[0])
-            ]
+            ],
+            device=device
         )
 
-    def _init_biases(self, size):
-        return torch.zeros(size)
+    def _init_biases(self, size, device):
+        return torch.zeros(size, device=device)
 
 
 class Input(Layer):
     def __init__(self, size):
         self.type = "input"
         self.size = size
-        self.a = torch.zeros((self.size, 1))
+        self.a = None
+
+    def initialize(self, device):
+        self.a = torch.zeros((self.size, 1), device=device)
+        return self
 
 
 class Input3D(Layer):
     def __init__(self, size):
         self.type = "input_3d"
         self.size = size
-        self.a = torch.zeros((self.size[0], self.size[1], self.size[2]))
+        self.a = None
+
+    def initialize(self, device):
+        self.a = torch.zeros((self.size[0], self.size[1], self.size[2]), device=device)
+        return self
 
 
 class FullyConnected(Layer):
@@ -42,6 +51,13 @@ class FullyConnected(Layer):
         self.learnable = True
         self.size = size
         self.activation = activation
+        self.device = None
+        self.z = None
+        self.a = None
+        self.w = None
+        self.b = None
+        self.grad_w = None
+        self.grad_b = None
 
     def _calculate_layer_error(self, next_layer_error, next_layer):
         if not next_layer:
@@ -52,14 +68,14 @@ class FullyConnected(Layer):
 
         return layer_error
 
-    def initialize(self, previous_layer):
-        previous_layer_size = previous_layer.size
-        self.z = torch.zeros((self.size, 1))
-        self.a = torch.zeros((self.size, 1))
-        self.w = super()._init_weights((self.size, previous_layer_size))
-        self.b = super()._init_biases((self.size, 1))
-        self.grad_w = torch.zeros_like(self.w)
-        self.grad_b = torch.zeros_like(self.b)
+    def initialize(self, previous_layer, device):
+        self.device = device
+        self.z = torch.zeros((self.size, 1), device=self.device)
+        self.a = torch.zeros((self.size, 1), device=self.device)
+        self.w = super()._init_weights((self.size, previous_layer.size), self.device)
+        self.b = super()._init_biases((self.size, 1), self.device)
+        self.grad_w = torch.zeros_like(self.w, device=self.device)
+        self.grad_b = torch.zeros_like(self.b, device=self.device)
 
         return self
 
@@ -68,8 +84,8 @@ class FullyConnected(Layer):
         self.grad_b = torch.zeros_like(self.b)
         return
 
-    def forward(self, input):
-        self.z = torch.matmul(self.w, input) + self.b
+    def forward(self, input_data):
+        self.z = torch.matmul(self.w, input_data) + self.b
         self.a = self.activation.apply(self.z)
         return
 
@@ -93,8 +109,22 @@ class Convolutional(Layer):
         self.padding = padding
         self.stride = stride
         self.compute_mode = compute_mode
+        self.device = None
+        self.input_c = None
+        self.input_h = None
+        self.input_w = None
+        self.output_c = None
+        self.output_h = None
+        self.output_w = None
+        self.z = None
+        self.a = None
+        self.w_shape = None
+        self.w = None
+        self.b = None
+        self.grad_w = None
+        self.grad_b = None
 
-    def _init_weights(self, size):
+    def _init_weights(self, size, device):
         n_inputs = size[1] * size[2] * size[3]
         random.seed(41)
 
@@ -105,7 +135,8 @@ class Convolutional(Layer):
                 for _ in range(size[2])]
                 for _ in range(size[1])]
                 for _ in range(size[0])
-            ]
+            ],
+            device=device
         )
 
     def _get_padded_tensor(self, tensor, padding, padding_value=0.0):
@@ -115,7 +146,7 @@ class Convolutional(Layer):
         padded_h = h + p_top + p_bot
         padded_w = w + p_left + p_right
 
-        padded_tensor = torch.full((f, padded_h, padded_w), padding_value)
+        padded_tensor = torch.full((f, padded_h, padded_w), padding_value, device=self.device)
         padded_tensor[:, p_top:p_top + h, p_left:p_left + w] = tensor[:].clone()
 
         return padded_tensor
@@ -190,7 +221,7 @@ class Convolutional(Layer):
         next_input_c,
         kernel_size
     ):
-        unfolded_regions = layer_error_next.unfold(1, kernel_size, 1).unfold(2, kernel_size, 1)
+        unfolded_regions = layer_error_next.clone().unfold(1, kernel_size, 1).unfold(2, kernel_size, 1)
         unfolded_regions = (unfolded_regions.contiguous()
                             .view(next_output_c, output_h * output_w, -1))
 
@@ -209,7 +240,7 @@ class Convolutional(Layer):
         output_c,
         kernel_size
     ):
-        layer_error = torch.zeros((output_c, output_h, output_w))
+        layer_error = torch.zeros((output_c, output_h, output_w), device=self.device)
         for f in range(output_c):
             for i in range(output_h):
                 for j in range(output_w):
@@ -456,7 +487,8 @@ class Convolutional(Layer):
         else:
             raise Exception(f"Invalid compute mode: {self.compute_mode}")
 
-    def initialize(self, previous_layer):
+    def initialize(self, previous_layer, device):
+        self.device = device
         if previous_layer.type == 'convolutional':
             self.input_c = previous_layer.output_c
             self.input_h = previous_layer.output_h
@@ -468,11 +500,11 @@ class Convolutional(Layer):
         self.output_c = self.filters_num
         self.output_h = (self.input_h - self.kernel_size) + 1
         self.output_w = (self.input_w - self.kernel_size) + 1
-        self.z = torch.zeros((self.output_c, self.output_h, self.output_w))
-        self.a = torch.zeros((self.output_c, self.output_h, self.output_w))
+        self.z = torch.zeros((self.output_c, self.output_h, self.output_w), device=self.device)
+        self.a = torch.zeros((self.output_c, self.output_h, self.output_w), device=self.device)
         self.w_shape = (self.output_c, self.input_c, self.kernel_size, self.kernel_size)
-        self.w = self._init_weights(self.w_shape)
-        self.b = super()._init_biases(self.output_c)
+        self.w = self._init_weights(self.w_shape, self.device)
+        self.b = super()._init_biases(self.output_c, self.device)
         self.grad_w = torch.zeros_like(self.w)
         self.grad_b = torch.zeros_like(self.b)
 
@@ -483,8 +515,8 @@ class Convolutional(Layer):
         self.grad_b = torch.zeros_like(self.b)
         return
 
-    def forward(self, input):
-        self.z = self._convolution(input, self.w, self.b)
+    def forward(self, input_image):
+        self.z = self._convolution(input_image, self.w, self.b)
         self.a = self.activation.apply(self.z)
         return
 
@@ -499,20 +531,22 @@ class Flatten:
         self.type = "flatten"
         self.name = name
         self.learnable = False
+        self.size = None
+        self.a = None
 
-    def initialize(self, previous_layer):
+    def initialize(self, previous_layer, device):
         if previous_layer.type != 'convolutional':
-            raise Exception("Flatten layer should be used only after convolutional.")
+            raise Exception("Flatten layer should be used only after convolutional")
 
         self.size = (previous_layer.output_c
                      * previous_layer.output_h
                      * previous_layer.output_w)
-        self.a = torch.zeros((self.size, 1))
+        self.a = torch.zeros((self.size, 1), device=device)
 
         return self
 
-    def forward(self, input):
-        self.a = input.flatten()
+    def forward(self, input_data):
+        self.a = input_data.flatten()
         self.a = self.a.reshape(self.a.size(0), 1)
         return
 
