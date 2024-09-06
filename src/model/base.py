@@ -79,13 +79,13 @@ class NeuralNetwork:
         while layer_index < len(self._layers):
             input = self._layers[layer_index - 1].a
 
-            # print('self._layers[layer_index].name')
-            # print(self._layers[layer_index].name)
-            # start_time = time.time()
+            print('self._layers[layer_index].name')
+            print(self._layers[layer_index].name)
+            start_time = time.time()
 
             self._layers[layer_index].forward(input)
 
-            #print("Forward time: ", time.time() - start_time)
+            print("Forward time: ", time.time() - start_time)
 
             layer_index += 1
 
