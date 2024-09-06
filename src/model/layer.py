@@ -18,10 +18,7 @@ class Layer:
         )
 
     def _init_biases(self, size):
-        #return torch.ones(size)
-        res = torch.zeros(size)
-        #res[-1] = 1
-        return res
+        return torch.zeros(size)
 
 
 class Input(Layer):
@@ -71,7 +68,7 @@ class FullyConnected(Layer):
         self.grad_b = torch.zeros_like(self.b)
         return
 
-    def forward(self, input, cn=None):
+    def forward(self, input):
         self.z = torch.matmul(self.w, input) + self.b
         self.a = self.activation.apply(self.z)
         return
@@ -125,9 +122,6 @@ class Convolutional(Layer):
 
     def _calculate_layer_error(self, next_layer_error, next_layer):
         if next_layer.type == "convolutional":
-
-            start_backw_conv = time.time()
-
             k_next = next_layer.kernel_size
             layer_error_with_padding = self._get_padded_tensor(next_layer_error, [k_next-1]*4)
             flipped_w_next = torch.flip(next_layer.w, (2, 3))
@@ -142,12 +136,7 @@ class Convolutional(Layer):
                 k_next
             )
 
-            # print('layer_error')
-            # print(layer_error)
-
             layer_error *= self.activation.derivative(self.z)
-
-            #print("Bacw conv time: ", time.time() - start_backw_conv)
         else:
             layer_error = next_layer_error
 
@@ -202,7 +191,6 @@ class Convolutional(Layer):
         kernel_size
     ):
         unfolded_regions = layer_error_next.unfold(1, kernel_size, 1).unfold(2, kernel_size, 1)
-
         unfolded_regions = (unfolded_regions.contiguous()
                             .view(next_output_c, output_h * output_w, -1))
 
@@ -333,13 +321,11 @@ class Convolutional(Layer):
         kernel_size
     ):
         unfolded_regions = input_image.clone().unfold(1, kernel_size, 1).unfold(2, kernel_size, 1)
-
         unfolded_regions = unfolded_regions.contiguous().view(input_c, output_h * output_w, -1)
 
         reshaped_filters = filters.view(output_c, input_c, -1)
 
         result = torch.einsum('abc,dac->db', unfolded_regions, reshaped_filters)
-
         result = result.view(output_c, output_h, output_w)
 
         result += biases.view(-1, 1, 1)
@@ -370,33 +356,102 @@ class Convolutional(Layer):
         self,
         input_image,
         filters,
-        biases,
-        input_c,
-        output_c,
-        output_h,
-        output_w,
-        kernel_size
+        biases
     ):
         if self.compute_mode == "fast":
             return self._fast_convolution(
                 input_image,
                 filters,
                 biases,
-                input_c,
-                output_c,
-                output_h,
-                output_w,
-                kernel_size
+                self.input_c,
+                self.output_c,
+                self.output_h,
+                self.output_w,
+                self.kernel_size
             )
         elif self.compute_mode == "ordinary":
             return self._ordinary_convolution(
                 input_image,
                 filters,
                 biases,
-                output_c,
-                output_h,
-                output_w,
-                kernel_size
+                self.output_c,
+                self.output_h,
+                self.output_w,
+                self.kernel_size
+            )
+        else:
+            raise Exception(f"Invalid compute mode: {self.compute_mode}")
+
+    def _fast_update_gradients(
+        self,
+        layer_error,
+        prev_layer,
+        input_c,
+        output_c,
+        output_h,
+        output_w,
+        kernel_size
+    ):
+        unfolded_prev_layer_a = prev_layer.a.clone().unfold(1, output_h, 1).unfold(2, output_w, 1)
+        unfolded_prev_layer_a = unfolded_prev_layer_a.contiguous().view(input_c, kernel_size * kernel_size, -1)
+
+        reshaped_layer_error = layer_error.view(output_c, -1)
+
+        grad_w_update = torch.einsum('ab,cdb->acd', reshaped_layer_error, unfolded_prev_layer_a)
+        grad_b_update = torch.einsum('f...->f', reshaped_layer_error)
+
+        self.grad_w += grad_w_update.view(output_c, input_c, kernel_size, kernel_size)
+        self.grad_b += grad_b_update.view(output_c)
+
+        return
+
+    def _ordinary_update_gradients(
+        self,
+        layer_error,
+        prev_layer,
+        input_c,
+        output_c,
+        output_h,
+        output_w,
+        kernel_size
+    ):
+        for f in range(output_c):
+            layer_error_f = layer_error[f]
+            for c in range(input_c):
+                prev_layer_a_c = prev_layer.a[c]
+                for m in range(kernel_size):
+                    for n in range(kernel_size):
+                        self.grad_w[f][c][m][n] += torch.sum(
+                            layer_error_f
+                            * prev_layer_a_c[m:m + output_h, n:n + output_w]
+                        )
+            self.grad_b[f] += torch.sum(layer_error_f)
+        return
+
+    def _update_gradients(
+        self,
+        layer_error,
+        prev_layer
+    ):
+        if self.compute_mode == "fast":
+            return self._fast_update_gradients(
+                layer_error,
+                prev_layer,
+                self.input_c,
+                self.output_c,
+                self.output_h,
+                self.output_w,
+                self.kernel_size
+            )
+        elif self.compute_mode == "ordinary":
+            return self._ordinary_update_gradients(
+                layer_error,
+                prev_layer,
+                self.input_c,
+                self.output_c,
+                self.output_h,
+                self.output_w,
+                self.kernel_size
             )
         else:
             raise Exception(f"Invalid compute mode: {self.compute_mode}")
@@ -428,73 +483,14 @@ class Convolutional(Layer):
         self.grad_b = torch.zeros_like(self.b)
         return
 
-    def forward(self, input, cn=None):
-
-        # torch.set_printoptions(precision=35, sci_mode=False)
-        # torch.set_printoptions(threshold=torch.inf)
-
-        start_for_time = time.time()
-
-        self.z = self._convolution(
-            input,
-            self.w,
-            self.b,
-            self.input_c,
-            self.output_c,
-            self.output_h,
-            self.output_w,
-            self.kernel_size
-        )
-
-        # if self.name == 'second':
-        #
-        #     # print('input')
-        #     # print(input)
-        #     # print('self.a[0]')
-        #     # print(self.a[0].dtype)
-        #     # print(self.a[0])
-        #     print('self.z[0]')
-        #     print(self.z[0].shape)
-        #     print(self.z[0])
-
+    def forward(self, input):
+        self.z = self._convolution(input, self.w, self.b)
         self.a = self.activation.apply(self.z)
-
-        # if self.name == 'second':
-        #
-        #     print('Forward time: ', time.time() - start_for_time)
-        #
-        #     # print('input')
-        #     # print(input)
-        #     # print('self.a[0]')
-        #     # print(self.a[0].dtype)
-        #     # print(self.a[0])
-        #     print('self.a[0]')
-        #     print(self.a[0].shape)
-        #     print(self.a[0])
-        #
-        #     time.sleep(1)
-
         return
 
     def backward(self, next_layer_error, prev_layer, next_layer):
-
-        start_backw_full = time.time()
-
         layer_error = self._calculate_layer_error(next_layer_error, next_layer)
-        for f in range(self.filters_num):
-            layer_error_f = layer_error[f]
-            for c in range(self.input_c):
-                prev_layer_a_c = prev_layer.a[c]
-                for m in range(self.kernel_size):
-                    for n in range(self.kernel_size):
-                        self.grad_w[f][c][m][n] += torch.sum(
-                            layer_error_f
-                            * prev_layer_a_c[m:m + self.output_h, n:n + self.output_w]
-                        )
-            self.grad_b[f] += torch.sum(layer_error_f)
-
-        #print("Full backward time: ", time.time() - start_backw_full)
-
+        self._update_gradients(layer_error, prev_layer)
         return layer_error
 
 
@@ -515,7 +511,7 @@ class Flatten:
 
         return self
 
-    def forward(self, input, cn=None):
+    def forward(self, input):
         self.a = input.flatten()
         self.a = self.a.reshape(self.a.size(0), 1)
         return

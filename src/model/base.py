@@ -17,7 +17,7 @@ class NeuralNetwork:
         loss,
         metric,
         convert_prediction=None,
-        on_cuda=False,
+        use_gpu=False,
     ):
         self.__input_layer = input_layer
         self.__layers = []
@@ -26,7 +26,7 @@ class NeuralNetwork:
         self.__loss = loss
         self.__metric = metric
         self.__convert_prediction = convert_prediction
-        self.__device = torch.device("cuda" if on_cuda and torch.cuda.is_available() else "cpu")
+        self.__device = torch.device("cuda" if use_gpu and torch.cuda.is_available() else "cpu")
         self.__prediction = []
         self.__actual = []
         self.__optimizer.initialize(self.__layers)
@@ -74,7 +74,7 @@ class NeuralNetwork:
 
         return prediction
 
-    def __forward(self, cn=None):
+    def __forward(self):
         """
         Perform forward pass through the network.
         """
@@ -82,7 +82,7 @@ class NeuralNetwork:
 
         while layer_index < len(self.__layers):
             input = self.__layers[layer_index - 1].a
-            self.__layers[layer_index].forward(input, cn)
+            self.__layers[layer_index].forward(input)
             layer_index += 1
 
         return self.__layers[-1].a
@@ -632,7 +632,7 @@ class NeuralNetwork:
     #
     #     return grads_w_update, grads_b_update
 
-    def __process_batch(self, batch, cn=None):
+    def __process_batch(self, batch):
         """
         Process a batch of data.
         """
@@ -648,7 +648,7 @@ class NeuralNetwork:
             else:
                 self.__layers[0].a = torch.tensor(input_data).reshape(len(input_data), 1)
 
-            predict = self.__forward(cn)
+            predict = self.__forward()
 
             self.__prediction.append(predict)
 
@@ -687,11 +687,8 @@ class NeuralNetwork:
                 for k in range(0, len(train_dataset), batch_size)
             ]
 
-            cn = 0
             for batch in batches:
-                cn += 1
-                #print("Sample_", cn)
-                self.__process_batch(batch, cn)
+                self.__process_batch(batch)
 
             self.__prediction = torch.stack(self.__prediction)
             self.__actual = torch.stack(self.__actual)
@@ -725,7 +722,7 @@ class NeuralNetwork:
                     #     len(input_data), 1
                     # )
 
-                    predict = self.__forward(cn)
+                    predict = self.__forward()
 
                     self.__prediction.append(predict)
                     self.__actual.append(
