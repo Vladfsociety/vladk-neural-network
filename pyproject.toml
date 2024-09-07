@@ -31,7 +31,8 @@ markers = [
     "regression_three_dim: test regression on 3d functions",
     "binary_classification_iris: binary classification on iris dataset with 3 possible pairs",
     "multi_classification_iris: multi classification on full iris dataset with all 3 species",
-    "multi_classification_digits: multi classification on MNIST digits dataset"
+    "multi_classification_digits: multi classification on MNIST digits dataset",
+    "cnn_multi_classification_digits: multi classification on MNIST digits dataset using CNN"
 ]
 
 [tool.ruff]

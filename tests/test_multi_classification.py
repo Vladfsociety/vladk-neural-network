@@ -39,12 +39,13 @@ def get_iris_dataset():
         specie = one_hot_map[data.loc[index, "Species"]]
         dataset.append({"input": input_values, "output": specie})
 
+    random.seed(1)
     random.shuffle(dataset)
     return dataset[:115], dataset[115:]
 
 
 def run_iris_test(
-    learning_rate=0.002, cce_threshold=0.7, acc_threshold=0.85, fit_time_threshold=4.0
+    learning_rate=0.002, cce_threshold=0.7, acc_threshold=0.9, fit_time_threshold=4.0
 ):
     """Run a multi-class classification test on the Iris dataset."""
     print("\nMulti-class classification. Testing on full Iris dataset (3 species)")
@@ -122,12 +123,13 @@ def get_digits_dataset():
             }
         )
 
+    random.seed(1)
     random.shuffle(dataset)
     return dataset[:2000], dataset[2000:2500]
 
 
 def run_digits_test(
-    learning_rate=0.001, cce_threshold=1.7, acc_threshold=0.875, fit_time_threshold=40.0
+    learning_rate=0.001, cce_threshold=1.6, acc_threshold=0.93, fit_time_threshold=40.0
 ):
     """Run a multi-class classification test on the Digits dataset."""
     print("\nMulti-class classification. Testing on Digits dataset")

@@ -45,6 +45,7 @@ def get_iris_dataset(species_to_compare, specie_to_exclude):
             }
         )
 
+    random.seed(3)
     random.shuffle(dataset)
     return dataset[:70], dataset[70:]
 
@@ -108,7 +109,7 @@ def run_classification_test(
     "species_combination, bce_threshold, acc_threshold",
     [
         ([["Iris-setosa", "Iris-versicolor"], "Iris-virginica"], 0.01, 0.98),
-        ([["Iris-versicolor", "Iris-virginica"], "Iris-setosa"], 0.5, 0.85),
+        ([["Iris-versicolor", "Iris-virginica"], "Iris-setosa"], 0.3, 0.9),
         ([["Iris-setosa", "Iris-virginica"], "Iris-versicolor"], 0.01, 0.98),
     ],
 )

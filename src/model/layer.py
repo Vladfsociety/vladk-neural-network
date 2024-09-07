@@ -1,7 +1,5 @@
 import math
-import pprint
 import random
-import time
 
 import torch
 
@@ -126,8 +124,6 @@ class Convolutional(Layer):
 
     def _init_weights(self, size, device):
         n_inputs = size[1] * size[2] * size[3]
-        random.seed(41)
-
         limit = math.sqrt(1 / n_inputs)
         return torch.tensor(
             [
@@ -169,44 +165,6 @@ class Convolutional(Layer):
             layer_error = next_layer_error
 
         return layer_error
-
-    # def _fast_deconvolution(
-    #     self,
-    #     layer_error_next,
-    #     filters,
-    #     next_output_c,
-    #     output_h,
-    #     output_w,
-    #     next_input_c,
-    #     kernel_size
-    # ):
-    #     duplicated_filters = torch.zeros(
-    #         next_input_c,
-    #         output_h,
-    #         output_w,
-    #         next_output_c,
-    #         kernel_size,
-    #         kernel_size
-    #     )
-    #     for f in range(next_input_c):
-    #         expanded_filter = filters[:, f].unsqueeze(0).unsqueeze(0)
-    #         duplicated_filters[f] = expanded_filter.expand(output_h, output_w, -1, -1, -1)
-    #
-    #     separate_regions = torch.zeros(
-    #         output_h,
-    #         output_w,
-    #         next_output_c,
-    #         kernel_size,
-    #         kernel_size
-    #     )
-    #     for i in range(output_h):
-    #         for j in range(output_w):
-    #             separate_regions[i][j] = layer_error_next[:, i:i + kernel_size, j:j + kernel_size]
-    #
-    #     expanded_regions = separate_regions.unsqueeze(0)
-    #     duplicated_separate_regions = expanded_regions.expand(next_input_c, -1, -1, -1, -1, -1)
-    #
-    #     return torch.sum(duplicated_separate_regions * duplicated_filters, dim=(3, 4, 5))
 
     def _fast_deconvolution(
         self,
@@ -265,62 +223,6 @@ class Convolutional(Layer):
             )
         else:
             raise Exception(f"Invalid compute mode: {self.compute_mode}")
-
-    # def _fast_convolution(
-    #     self,
-    #     input_image,
-    #     filters,
-    #     biases,
-    #     input_c,
-    #     output_c,
-    #     output_h,
-    #     output_w,
-    #     kernel_size
-    # ):
-    #     duplicated_filters = torch.zeros(
-    #         output_c,
-    #         output_h,
-    #         output_w,
-    #         input_c,
-    #         kernel_size,
-    #         kernel_size
-    #     )
-    #     for f in range(output_c):
-    #         expanded_filter = filters[f].unsqueeze(0).unsqueeze(0)
-    #         duplicated_filters[f] = expanded_filter.expand(output_h, output_w, -1, -1, -1)
-    #
-    #     # print('duplicated_filters[0]')
-    #     # print(duplicated_filters.shape)
-    #     # print(duplicated_filters[0])
-    #
-    #     separate_regions = torch.zeros(
-    #         output_h,
-    #         output_w,
-    #         input_c,
-    #         kernel_size,
-    #         kernel_size
-    #     )
-    #     for i in range(output_h):
-    #         for j in range(output_w):
-    #             separate_regions[i][j] = input_image[:, i:i + kernel_size, j:j + kernel_size]
-    #
-    #     expanded_regions = separate_regions.unsqueeze(0)
-    #     duplicated_separate_regions = expanded_regions.expand(output_c, -1, -1, -1, -1, -1)
-    #
-    #     # print('duplicated_separate_regions[0]')
-    #     # print(duplicated_separate_regions.shape)
-    #     # print(duplicated_separate_regions[0])
-    #     #
-    #     # print('biases')
-    #     # print(biases)
-    #     # print('biases.view(-1, 1, 1)')
-    #     # print(biases.view(-1, 1, 1).shape)
-    #     # print(biases.view(-1, 1, 1))
-    #     # print('torch.sum(duplicated_separate_regions * duplicated_filters, dim=(3, 4, 5))')
-    #     # print(torch.sum(duplicated_separate_regions * duplicated_filters, dim=(3, 4, 5)).shape)
-    #     # print(torch.sum(duplicated_separate_regions * duplicated_filters, dim=(3, 4, 5))[0])
-    #
-    #     return torch.sum(duplicated_separate_regions * duplicated_filters, dim=(3, 4, 5)) + biases.view(-1, 1, 1)
 
     def _fast_convolution(
         self,
