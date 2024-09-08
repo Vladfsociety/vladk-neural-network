@@ -7,7 +7,7 @@ import torch
 
 from src.model.activation import LeakyRelu, Linear
 from src.model.base import NeuralNetwork
-from src.model.layer import FullyConnected, Input3D, Convolutional, Flatten
+from src.model.layer import FullyConnected, Input3D, Convolutional, Flatten, MaxPool2D
 from src.model.loss import CategoricalCrossEntropy
 from src.model.metric import AccuracyOneHot
 from src.model.optimizer import Adam
@@ -25,7 +25,7 @@ def get_digits_dataset():
     """Load and preprocess the Digits dataset for multi-class classification."""
     dataset = []
 
-    train = pd.read_csv("data/digits/train.csv", header=0, nrows=5000)
+    train = pd.read_csv("data/digits/train.csv", header=0, nrows=10000)
 
     for index in train.index:
         input_values = [
@@ -38,13 +38,13 @@ def get_digits_dataset():
             }
         )
 
-    random.seed(5)
+    random.seed(1)
     random.shuffle(dataset)
     return dataset[:2000], dataset[2000:2500]
 
 
 def run_digits_test(
-    learning_rate=0.001, cce_threshold=1.65, acc_threshold=0.96, fit_time_threshold=80.0
+    learning_rate=0.001, cce_threshold=1.6, acc_threshold=0.96, fit_time_threshold=80.0
 ):
     """Run a multi-class classification test on the Digits dataset."""
     print("\nMulti-class classification. Testing on Digits dataset (CNN)")
@@ -55,6 +55,7 @@ def run_digits_test(
         Convolutional(LeakyRelu(), filters_num=4, kernel_size=3),
         Convolutional(LeakyRelu(), filters_num=8, kernel_size=3),
         Convolutional(LeakyRelu(), filters_num=16, kernel_size=3),
+        MaxPool2D(),
         Flatten(),
         FullyConnected(128, LeakyRelu()),
         FullyConnected(10, Linear())
@@ -68,9 +69,6 @@ def run_digits_test(
         convert_prediction='argmax',
         use_gpu=True
     )
-
-    if str(cnn.device) == "cpu":
-        fit_time_threshold = 180.0
 
     start_time = time.time()
     epochs = 10

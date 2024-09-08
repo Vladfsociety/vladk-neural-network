@@ -371,8 +371,8 @@ class Flatten:
         self.a = None
 
     def initialize(self, previous_layer, device):
-        if previous_layer.type != 'convolutional':
-            raise Exception("Flatten layer should be used only after convolutional")
+        if previous_layer.type not in ('convolutional', 'max_pool2d'):
+            raise Exception("Flatten layer should be used only after convolutional or max pool")
 
         self.size = (previous_layer.output_c
                      * previous_layer.output_h
@@ -386,13 +386,117 @@ class Flatten:
         self.a = self.a.reshape(self.a.size(0), 1)
         return
 
-    def backward(self, layer_error, prev_layer, next_layer):
+    def backward(self, next_layer_error, prev_layer, next_layer):
         reshape_sizes = (
             prev_layer.output_c,
             prev_layer.output_h,
             prev_layer.output_w
         )
-        layer_error = (torch.matmul(next_layer.w.t(), layer_error)
+        layer_error = (torch.matmul(next_layer.w.t(), next_layer_error)
                        * torch.ones_like(self.a)).reshape(reshape_sizes)
 
         return layer_error
+
+
+class MaxPool2D:
+    def __init__(self, name=None, compute_mode="fast"):
+        self.type = "max_pool2d"
+        self.name = name
+        self.compute_mode = compute_mode
+        self.learnable = False
+        self.device = None
+        self.input_h = None
+        self.input_w = None
+        self.input_c = None
+        self.output_h = None
+        self.output_w = None
+        self.output_c = None
+        self.a = None
+        self.max_indices = None
+
+    def initialize(self, previous_layer, device):
+        if previous_layer.type != 'convolutional':
+            raise Exception("Max pool layer should be used only after convolutional")
+
+        self.device = device
+        self.input_h = previous_layer.output_h
+        self.input_w = previous_layer.output_w
+        self.input_c = previous_layer.output_c
+        self.output_h = int(self.input_h / 2)
+        self.output_w = int(self.input_w / 2)
+        self.output_c = self.input_c
+        self.a = torch.zeros((self.output_c, self.output_h, self.output_w), device=device)
+        self.max_indices = torch.zeros((self.output_c, self.output_h, self.output_w, 2), device=device)
+
+        return self
+
+    def _fast_forward(self, input_data):
+        unfolded_input_data = input_data.clone().unfold(1, 2, 2).unfold(2, 2, 2)
+
+        self.a, indices = unfolded_input_data.reshape(self.output_c, self.output_h, self.output_w, -1).max(dim=-1)
+
+        y_indices = indices // 2
+        x_indices = indices % 2
+
+        self.max_indices = torch.stack((y_indices, x_indices), dim=-1)
+
+        return
+
+    def _ordinary_forward(self, input_data):
+        for f in range(self.output_c):
+            input_data_f = input_data[f]
+            for i in range(self.output_h):
+                for j in range(self.output_w):
+                    i_start = i * 2
+                    i_end = i * 2 + 2
+                    j_start = j * 2
+                    j_end = j * 2 + 2
+                    region = input_data_f[i_start:i_end, j_start:j_end]
+                    self.a[f][i][j] = torch.max(region)
+                    self.max_indices[f][i][j] = (region == self.a[f][i][j]).nonzero()[0]
+        return self.a
+
+    def forward(self, input_data):
+        if self.compute_mode == "fast":
+            return self._fast_forward(input_data)
+        elif self.compute_mode == "ordinary":
+            return self._ordinary_forward(input_data)
+        else:
+            raise Exception(f"Invalid compute mode: {self.compute_mode}")
+
+    def _fast_backward(self, next_layer_error):
+        layer_error = torch.zeros((self.input_c, self.input_h, self.input_w), device=self.device)
+
+        filter_indices = torch.arange(self.output_c, device=self.device).view(-1, 1, 1).expand(-1, self.output_h,
+                                                                                              self.output_w)
+        h_indices = torch.arange(self.output_h, device=self.device).view(1, -1, 1).expand(self.output_c, -1,
+                                                                                          self.output_w)
+        w_indices = torch.arange(self.output_w, device=self.device).view(1, 1, -1).expand(self.output_c, self.output_h,
+                                                                                          -1)
+
+        i_to_update = h_indices * 2 + self.max_indices[:, :, :, 0]
+        j_to_update = w_indices * 2 + self.max_indices[:, :, :, 1]
+
+        layer_error[filter_indices, i_to_update, j_to_update] = next_layer_error
+
+        return layer_error
+
+    def _ordinary_backward(self, next_layer_error):
+        layer_error = torch.zeros((self.input_c, self.input_h, self.input_w), device=self.device)
+        for f in range(self.output_c):
+            next_layer_error_f = next_layer_error[f]
+            for i in range(self.output_h):
+                for j in range(self.output_w):
+                    max_index_i, max_index_j = self.max_indices[f][i][j]
+                    i_to_update = i * 2 + int(max_index_i)
+                    j_to_update = j * 2 + int(max_index_j)
+                    layer_error[f][i_to_update][j_to_update] = next_layer_error_f[i][j]
+        return layer_error
+
+    def backward(self, next_layer_error, prev_layer, next_layer):
+        if self.compute_mode == "fast":
+            return self._fast_backward(next_layer_error)
+        elif self.compute_mode == "ordinary":
+            return self._ordinary_backward(next_layer_error)
+        else:
+            raise Exception(f"Invalid compute mode: {self.compute_mode}")
