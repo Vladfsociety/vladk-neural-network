@@ -7,7 +7,7 @@ import torch
 
 from src.model.activation import LeakyRelu, Linear
 from src.model.base import NeuralNetwork
-from src.model.layer import FullyConnected, Input3D, Convolutional, Flatten, MaxPool2D
+from src.model.layer import Convolutional, Flatten, FullyConnected, Input3D, MaxPool2D
 from src.model.loss import CategoricalCrossEntropy
 from src.model.metric import AccuracyOneHot
 from src.model.optimizer import Adam
@@ -52,7 +52,7 @@ def run_digits_test(
     train_dataset, test_dataset = get_digits_dataset()
 
     layers = [
-        Convolutional(LeakyRelu(), filters_num=4, kernel_size=3),
+        Convolutional(LeakyRelu(), filters_num=4, kernel_size=3, padding_type="same"),
         Convolutional(LeakyRelu(), filters_num=8, kernel_size=3),
         Convolutional(LeakyRelu(), filters_num=16, kernel_size=3),
         MaxPool2D(),

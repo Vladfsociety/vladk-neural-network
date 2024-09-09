@@ -97,16 +97,25 @@ class FullyConnected(Layer):
 
 
 class Convolutional(Layer):
-    def __init__(self, activation, filters_num=4, kernel_size=3, padding=0, stride=1, compute_mode="fast", name=None):
+    def __init__(self, activation, filters_num=4, kernel_size=3, padding_type=None, compute_mode="fast", name=None):
+        if compute_mode not in ("ordinary", "fast"):
+            raise Exception(f"Invalid compute_mode: {compute_mode}")
+
+        if padding_type not in (None, "same"):
+            raise Exception(f"Invalid padding_type: {padding_type}")
+
+        if padding_type == "same" and kernel_size % 2 == 0:
+            raise Exception("padding_type=\"same\" should be used only with odd kernel_size")
+
         self.type = "convolutional"
         self.name = name
         self.learnable = True
         self.activation = activation
         self.filters_num = filters_num
         self.kernel_size = kernel_size
-        self.padding = padding
-        self.stride = stride
+        self.padding_type = padding_type
         self.compute_mode = compute_mode
+        self.padding = int((self.kernel_size - 1) / 2) if self.padding_type else 0
         self.device = None
         self.input_c = None
         self.input_h = None
@@ -150,7 +159,13 @@ class Convolutional(Layer):
     def _calculate_layer_error(self, next_layer_error, next_layer):
         if next_layer.type == "convolutional":
             k_next = next_layer.kernel_size
-            layer_error_with_padding = self._get_padded_tensor(next_layer_error, [k_next-1]*4)
+
+            if next_layer.padding_type == "same":
+                padding_list = [int((k_next - 1) / 2)] * 4
+            else:
+                padding_list = [k_next - 1] * 4
+
+            layer_error_with_padding = self._get_padded_tensor(next_layer_error, padding_list)
             flipped_w_next = torch.flip(next_layer.w, (2, 3))
 
             layer_error = self._deconvolution(
@@ -173,7 +188,7 @@ class Convolutional(Layer):
         next_output_c,
         next_kernel_size
     ):
-        unfolded_regions = layer_error_next.clone().unfold(1, next_kernel_size, 1).unfold(2, next_kernel_size, 1)
+        unfolded_regions = layer_error_next.unfold(1, next_kernel_size, 1).unfold(2, next_kernel_size, 1)
         unfolded_regions = (unfolded_regions.contiguous()
                             .view(next_output_c, self.output_h * self.output_w, -1))
 
@@ -215,20 +230,18 @@ class Convolutional(Layer):
                 next_output_c,
                 next_kernel_size
             )
-        elif self.compute_mode == "ordinary":
+        else:
             return self._ordinary_deconvolution(
                 layer_error_next,
                 filters,
                 next_kernel_size
             )
-        else:
-            raise Exception(f"Invalid compute mode: {self.compute_mode}")
 
     def _fast_convolution(
         self,
         input_image
     ):
-        unfolded_regions = input_image.clone().unfold(1, self.kernel_size, 1).unfold(2, self.kernel_size, 1)
+        unfolded_regions = input_image.unfold(1, self.kernel_size, 1).unfold(2, self.kernel_size, 1)
         unfolded_regions = unfolded_regions.contiguous().view(self.input_c, self.output_h * self.output_w, -1)
 
         reshaped_filters = self.w.view(self.output_c, self.input_c, -1)
@@ -258,23 +271,26 @@ class Convolutional(Layer):
         self,
         input_image
     ):
+        if self.padding_type == "same":
+            padding_list = [self.padding] * 4
+            input_image = self._get_padded_tensor(input_image, padding_list)
+
         if self.compute_mode == "fast":
             return self._fast_convolution(
                 input_image
             )
-        elif self.compute_mode == "ordinary":
+        else:
             return self._ordinary_convolution(
                 input_image
             )
-        else:
-            raise Exception(f"Invalid compute mode: {self.compute_mode}")
 
     def _fast_update_gradients(
         self,
         layer_error,
-        prev_layer
+        prev_layer,
+        prev_layer_a
     ):
-        unfolded_prev_layer_a = prev_layer.a.clone().unfold(1, self.output_h, 1).unfold(2, self.output_w, 1)
+        unfolded_prev_layer_a = prev_layer_a.unfold(1, self.output_h, 1).unfold(2, self.output_w, 1)
         unfolded_prev_layer_a = unfolded_prev_layer_a.contiguous().view(self.input_c, self.kernel_size * self.kernel_size, -1)
 
         reshaped_layer_error = layer_error.view(self.output_c, -1)
@@ -290,12 +306,13 @@ class Convolutional(Layer):
     def _ordinary_update_gradients(
         self,
         layer_error,
-        prev_layer
+        prev_layer,
+        prev_layer_a
     ):
         for f in range(self.output_c):
             layer_error_f = layer_error[f]
             for c in range(self.input_c):
-                prev_layer_a_c = prev_layer.a[c]
+                prev_layer_a_c = prev_layer_a[c]
                 for m in range(self.kernel_size):
                     for n in range(self.kernel_size):
                         self.grad_w[f][c][m][n] += torch.sum(
@@ -310,18 +327,23 @@ class Convolutional(Layer):
         layer_error,
         prev_layer
     ):
+        prev_layer_a = prev_layer.a
+        if self.padding_type == "same":
+            padding_list = [self.padding] * 4
+            prev_layer_a = self._get_padded_tensor(prev_layer.a, padding_list)
+
         if self.compute_mode == "fast":
             return self._fast_update_gradients(
                 layer_error,
-                prev_layer
-            )
-        elif self.compute_mode == "ordinary":
-            return self._ordinary_update_gradients(
-                layer_error,
-                prev_layer
+                prev_layer,
+                prev_layer_a
             )
         else:
-            raise Exception(f"Invalid compute mode: {self.compute_mode}")
+            return self._ordinary_update_gradients(
+                layer_error,
+                prev_layer,
+                prev_layer_a
+            )
 
     def initialize(self, previous_layer, device):
         self.device = device
@@ -333,9 +355,11 @@ class Convolutional(Layer):
             self.input_c = previous_layer.size[0]
             self.input_h = previous_layer.size[1]
             self.input_w = previous_layer.size[2]
+
         self.output_c = self.filters_num
-        self.output_h = (self.input_h - self.kernel_size) + 1
-        self.output_w = (self.input_w - self.kernel_size) + 1
+        self.output_h = (self.input_h - self.kernel_size + 2 * self.padding) + 1
+        self.output_w = (self.input_w - self.kernel_size + 2 * self.padding) + 1
+
         self.z = torch.zeros((self.output_c, self.output_h, self.output_w), device=self.device)
         self.a = torch.zeros((self.output_c, self.output_h, self.output_w), device=self.device)
         self.w_shape = (self.output_c, self.input_c, self.kernel_size, self.kernel_size)
@@ -371,7 +395,7 @@ class Flatten:
         self.a = None
 
     def initialize(self, previous_layer, device):
-        if previous_layer.type not in ('convolutional', 'max_pool2d'):
+        if previous_layer.type not in ('convolutional', 'max_pool_2d'):
             raise Exception("Flatten layer should be used only after convolutional or max pool")
 
         self.size = (previous_layer.output_c
@@ -400,7 +424,10 @@ class Flatten:
 
 class MaxPool2D:
     def __init__(self, name=None, compute_mode="fast"):
-        self.type = "max_pool2d"
+        if compute_mode not in ("ordinary", "fast"):
+            raise Exception(f"Invalid compute_mode: {compute_mode}")
+
+        self.type = "max_pool_2d"
         self.name = name
         self.compute_mode = compute_mode
         self.learnable = False
@@ -431,7 +458,7 @@ class MaxPool2D:
         return self
 
     def _fast_forward(self, input_data):
-        unfolded_input_data = input_data.clone().unfold(1, 2, 2).unfold(2, 2, 2)
+        unfolded_input_data = input_data.unfold(1, 2, 2).unfold(2, 2, 2)
 
         self.a, indices = unfolded_input_data.reshape(self.output_c, self.output_h, self.output_w, -1).max(dim=-1)
 
