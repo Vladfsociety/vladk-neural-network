@@ -16,6 +16,7 @@ from src.model.optimizer import Adam
 Multi-class classification on the Digits dataset (CNN model).
 """
 
+
 def get_onehot_digit(digit):
     output = [1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
     return output[-digit:] + output[:-digit]
@@ -58,7 +59,7 @@ def run_digits_test(
         MaxPool2D(),
         Flatten(),
         FullyConnected(128, LeakyRelu()),
-        FullyConnected(10, Linear())
+        FullyConnected(10, Linear()),
     ]
     cnn = NeuralNetwork(
         Input3D((1, 28, 28)),
@@ -66,8 +67,8 @@ def run_digits_test(
         optimizer=Adam(learning_rate=learning_rate),
         loss=CategoricalCrossEntropy(),
         metric=AccuracyOneHot(),
-        convert_prediction='argmax',
-        use_gpu=True
+        convert_prediction="argmax",
+        use_gpu=True,
     )
 
     start_time = time.time()

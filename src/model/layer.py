@@ -6,6 +6,7 @@ import torch
 
 class Layer:
     def _init_weights(self, size, device):
+        # Initialize weights using Xavier initialization
         n_inputs = size[0]
         limit = math.sqrt(1 / n_inputs)
         return torch.tensor(
@@ -13,7 +14,7 @@ class Layer:
                 [random.uniform(-limit, limit) for _ in range(size[1])]
                 for _ in range(size[0])
             ],
-            device=device
+            device=device,
         )
 
     def _init_biases(self, size, device):
@@ -61,8 +62,9 @@ class FullyConnected(Layer):
         if not next_layer:
             layer_error = next_layer_error * self.activation.derivative(self.z)
         else:
-            layer_error = (torch.matmul(next_layer.w.t(), next_layer_error)
-                           * self.activation.derivative(self.z))
+            layer_error = torch.matmul(
+                next_layer.w.t(), next_layer_error
+            ) * self.activation.derivative(self.z)
 
         return layer_error
 
@@ -97,7 +99,15 @@ class FullyConnected(Layer):
 
 
 class Convolutional(Layer):
-    def __init__(self, activation, filters_num=4, kernel_size=3, padding_type=None, compute_mode="fast", name=None):
+    def __init__(
+        self,
+        activation,
+        filters_num=4,
+        kernel_size=3,
+        padding_type=None,
+        compute_mode="fast",
+        name=None,
+    ):
         if compute_mode not in ("ordinary", "fast"):
             raise Exception(f"Invalid compute_mode: {compute_mode}")
 
@@ -105,7 +115,9 @@ class Convolutional(Layer):
             raise Exception(f"Invalid padding_type: {padding_type}")
 
         if padding_type == "same" and kernel_size % 2 == 0:
-            raise Exception("padding_type=\"same\" should be used only with odd kernel_size")
+            raise Exception(
+                'padding_type="same" should be used only with odd kernel_size'
+            )
 
         self.type = "convolutional"
         self.name = name
@@ -136,12 +148,16 @@ class Convolutional(Layer):
         limit = math.sqrt(1 / n_inputs)
         return torch.tensor(
             [
-                [[[random.uniform(-limit, limit) for _ in range(size[3])]
-                for _ in range(size[2])]
-                for _ in range(size[1])]
+                [
+                    [
+                        [random.uniform(-limit, limit) for _ in range(size[3])]
+                        for _ in range(size[2])
+                    ]
+                    for _ in range(size[1])
+                ]
                 for _ in range(size[0])
             ],
-            device=device
+            device=device,
         )
 
     def _get_padded_tensor(self, tensor, padding, padding_value=0.0):
@@ -151,8 +167,10 @@ class Convolutional(Layer):
         padded_h = h + p_top + p_bot
         padded_w = w + p_left + p_right
 
-        padded_tensor = torch.full((f, padded_h, padded_w), padding_value, device=self.device)
-        padded_tensor[:, p_top:p_top + h, p_left:p_left + w] = tensor[:].clone()
+        padded_tensor = torch.full(
+            (f, padded_h, padded_w), padding_value, device=self.device
+        )
+        padded_tensor[:, p_top : p_top + h, p_left : p_left + w] = tensor[:].clone()
 
         return padded_tensor
 
@@ -165,14 +183,13 @@ class Convolutional(Layer):
             else:
                 padding_list = [k_next - 1] * 4
 
-            layer_error_with_padding = self._get_padded_tensor(next_layer_error, padding_list)
+            layer_error_with_padding = self._get_padded_tensor(
+                next_layer_error, padding_list
+            )
             flipped_w_next = torch.flip(next_layer.w, (2, 3))
 
             layer_error = self._deconvolution(
-                layer_error_with_padding,
-                flipped_w_next,
-                next_layer.output_c,
-                k_next
+                layer_error_with_padding, flipped_w_next, next_layer.output_c, k_next
             )
 
             layer_error *= self.activation.derivative(self.z)
@@ -182,133 +199,116 @@ class Convolutional(Layer):
         return layer_error
 
     def _fast_deconvolution(
-        self,
-        layer_error_next,
-        filters,
-        next_output_c,
-        next_kernel_size
+        self, layer_error_next, filters, next_output_c, next_kernel_size
     ):
-        unfolded_regions = layer_error_next.unfold(1, next_kernel_size, 1).unfold(2, next_kernel_size, 1)
-        unfolded_regions = (unfolded_regions.contiguous()
-                            .view(next_output_c, self.output_h * self.output_w, -1))
+        unfolded_regions = layer_error_next.unfold(1, next_kernel_size, 1).unfold(
+            2, next_kernel_size, 1
+        )
+        unfolded_regions = unfolded_regions.contiguous().view(
+            next_output_c, self.output_h * self.output_w, -1
+        )
 
-        reshaped_filters = filters.view(next_output_c, self.output_c, next_kernel_size * next_kernel_size)
+        reshaped_filters = filters.view(
+            next_output_c, self.output_c, next_kernel_size * next_kernel_size
+        )
 
-        result = torch.einsum('abc,adc->db', unfolded_regions, reshaped_filters)
+        result = torch.einsum("abc,adc->db", unfolded_regions, reshaped_filters)
 
         return result.view(self.output_c, self.output_h, self.output_w)
 
-    def _ordinary_deconvolution(
-        self,
-        layer_error_next,
-        filters,
-        next_kernel_size
-    ):
-        layer_error = torch.zeros((self.output_c, self.output_h, self.output_w), device=self.device)
+    def _ordinary_deconvolution(self, layer_error_next, filters, next_kernel_size):
+        layer_error = torch.zeros(
+            (self.output_c, self.output_h, self.output_w), device=self.device
+        )
         for f in range(self.output_c):
             for i in range(self.output_h):
                 for j in range(self.output_w):
-                    layer_error[f][i][j] = (
-                        torch.sum(
-                            layer_error_next[:, i:i + next_kernel_size, j:j + next_kernel_size]
-                            * filters[:, f]
-                        )
+                    layer_error[f][i][j] = torch.sum(
+                        layer_error_next[
+                            :, i : i + next_kernel_size, j : j + next_kernel_size
+                        ]
+                        * filters[:, f]
                     )
         return layer_error
 
     def _deconvolution(
-        self,
-        layer_error_next,
-        filters,
-        next_output_c,
-        next_kernel_size
+        self, layer_error_next, filters, next_output_c, next_kernel_size
     ):
         if self.compute_mode == "fast":
             return self._fast_deconvolution(
-                layer_error_next,
-                filters,
-                next_output_c,
-                next_kernel_size
+                layer_error_next, filters, next_output_c, next_kernel_size
             )
         else:
             return self._ordinary_deconvolution(
-                layer_error_next,
-                filters,
-                next_kernel_size
+                layer_error_next, filters, next_kernel_size
             )
 
-    def _fast_convolution(
-        self,
-        input_image
-    ):
-        unfolded_regions = input_image.unfold(1, self.kernel_size, 1).unfold(2, self.kernel_size, 1)
-        unfolded_regions = unfolded_regions.contiguous().view(self.input_c, self.output_h * self.output_w, -1)
+    def _fast_convolution(self, input_image):
+        unfolded_regions = input_image.unfold(1, self.kernel_size, 1).unfold(
+            2, self.kernel_size, 1
+        )
+        unfolded_regions = unfolded_regions.contiguous().view(
+            self.input_c, self.output_h * self.output_w, -1
+        )
 
         reshaped_filters = self.w.view(self.output_c, self.input_c, -1)
 
-        result = torch.einsum('abc,dac->db', unfolded_regions, reshaped_filters)
+        result = torch.einsum("abc,dac->db", unfolded_regions, reshaped_filters)
         result = result.view(self.output_c, self.output_h, self.output_w)
 
         result += self.b.view(-1, 1, 1)
 
         return result
 
-    def _ordinary_convolution(
-        self,
-        input_image
-    ):
+    def _ordinary_convolution(self, input_image):
         z = torch.zeros_like(self.z)
         for f in range(self.output_c):
             for i in range(self.output_h):
                 for j in range(self.output_w):
                     z[f][i][j] = (
-                        torch.sum(input_image[:, i:i + self.kernel_size, j:j + self.kernel_size] * self.w[f])
+                        torch.sum(
+                            input_image[
+                                :, i : i + self.kernel_size, j : j + self.kernel_size
+                            ]
+                            * self.w[f]
+                        )
                         + self.b[f]
                     )
         return z
 
-    def _convolution(
-        self,
-        input_image
-    ):
+    def _convolution(self, input_image):
         if self.padding_type == "same":
             padding_list = [self.padding] * 4
             input_image = self._get_padded_tensor(input_image, padding_list)
 
         if self.compute_mode == "fast":
-            return self._fast_convolution(
-                input_image
-            )
+            return self._fast_convolution(input_image)
         else:
-            return self._ordinary_convolution(
-                input_image
-            )
+            return self._ordinary_convolution(input_image)
 
-    def _fast_update_gradients(
-        self,
-        layer_error,
-        prev_layer,
-        prev_layer_a
-    ):
-        unfolded_prev_layer_a = prev_layer_a.unfold(1, self.output_h, 1).unfold(2, self.output_w, 1)
-        unfolded_prev_layer_a = unfolded_prev_layer_a.contiguous().view(self.input_c, self.kernel_size * self.kernel_size, -1)
+    def _fast_update_gradients(self, layer_error, prev_layer, prev_layer_a):
+        unfolded_prev_layer_a = prev_layer_a.unfold(1, self.output_h, 1).unfold(
+            2, self.output_w, 1
+        )
+        unfolded_prev_layer_a = unfolded_prev_layer_a.contiguous().view(
+            self.input_c, self.kernel_size * self.kernel_size, -1
+        )
 
         reshaped_layer_error = layer_error.view(self.output_c, -1)
 
-        grad_w_update = torch.einsum('ab,cdb->acd', reshaped_layer_error, unfolded_prev_layer_a)
-        grad_b_update = torch.einsum('f...->f', reshaped_layer_error)
+        grad_w_update = torch.einsum(
+            "ab,cdb->acd", reshaped_layer_error, unfolded_prev_layer_a
+        )
+        grad_b_update = torch.einsum("f...->f", reshaped_layer_error)
 
-        self.grad_w += grad_w_update.view(self.output_c, self.input_c, self.kernel_size, self.kernel_size)
+        self.grad_w += grad_w_update.view(
+            self.output_c, self.input_c, self.kernel_size, self.kernel_size
+        )
         self.grad_b += grad_b_update.view(self.output_c)
 
         return
 
-    def _ordinary_update_gradients(
-        self,
-        layer_error,
-        prev_layer,
-        prev_layer_a
-    ):
+    def _ordinary_update_gradients(self, layer_error, prev_layer, prev_layer_a):
         for f in range(self.output_c):
             layer_error_f = layer_error[f]
             for c in range(self.input_c):
@@ -317,37 +317,29 @@ class Convolutional(Layer):
                     for n in range(self.kernel_size):
                         self.grad_w[f][c][m][n] += torch.sum(
                             layer_error_f
-                            * prev_layer_a_c[m:m + self.output_h, n:n + self.output_w]
+                            * prev_layer_a_c[
+                                m : m + self.output_h, n : n + self.output_w
+                            ]
                         )
             self.grad_b[f] += torch.sum(layer_error_f)
         return
 
-    def _update_gradients(
-        self,
-        layer_error,
-        prev_layer
-    ):
+    def _update_gradients(self, layer_error, prev_layer):
         prev_layer_a = prev_layer.a
         if self.padding_type == "same":
             padding_list = [self.padding] * 4
             prev_layer_a = self._get_padded_tensor(prev_layer.a, padding_list)
 
         if self.compute_mode == "fast":
-            return self._fast_update_gradients(
-                layer_error,
-                prev_layer,
-                prev_layer_a
-            )
+            return self._fast_update_gradients(layer_error, prev_layer, prev_layer_a)
         else:
             return self._ordinary_update_gradients(
-                layer_error,
-                prev_layer,
-                prev_layer_a
+                layer_error, prev_layer, prev_layer_a
             )
 
     def initialize(self, previous_layer, device):
         self.device = device
-        if previous_layer.type == 'convolutional':
+        if previous_layer.type == "convolutional":
             self.input_c = previous_layer.output_c
             self.input_h = previous_layer.output_h
             self.input_w = previous_layer.output_w
@@ -360,8 +352,12 @@ class Convolutional(Layer):
         self.output_h = (self.input_h - self.kernel_size + 2 * self.padding) + 1
         self.output_w = (self.input_w - self.kernel_size + 2 * self.padding) + 1
 
-        self.z = torch.zeros((self.output_c, self.output_h, self.output_w), device=self.device)
-        self.a = torch.zeros((self.output_c, self.output_h, self.output_w), device=self.device)
+        self.z = torch.zeros(
+            (self.output_c, self.output_h, self.output_w), device=self.device
+        )
+        self.a = torch.zeros(
+            (self.output_c, self.output_h, self.output_w), device=self.device
+        )
         self.w_shape = (self.output_c, self.input_c, self.kernel_size, self.kernel_size)
         self.w = self._init_weights(self.w_shape, self.device)
         self.b = super()._init_biases(self.output_c, self.device)
@@ -395,12 +391,14 @@ class Flatten:
         self.a = None
 
     def initialize(self, previous_layer, device):
-        if previous_layer.type not in ('convolutional', 'max_pool_2d'):
-            raise Exception("Flatten layer should be used only after convolutional or max pool")
+        if previous_layer.type not in ("convolutional", "max_pool_2d"):
+            raise Exception(
+                "Flatten layer should be used only after convolutional or max pool"
+            )
 
-        self.size = (previous_layer.output_c
-                     * previous_layer.output_h
-                     * previous_layer.output_w)
+        self.size = (
+            previous_layer.output_c * previous_layer.output_h * previous_layer.output_w
+        )
         self.a = torch.zeros((self.size, 1), device=device)
 
         return self
@@ -411,13 +409,10 @@ class Flatten:
         return
 
     def backward(self, next_layer_error, prev_layer, next_layer):
-        reshape_sizes = (
-            prev_layer.output_c,
-            prev_layer.output_h,
-            prev_layer.output_w
-        )
-        layer_error = (torch.matmul(next_layer.w.t(), next_layer_error)
-                       * torch.ones_like(self.a)).reshape(reshape_sizes)
+        reshape_sizes = (prev_layer.output_c, prev_layer.output_h, prev_layer.output_w)
+        layer_error = (
+            torch.matmul(next_layer.w.t(), next_layer_error) * torch.ones_like(self.a)
+        ).reshape(reshape_sizes)
 
         return layer_error
 
@@ -442,7 +437,7 @@ class MaxPool2D:
         self.max_indices = None
 
     def initialize(self, previous_layer, device):
-        if previous_layer.type != 'convolutional':
+        if previous_layer.type != "convolutional":
             raise Exception("Max pool layer should be used only after convolutional")
 
         self.device = device
@@ -452,15 +447,21 @@ class MaxPool2D:
         self.output_h = int(self.input_h / 2)
         self.output_w = int(self.input_w / 2)
         self.output_c = self.input_c
-        self.a = torch.zeros((self.output_c, self.output_h, self.output_w), device=device)
-        self.max_indices = torch.zeros((self.output_c, self.output_h, self.output_w, 2), device=device)
+        self.a = torch.zeros(
+            (self.output_c, self.output_h, self.output_w), device=device
+        )
+        self.max_indices = torch.zeros(
+            (self.output_c, self.output_h, self.output_w, 2), device=device
+        )
 
         return self
 
     def _fast_forward(self, input_data):
         unfolded_input_data = input_data.unfold(1, 2, 2).unfold(2, 2, 2)
 
-        self.a, indices = unfolded_input_data.reshape(self.output_c, self.output_h, self.output_w, -1).max(dim=-1)
+        self.a, indices = unfolded_input_data.reshape(
+            self.output_c, self.output_h, self.output_w, -1
+        ).max(dim=-1)
 
         y_indices = indices // 2
         x_indices = indices % 2
@@ -492,14 +493,25 @@ class MaxPool2D:
             raise Exception(f"Invalid compute mode: {self.compute_mode}")
 
     def _fast_backward(self, next_layer_error):
-        layer_error = torch.zeros((self.input_c, self.input_h, self.input_w), device=self.device)
+        layer_error = torch.zeros(
+            (self.input_c, self.input_h, self.input_w), device=self.device
+        )
 
-        filter_indices = torch.arange(self.output_c, device=self.device).view(-1, 1, 1).expand(-1, self.output_h,
-                                                                                              self.output_w)
-        h_indices = torch.arange(self.output_h, device=self.device).view(1, -1, 1).expand(self.output_c, -1,
-                                                                                          self.output_w)
-        w_indices = torch.arange(self.output_w, device=self.device).view(1, 1, -1).expand(self.output_c, self.output_h,
-                                                                                          -1)
+        filter_indices = (
+            torch.arange(self.output_c, device=self.device)
+            .view(-1, 1, 1)
+            .expand(-1, self.output_h, self.output_w)
+        )
+        h_indices = (
+            torch.arange(self.output_h, device=self.device)
+            .view(1, -1, 1)
+            .expand(self.output_c, -1, self.output_w)
+        )
+        w_indices = (
+            torch.arange(self.output_w, device=self.device)
+            .view(1, 1, -1)
+            .expand(self.output_c, self.output_h, -1)
+        )
 
         i_to_update = h_indices * 2 + self.max_indices[:, :, :, 0]
         j_to_update = w_indices * 2 + self.max_indices[:, :, :, 1]
@@ -509,7 +521,9 @@ class MaxPool2D:
         return layer_error
 
     def _ordinary_backward(self, next_layer_error):
-        layer_error = torch.zeros((self.input_c, self.input_h, self.input_w), device=self.device)
+        layer_error = torch.zeros(
+            (self.input_c, self.input_h, self.input_w), device=self.device
+        )
         for f in range(self.output_c):
             next_layer_error_f = next_layer_error[f]
             for i in range(self.output_h):

@@ -4,8 +4,6 @@ import torch
 class SGD:
     """
     Stochastic Gradient Descent (SGD) optimizer.
-
-    Performs parameter updates using the SGD optimization algorithm.
     """
 
     def __init__(self, learning_rate=0.001):
@@ -25,10 +23,12 @@ class SGD:
             if not layer.learnable:
                 continue
 
-            layers[layer_index + 1].w -= ((self._learning_rate / batch_size)
-                                         * layer.grad_w)
-            layers[layer_index + 1].b -= ((self._learning_rate / batch_size)
-                                         * layer.grad_b)
+            layers[layer_index + 1].w -= (
+                self._learning_rate / batch_size
+            ) * layer.grad_w
+            layers[layer_index + 1].b -= (
+                self._learning_rate / batch_size
+            ) * layer.grad_b
 
         return
 
@@ -54,14 +54,17 @@ class Adam:
     def initialize(self, layers):
         """
         Initialize the optimizer for the given layers by setting up moment estimates.
+        This includes initializing first and second moment estimates for weights and biases.
         """
         for layer in layers[1:]:
             if layer.learnable:
+                # Initialize first and second moment estimates for weights and biases
                 self._first_moment_w.append(torch.zeros_like(layer.w))
                 self._first_moment_b.append(torch.zeros_like(layer.b))
                 self._second_moment_w.append(torch.zeros_like(layer.w))
                 self._second_moment_b.append(torch.zeros_like(layer.b))
             else:
+                # For non-learnable layers, add placeholder zero tensors
                 self._first_moment_w.append(torch.zeros(1))
                 self._first_moment_b.append(torch.zeros(1))
                 self._second_moment_w.append(torch.zeros(1))
@@ -95,55 +98,33 @@ class Adam:
         return
 
     def _get_first_moment_w(self, layer_index, grad_w):
-        """
-        Compute the first moment estimate for weights.
-        """
         first_moment_w = self._first_moment_w[layer_index]
-        first_moment_w = (
-            self._beta_1 * first_moment_w
-            + (1.0 - self._beta_1) * grad_w
-        )
-
+        first_moment_w = self._beta_1 * first_moment_w + (1.0 - self._beta_1) * grad_w
         self._first_moment_w[layer_index] = first_moment_w
 
-        return first_moment_w / (1.0 - self._beta_1 ** self._timestamp)
+        return first_moment_w / (1.0 - self._beta_1**self._timestamp)
 
     def _get_second_moment_w(self, layer_index, grad_w):
-        """
-        Compute the second moment estimate for weights.
-        """
         second_moment_w = self._second_moment_w[layer_index]
         second_moment_w = self._beta_2 * second_moment_w + (1.0 - self._beta_2) * (
-            grad_w ** 2
+            grad_w**2
         )
-
         self._second_moment_w[layer_index] = second_moment_w
 
-        return second_moment_w / (1.0 - self._beta_2 ** self._timestamp)
+        return second_moment_w / (1.0 - self._beta_2**self._timestamp)
 
     def _get_first_moment_b(self, layer_index, grad_b):
-        """
-        Compute the first moment estimate for biases.
-        """
         first_moment_b = self._first_moment_b[layer_index]
-        first_moment_b = (
-            self._beta_1 * first_moment_b
-            + (1.0 - self._beta_1) * grad_b
-        )
-
+        first_moment_b = self._beta_1 * first_moment_b + (1.0 - self._beta_1) * grad_b
         self._first_moment_b[layer_index] = first_moment_b
 
-        return first_moment_b / (1.0 - self._beta_1 ** self._timestamp)
+        return first_moment_b / (1.0 - self._beta_1**self._timestamp)
 
     def _get_second_moment_b(self, layer_index, grad_b):
-        """
-        Compute the second moment estimate for biases.
-        """
         second_moment_b = self._second_moment_b[layer_index]
         second_moment_b = self._beta_2 * second_moment_b + (1.0 - self._beta_2) * (
-            grad_b ** 2
+            grad_b**2
         )
-
         self._second_moment_b[layer_index] = second_moment_b
 
-        return second_moment_b / (1.0 - self._beta_2 ** self._timestamp)
+        return second_moment_b / (1.0 - self._beta_2**self._timestamp)

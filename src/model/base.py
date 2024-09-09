@@ -19,25 +19,38 @@ class NeuralNetwork:
         convert_prediction=None,
         use_gpu=False,
     ):
+        """
+        Initialize the neural network with layers, optimizer, loss function, metric, and optional GPU usage.
+        """
         self._use_gpu = use_gpu
-        self._init_device()
+        self._init_device()  # Initialize the device (CPU or GPU)
         self._input_layer = input_layer
         self._optimizer = optimizer
         self._loss = loss
         self._metric = metric
-        self._convert_prediction = convert_prediction
+        self._convert_prediction = (
+            convert_prediction  # Option for converting prediction to binary or argmax
+        )
         self._prediction = []
         self._actual = []
         self._layers = []
         self._init_layers(layers)
-        self._optimizer.initialize(self._layers)
+        self._optimizer.initialize(
+            self._layers
+        )
 
     def _init_device(self):
-        self.device = torch.device("cuda" if self._use_gpu and torch.cuda.is_available() else "cpu")
+        """
+        Set the device to use: GPU if available, otherwise CPU.
+        """
+        self.device = torch.device(
+            "cuda" if self._use_gpu and torch.cuda.is_available() else "cpu"
+        )
 
     def _init_layers(self, layers):
         """
         Initialize the layers of the neural network.
+        Ensure the last layer is fully connected.
         """
         if layers[-1].type != "fully_connected":
             raise Exception("Last layer should be fully connected")
@@ -50,13 +63,15 @@ class NeuralNetwork:
 
     def _binary_convert(self, prediction, threshold=0.5):
         """
-        Convert prediction to binary values based on threshold.
+        Convert prediction to binary values based on a threshold.
+        Useful for binary classification tasks.
         """
         return (prediction >= threshold).double()
 
     def _argmax_convert(self, prediction):
         """
         Convert prediction to one-hot encoded values using argmax.
+        Useful for multi-class classification.
         """
         max_indices = torch.argmax(prediction, dim=1, keepdim=True)
         onehot_prediction = torch.zeros_like(prediction)
@@ -65,7 +80,7 @@ class NeuralNetwork:
 
     def _apply_convert_prediction(self, prediction):
         """
-        Apply conversion based on the specified conversion type.
+        Apply conversion based on the specified prediction type (binary or argmax).
         """
         if self._convert_prediction == "binary":
             prediction = self._binary_convert(prediction)
@@ -96,16 +111,18 @@ class NeuralNetwork:
 
         while layer_index > 0:
             if layer_index == len(self._layers) - 1:
+                # Compute loss derivative at the output layer
                 loss_derivative = self._loss.derivative(predict, actual)
                 layer_error = self._layers[layer_index].backward(
                     loss_derivative,
                     self._layers[layer_index - 1],
                 )
             else:
+                # Propagate error to the previous layer
                 layer_error = self._layers[layer_index].backward(
                     layer_error,
                     self._layers[layer_index - 1],
-                    self._layers[layer_index + 1]
+                    self._layers[layer_index + 1],
                 )
             layer_index -= 1
 
@@ -113,19 +130,24 @@ class NeuralNetwork:
 
     def _process_batch(self, batch):
         """
-        Process a batch of data.
+        Process a batch of data: forward pass, compute loss, and backward pass.
         """
+        # Zero out gradients for all learnable layers
         for layer in self._layers[1:]:
             if layer.learnable:
                 layer.zero_grad()
 
+        # Loop through each sample in the batch
         for sample in batch:
             input_data = sample["input"]
 
-            if self._input_layer.type == 'input_3d':
+            # Set input layer activation (handle 3D and other input types)
+            if self._input_layer.type == "input_3d":
                 self._layers[0].a = torch.tensor(input_data, device=self.device)
             else:
-                self._layers[0].a = torch.tensor(input_data, device=self.device).reshape(len(input_data), 1)
+                self._layers[0].a = torch.tensor(
+                    input_data, device=self.device
+                ).reshape(len(input_data), 1)
 
             predict = self._forward()
             self._prediction.append(predict)
@@ -135,22 +157,20 @@ class NeuralNetwork:
 
             self._backward(predict, output)
 
-        self._optimizer.update(self._layers, len(batch))
+        self._optimizer.update(self._layers, len(batch))  # Update the weights
 
     def fit(
         self, train_dataset, test_dataset=None, epochs=10, batch_size=1, verbose=True
     ):
         """
-        Train the neural network on the provided dataset.
+        Train the neural network for a given number of epochs.
+        Optionally evaluate on the test dataset and display progress.
         """
         train_dataset = train_dataset.copy()
-
-        history = []
+        history = []  # Store history of loss and metrics
 
         for epoch in range(1, epochs + 1):
-
             start_epoch_time = time.time()
-
             self._prediction = []
             self._actual = []
 
@@ -159,6 +179,7 @@ class NeuralNetwork:
                 train_dataset[k : k + batch_size]
                 for k in range(0, len(train_dataset), batch_size)
             ]
+
             for batch in batches:
                 self._process_batch(batch)
 
@@ -180,25 +201,29 @@ class NeuralNetwork:
                 self._prediction = []
                 self._actual = []
 
+                # Evaluate on test dataset
                 for test_sample in test_dataset:
                     input_data = test_sample["input"]
 
-                    if self._input_layer.type == 'input_3d':
+                    if self._input_layer.type == "input_3d":
                         self._layers[0].a = torch.tensor(input_data, device=self.device)
                     else:
-                        self._layers[0].a = torch.tensor(input_data, device=self.device).reshape(
-                            len(input_data), 1
-                        )
+                        self._layers[0].a = torch.tensor(
+                            input_data, device=self.device
+                        ).reshape(len(input_data), 1)
 
                     predict = self._forward()
                     self._prediction.append(predict)
                     self._actual.append(
-                        torch.tensor(test_sample["output"], device=self.device).unsqueeze(1)
+                        torch.tensor(
+                            test_sample["output"], device=self.device
+                        ).unsqueeze(1)
                     )
 
                 self._prediction = torch.stack(self._prediction)
                 self._actual = torch.stack(self._actual)
 
+                # Calculate test loss and metric
                 test_loss = self.loss(self._prediction, self._actual)
                 test_metric = self.metric(
                     self._apply_convert_prediction(self._prediction), self._actual
@@ -218,14 +243,14 @@ class NeuralNetwork:
                         f"train {metric_name}: {epoch_data['train_metric']}, "
                         f"test loss: {epoch_data['test_loss']}, "
                         f"test {metric_name}: {epoch_data['test_metric']}, "
-                        f"epoch time: {epoch_data["epoch_time"]}s"
+                        f"epoch time: {epoch_data['epoch_time']}s"
                     )
                 else:
                     print(
                         f"Epoch: {epoch_data['epoch']}/{epochs}, "
                         f"train loss: {epoch_data['train_loss']}, "
                         f"train {metric_name}: {epoch_data['train_metric']}, "
-                        f"epoch time: {epoch_data["epoch_time"]}s"
+                        f"epoch time: {epoch_data['epoch_time']}s"
                     )
 
             history.append(epoch_data)
@@ -235,20 +260,20 @@ class NeuralNetwork:
     def predict(self, data, with_raw_prediction=False):
         """
         Predict output for the given data.
+        Optionally return raw predictions along with the converted ones.
         """
         self._init_device()
-
         self._prediction = []
 
         for sample in data:
             input_data = sample["input"]
 
-            if self._input_layer.type == 'input_3d':
+            if self._input_layer.type == "input_3d":
                 self._layers[0].a = torch.tensor(input_data, device=self.device)
             else:
-                self._layers[0].a = torch.tensor(input_data, device=self.device).reshape(
-                    len(input_data), 1
-                )
+                self._layers[0].a = torch.tensor(
+                    input_data, device=self.device
+                ).reshape(len(input_data), 1)
 
             predict = self._forward()
             self._prediction.append(predict)
