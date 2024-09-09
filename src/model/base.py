@@ -35,9 +35,7 @@ class NeuralNetwork:
         self._actual = []
         self._layers = []
         self._init_layers(layers)
-        self._optimizer.initialize(
-            self._layers
-        )
+        self._optimizer.initialize(self._layers)
 
     def _init_device(self):
         """
