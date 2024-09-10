@@ -5,15 +5,15 @@ import pandas as pd
 import pytest
 import torch
 
-from src.model.activation import LeakyRelu, Linear
-from src.model.base import NeuralNetwork
-from src.model.layer import Convolutional, Flatten, FullyConnected, Input3D, MaxPool2D
-from src.model.loss import CategoricalCrossEntropy
-from src.model.metric import AccuracyOneHot
-from src.model.optimizer import Adam
+from vladk_neural_network.model.activation import LeakyRelu, Linear
+from vladk_neural_network.model.base import NeuralNetwork
+from vladk_neural_network.model.layer import Convolutional, Flatten, FullyConnected, Input3D, MaxPool2D
+from vladk_neural_network.model.loss import CategoricalCrossEntropy
+from vladk_neural_network.model.metric import AccuracyOneHot
+from vladk_neural_network.model.optimizer import Adam
 
 """
-Multi-class classification on the Digits dataset (CNN model).
+Multi-class classification on the Digits dataset (CNN vladk_neural_network).
 """
 
 

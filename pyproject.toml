@@ -1,11 +1,11 @@
 [tool.poetry]
 name = "vladk_neural_network"
-version = "0.1.1"
+version = "0.1.5"
 description = "Custom neural network"
 authors = ["Vlad"]
 readme = "README.md"
 packages = [
-    {include = "src"}
+    {include = "vladk_neural_network"}
 ]
 
 [tool.poetry.dependencies]

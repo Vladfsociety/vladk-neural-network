@@ -3,12 +3,12 @@ import time
 import pytest
 import torch
 
-from src.model.activation import Linear, Relu
-from src.model.base import NeuralNetwork
-from src.model.layer import FullyConnected, Input
-from src.model.loss import MeanSquaredError
-from src.model.metric import R2Score
-from src.model.optimizer import SGD, Adam
+from vladk_neural_network.model.activation import Linear, Relu
+from vladk_neural_network.model.base import NeuralNetwork
+from vladk_neural_network.model.layer import FullyConnected, Input
+from vladk_neural_network.model.loss import MeanSquaredError
+from vladk_neural_network.model.metric import R2Score
+from vladk_neural_network.model.optimizer import SGD, Adam
 
 """
 Regression testing on 2D functions.

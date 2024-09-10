@@ -5,12 +5,12 @@ import pandas as pd
 import pytest
 import torch
 
-from src.model.activation import LeakyRelu, Sigmoid
-from src.model.base import NeuralNetwork
-from src.model.layer import FullyConnected, Input
-from src.model.loss import BinaryCrossEntropy
-from src.model.metric import Accuracy
-from src.model.optimizer import Adam
+from vladk_neural_network.model.activation import LeakyRelu, Sigmoid
+from vladk_neural_network.model.base import NeuralNetwork
+from vladk_neural_network.model.layer import FullyConnected, Input
+from vladk_neural_network.model.loss import BinaryCrossEntropy
+from vladk_neural_network.model.metric import Accuracy
+from vladk_neural_network.model.optimizer import Adam
 
 """
 Binary classification on iris dataset.
