@@ -1,6 +1,6 @@
 [tool.poetry]
-name = "vladk-neural-network"
-version = "0.1.0"
+name = "vladk_neural_network"
+version = "0.1.1"
 description = "Custom neural network"
 authors = ["Vlad"]
 readme = "README.md"
