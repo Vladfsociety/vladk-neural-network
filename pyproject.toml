@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "vladk_neural_network"
-version = "0.1.5"
-description = "Custom neural network"
+version = "0.1.7"
+description = "Mini-framework that implements a simple version of a feedforward neural network (FNN) and convolutional neural network (CNN) from scratch using Python and PyTorch"
 authors = ["Vlad"]
 readme = "README.md"
 packages = [
