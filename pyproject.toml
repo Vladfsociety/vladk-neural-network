@@ -1,8 +1,9 @@
 [tool.poetry]
 name = "vladk_neural_network"
-version = "0.1.7"
+version = "0.1.8"
 description = "Mini-framework that implements a simple version of a feedforward neural network (FNN) and convolutional neural network (CNN) from scratch using Python and PyTorch"
 authors = ["Vlad"]
+repository = "https://github.com/Vladfsociety/vladk-neural-network"
 readme = "README.md"
 packages = [
     {include = "vladk_neural_network"}

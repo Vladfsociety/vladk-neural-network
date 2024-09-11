@@ -21,7 +21,7 @@ pip install vladk_neural_network
 ### Data Format examples:
 #### Example for regression:
 ```
-# data shape (2, 1) - 2 input valus, 1 output value
+# data shape (2, 1) - 2 input values, 1 output value
 dataset = [
     {
         "input": [0.1, 0.2],
@@ -35,7 +35,7 @@ dataset = [
 ```
 #### Example for classification, output values one-hot encoded:
 ```
-# data shape (4, 2) - 4 input valus, 2 output one-hot encoded values
+# data shape (4, 2) - 4 input values, 2 output one-hot encoded values
 dataset = [
     {
         "input": [0.13, 0.22, 0.37, 0.41],
