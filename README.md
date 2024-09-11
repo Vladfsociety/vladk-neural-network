@@ -49,7 +49,7 @@ dataset = [
 ```
 
 ### Model creation examples:
-#### Feedforward Neural Network for regression
+#### Feedforward Neural Network for regression:
 
 ```
 from vladk_neural_network.model.activation import Linear, Relu
@@ -79,7 +79,7 @@ history = nn.fit(train_dataset, test_dataset, epochs=20, batch_size=1, verbose=T
 # Using model for prediction
 prediction = nn.predict(test_dataset)
 ```
-#### Convolutional Neural Network for classification
+#### Convolutional Neural Network for classification:
 ```
 from vladk_neural_network.model.activation import LeakyRelu, Linear
 from vladk_neural_network.model.base import NeuralNetwork
@@ -120,8 +120,6 @@ cnn.fit(train_dataset, test_dataset, epochs=10, batch_size=1, verbose=True)
 # Using model for prediction
 prediction = cnn.predict(test_dataset)
 ```
-
-Several examples, including training feedforward and convolutional neural networks, are available in the form of Jupyter notebooks in the notebooks/ folder. You can view and run these examples to understand how to use the framework for different tasks.
-
+Several examples, including training feedforward and convolutional neural networks, are available in the form of Jupyter notebooks in the **notebooks/** folder. You can view and run these examples to understand how to use the framework for different tasks.
 ## License
 This project is licensed under the MIT License. See the [LICENSE](LICENSE.md) file for more details.
