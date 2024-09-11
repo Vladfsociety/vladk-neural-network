@@ -8,7 +8,7 @@ This repository is a mini-framework that implements a simple version of a feedfo
 - **Convolutional Neural Network (CNN)**: A simplified CNN implementation with convolutional and max-pooling layers.
 - **Activation Functions**: Includes ReLU, Leaky ReLU, Sigmoid, and Linear activations.
 - **Loss Functions**: Support for mean squared error (MSE), binary cross-entropy (BCE) and categorical cross-entropy (CCE) losses.
-- **Optimizers**: Basic implementations of stochastic gradient descent (SGD) and Adam optimizers.
+- **Optimizers**: Implementations of stochastic gradient descent (SGD) and Adam optimizers.
 - **Metrics**: Accuracy metric for classification tasks, especially useful for one-hot encoded data, and R2 score for regression tasks.
 
 ## Installation
