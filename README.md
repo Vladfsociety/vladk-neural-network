@@ -13,7 +13,7 @@ This repository is a mini-framework that implements a simple version of a feedfo
 
 ## Installation
 ```
-pip install vladk_neural_network
+pip install vladk-neural-network
 ```
 
 ## Usage
