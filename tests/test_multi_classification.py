@@ -37,7 +37,9 @@ def get_iris_dataset():
     for index in data.index:
         input_values = [float(val) for val in data.loc[index].drop("Species").values]
         specie = one_hot_map[data.loc[index, "Species"]]
-        dataset.append({"input": input_values, "output": specie})
+        dataset.append(
+            {"input": torch.tensor(input_values), "output": torch.tensor(specie)}
+        )
 
     random.seed(1)
     random.shuffle(dataset)
@@ -118,8 +120,10 @@ def get_digits_dataset():
         ]
         dataset.append(
             {
-                "input": input_values,
-                "output": rotate_vector(output, int(train.loc[index]["label"])),
+                "input": torch.tensor(input_values),
+                "output": torch.tensor(
+                    rotate_vector(output, int(train.loc[index]["label"]))
+                ),
             }
         )
 

@@ -126,6 +126,34 @@ class NeuralNetwork:
 
         return
 
+    def _get_sample_input(self, sample):
+        input_data = sample["input"]
+        if torch.is_tensor(input_data):
+            if self._input_layer.type == "input_3d":
+                input_data = input_data.to(device=self.device)
+            else:
+                input_data = input_data.to(device=self.device).reshape(
+                    len(input_data), 1
+                )
+        else:
+            if self._input_layer.type == "input_3d":
+                input_data = torch.tensor(input_data, device=self.device)
+            else:
+                input_data = torch.tensor(input_data, device=self.device).reshape(
+                    len(input_data), 1
+                )
+
+        return input_data
+
+    def _get_sample_output(self, sample):
+        output_data = sample["output"]
+        if torch.is_tensor(output_data):
+            output_data = output_data.to(device=self.device).unsqueeze(1)
+        else:
+            output_data = torch.tensor(output_data, device=self.device).unsqueeze(1)
+
+        return output_data
+
     def _process_batch(self, batch):
         """
         Process a batch of data: forward pass, compute loss, and backward pass.
@@ -137,23 +165,17 @@ class NeuralNetwork:
 
         # Loop through each sample in the batch
         for sample in batch:
-            input_data = sample["input"]
+            input_data = self._get_sample_input(sample)
+            output_data = self._get_sample_output(sample)
 
-            # Set input layer activation (handle 3D and other input types)
-            if self._input_layer.type == "input_3d":
-                self._layers[0].a = torch.tensor(input_data, device=self.device)
-            else:
-                self._layers[0].a = torch.tensor(
-                    input_data, device=self.device
-                ).reshape(len(input_data), 1)
+            self._layers[0].a = input_data
 
             predict = self._forward()
             self._prediction.append(predict)
 
-            output = torch.tensor(sample["output"], device=self.device).unsqueeze(1)
-            self._actual.append(output)
+            self._actual.append(output_data)
 
-            self._backward(predict, output)
+            self._backward(predict, output_data)
 
         self._optimizer.update(self._layers, len(batch))  # Update the weights
 
@@ -201,22 +223,15 @@ class NeuralNetwork:
 
                 # Evaluate on test dataset
                 for test_sample in test_dataset:
-                    input_data = test_sample["input"]
+                    input_data = self._get_sample_input(test_sample)
+                    output_data = self._get_sample_output(test_sample)
 
-                    if self._input_layer.type == "input_3d":
-                        self._layers[0].a = torch.tensor(input_data, device=self.device)
-                    else:
-                        self._layers[0].a = torch.tensor(
-                            input_data, device=self.device
-                        ).reshape(len(input_data), 1)
+                    self._layers[0].a = input_data
 
                     predict = self._forward()
                     self._prediction.append(predict)
-                    self._actual.append(
-                        torch.tensor(
-                            test_sample["output"], device=self.device
-                        ).unsqueeze(1)
-                    )
+
+                    self._actual.append(output_data)
 
                 self._prediction = torch.stack(self._prediction)
                 self._actual = torch.stack(self._actual)
@@ -264,14 +279,8 @@ class NeuralNetwork:
         self._prediction = []
 
         for sample in data:
-            input_data = sample["input"]
-
-            if self._input_layer.type == "input_3d":
-                self._layers[0].a = torch.tensor(input_data, device=self.device)
-            else:
-                self._layers[0].a = torch.tensor(
-                    input_data, device=self.device
-                ).reshape(len(input_data), 1)
+            input_data = self._get_sample_input(sample)
+            self._layers[0].a = input_data
 
             predict = self._forward()
             self._prediction.append(predict)

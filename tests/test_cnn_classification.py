@@ -7,7 +7,13 @@ import torch
 
 from vladk_neural_network.model.activation import LeakyRelu, Linear
 from vladk_neural_network.model.base import NeuralNetwork
-from vladk_neural_network.model.layer import Convolutional, Flatten, FullyConnected, Input3D, MaxPool2D
+from vladk_neural_network.model.layer import (
+    Convolutional,
+    Flatten,
+    FullyConnected,
+    Input3D,
+    MaxPool2D,
+)
 from vladk_neural_network.model.loss import CategoricalCrossEntropy
 from vladk_neural_network.model.metric import AccuracyOneHot
 from vladk_neural_network.model.optimizer import Adam
@@ -34,8 +40,12 @@ def get_digits_dataset():
         ]
         dataset.append(
             {
-                "input": [torch.tensor(input_values).reshape(28, 28).tolist()],
-                "output": get_onehot_digit(int(train.loc[index]["label"])),
+                "input": torch.tensor(
+                    [torch.tensor(input_values).reshape(28, 28).tolist()]
+                ),
+                "output": torch.tensor(
+                    get_onehot_digit(int(train.loc[index]["label"]))
+                ),
             }
         )
 
