@@ -368,7 +368,7 @@ class Convolutional(Layer):
 
     def initialize(self, previous_layer, device):
         self.device = device
-        if previous_layer.type == "convolutional":
+        if previous_layer.type in ("convolutional", "max_pool_2d"):
             self.input_c = previous_layer.output_c
             self.input_h = previous_layer.output_h
             self.input_w = previous_layer.output_w
@@ -518,14 +518,98 @@ class MaxPool2D:
                     self.max_indices[f][i][j] = (region == self.a[f][i][j]).nonzero()[0]
         return self.a
 
-    def forward(self, input_data):
-        if self.compute_mode == "fast":
-            return self._fast_forward(input_data)
-        else:
-            return self._ordinary_forward(input_data)
+    def _get_padded_tensor(self, tensor, padding, padding_value=0.0):
+        p_top, p_bot, p_left, p_right = padding
+        f, h, w = tensor.shape[0], tensor.shape[1], tensor.shape[2]
 
-    def _fast_backward(self, next_layer_error):
+        padded_h = h + p_top + p_bot
+        padded_w = w + p_left + p_right
+
+        # Create new padded tensor and place the original tensor in it
+        padded_tensor = torch.full(
+            (f, padded_h, padded_w), padding_value, device=self.device
+        )
+        padded_tensor[:, p_top : p_top + h, p_left : p_left + w] = tensor[:].clone()
+
+        return padded_tensor
+
+    def _calculate_layer_error(self, next_layer_error, next_layer):
+        k_next = next_layer.kernel_size
+
+        # Determine the padding list based on the next layer's padding type
+        if next_layer.padding_type == "same":
+            padding_list = [int((k_next - 1) / 2)] * 4
+        else:
+            padding_list = [k_next - 1] * 4
+
+        # Pad the error from the next layer
+        next_layer_error_with_padding = self._get_padded_tensor(
+            next_layer_error, padding_list
+        )
+        # Flip the next layer's weights for deconvolution
+        flipped_w_next = torch.flip(next_layer.w, (2, 3))
+
+        # Perform deconvolution to calculate the error for this layer
+        layer_error = self._deconvolution(
+            next_layer_error_with_padding,
+            flipped_w_next,
+            next_layer.output_c,
+            k_next,
+        )
+
+        return layer_error
+
+    def _fast_deconvolution(
+        self, next_layer_error, filters, next_output_c, next_kernel_size
+    ):
+        # Unfold the error tensor into sliding window blocks
+        unfolded_regions = next_layer_error.unfold(1, next_kernel_size, 1).unfold(
+            2, next_kernel_size, 1
+        )
+        unfolded_regions = unfolded_regions.contiguous().view(
+            next_output_c, self.output_h * self.output_w, -1
+        )
+
+        # Reshape filters for matrix multiplication
+        reshaped_filters = filters.view(
+            next_output_c, self.output_c, next_kernel_size * next_kernel_size
+        )
+
+        # Perform matrix multiplication using Einstein summation convention
+        result = torch.einsum("abc,adc->db", unfolded_regions, reshaped_filters)
+
+        return result.view(self.output_c, self.output_h, self.output_w)
+
+    def _ordinary_deconvolution(self, next_layer_error, filters, next_kernel_size):
         layer_error = torch.zeros(
+            (self.output_c, self.output_h, self.output_w), device=self.device
+        )
+        # Perform deconvolution by iterating over each filter and position
+        for f in range(self.output_c):
+            for i in range(self.output_h):
+                for j in range(self.output_w):
+                    layer_error[f][i][j] = torch.sum(
+                        next_layer_error[
+                            :, i : i + next_kernel_size, j : j + next_kernel_size
+                        ]
+                        * filters[:, f]
+                    )
+        return layer_error
+
+    def _deconvolution(
+        self, next_layer_error, filters, next_output_c, next_kernel_size
+    ):
+        if self.compute_mode == "fast":
+            return self._fast_deconvolution(
+                next_layer_error, filters, next_output_c, next_kernel_size
+            )
+        else:
+            return self._ordinary_deconvolution(
+                next_layer_error, filters, next_kernel_size
+            )
+
+    def _fast_layer_error_reconstruct_dimension(self, layer_error):
+        layer_error_reconstruct = torch.zeros(
             (self.input_c, self.input_h, self.input_w), device=self.device
         )
 
@@ -550,27 +634,55 @@ class MaxPool2D:
         j_to_update = w_indices * 2 + self.max_indices[:, :, :, 1]
 
         # Assign gradients to the appropriate locations
-        layer_error[filter_indices, i_to_update, j_to_update] = next_layer_error
+        layer_error_reconstruct[filter_indices, i_to_update, j_to_update] = layer_error
 
-        return layer_error
+        return layer_error_reconstruct
 
-    def _ordinary_backward(self, next_layer_error):
-        layer_error = torch.zeros(
+    def _ordinary_layer_error_reconstruct_dimension(self, layer_error):
+        layer_error_reconstruct = torch.zeros(
             (self.input_c, self.input_h, self.input_w), device=self.device
         )
         for f in range(self.output_c):
-            next_layer_error_f = next_layer_error[f]
+            layer_error_f = layer_error[f]
             for i in range(self.output_h):
                 for j in range(self.output_w):
                     # Retrieve indices of the max value and update gradients
                     max_index_i, max_index_j = self.max_indices[f][i][j]
                     i_to_update = i * 2 + int(max_index_i)
                     j_to_update = j * 2 + int(max_index_j)
-                    layer_error[f][i_to_update][j_to_update] = next_layer_error_f[i][j]
-        return layer_error
+                    layer_error_reconstruct[f][i_to_update][j_to_update] = (
+                        layer_error_f[i][j]
+                    )
+        return layer_error_reconstruct
+
+    def _layer_error_reconstruct_dimension(self, next_layer_error):
+        if self.compute_mode == "fast":
+            return self._fast_layer_error_reconstruct_dimension(next_layer_error)
+        else:
+            return self._ordinary_layer_error_reconstruct_dimension(next_layer_error)
+
+    def forward(self, input_data):
+        if self.compute_mode == "fast":
+            return self._fast_forward(input_data)
+        else:
+            return self._ordinary_forward(input_data)
 
     def backward(self, next_layer_error, prev_layer, next_layer):
-        if self.compute_mode == "fast":
-            return self._fast_backward(next_layer_error)
+        """
+        If the next layer is convolutional, we first need to perform the deconvolution
+        operation and only then execute the operation inverse to the one performed by
+        the max pool layer (I called the inverse operation reconstruction).
+        Finally, if deconvolution was applied, we need to apply the derivative of
+        the activation function of the previous (before the max pool layer) convolutional layer.
+        """
+        if next_layer.type == "convolutional":
+            layer_error = self._calculate_layer_error(next_layer_error, next_layer)
         else:
-            return self._ordinary_backward(next_layer_error)
+            layer_error = next_layer_error
+
+        layer_error = self._layer_error_reconstruct_dimension(layer_error)
+
+        if next_layer.type == "convolutional":
+            layer_error *= prev_layer.activation.derivative(prev_layer.z)
+
+        return layer_error

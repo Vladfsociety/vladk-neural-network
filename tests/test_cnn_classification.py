@@ -63,9 +63,10 @@ def run_digits_test(
     train_dataset, test_dataset = get_digits_dataset()
 
     layers = [
-        Convolutional(LeakyRelu(), filters_num=4, kernel_size=3, padding_type="same"),
-        Convolutional(LeakyRelu(), filters_num=8, kernel_size=3),
-        Convolutional(LeakyRelu(), filters_num=16, kernel_size=3),
+        Convolutional(LeakyRelu(), filters_num=8, kernel_size=3, padding_type="same"),
+        Convolutional(LeakyRelu(), filters_num=16, kernel_size=3, padding_type="same"),
+        MaxPool2D(),
+        Convolutional(LeakyRelu(), filters_num=32, kernel_size=3, padding_type=None),
         MaxPool2D(),
         Flatten(),
         FullyConnected(128, LeakyRelu()),
