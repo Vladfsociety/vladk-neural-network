@@ -50,6 +50,8 @@ class Adam:
         self._first_moment_b = []
         self._second_moment_w = []
         self._second_moment_b = []
+        self._correction_1 = None
+        self._correction_2 = None
 
     def initialize(self, layers):
         """
@@ -77,6 +79,10 @@ class Adam:
         Update parameters using Adam.
         """
         self._timestamp += 1
+
+        self._correction_1 = 1.0 - self._beta_1 ** self._timestamp
+        self._correction_2 = 1.0 - self._beta_2 ** self._timestamp
+
         for layer_index, layer in enumerate(layers[1:]):
             if not layer.learnable:
                 continue
@@ -102,7 +108,7 @@ class Adam:
         first_moment_w = self._beta_1 * first_moment_w + (1.0 - self._beta_1) * grad_w
         self._first_moment_w[layer_index] = first_moment_w
 
-        return first_moment_w / (1.0 - self._beta_1**self._timestamp)
+        return first_moment_w / self._correction_1
 
     def _get_second_moment_w(self, layer_index, grad_w):
         second_moment_w = self._second_moment_w[layer_index]
@@ -111,14 +117,14 @@ class Adam:
         )
         self._second_moment_w[layer_index] = second_moment_w
 
-        return second_moment_w / (1.0 - self._beta_2**self._timestamp)
+        return second_moment_w / self._correction_2
 
     def _get_first_moment_b(self, layer_index, grad_b):
         first_moment_b = self._first_moment_b[layer_index]
         first_moment_b = self._beta_1 * first_moment_b + (1.0 - self._beta_1) * grad_b
         self._first_moment_b[layer_index] = first_moment_b
 
-        return first_moment_b / (1.0 - self._beta_1**self._timestamp)
+        return first_moment_b / self._correction_1
 
     def _get_second_moment_b(self, layer_index, grad_b):
         second_moment_b = self._second_moment_b[layer_index]
@@ -127,4 +133,4 @@ class Adam:
         )
         self._second_moment_b[layer_index] = second_moment_b
 
-        return second_moment_b / (1.0 - self._beta_2**self._timestamp)
+        return second_moment_b / self._correction_2
