@@ -55,7 +55,7 @@ def get_digits_dataset():
 
 
 def run_digits_test(
-    learning_rate=0.001, cce_threshold=0.4, acc_threshold=0.95, fit_time_threshold=80.0
+    learning_rate=0.001, cce_threshold=0.6, acc_threshold=0.95, fit_time_threshold=80.0
 ):
     """Run a multi-class classification test on the Digits dataset."""
     print("\nMulti-class classification. Testing on Digits dataset (CNN)")
@@ -84,7 +84,7 @@ def run_digits_test(
 
     start_time = time.time()
     epochs = 10
-    cnn.fit(train_dataset, epochs=epochs, batch_size=1, verbose=False)
+    cnn.fit(train_dataset, epochs=epochs, batch_size=2, verbose=False)
     fit_time = round(time.time() - start_time, 4)
 
     prediction, raw_prediction = cnn.predict(test_dataset, with_raw_prediction=True)

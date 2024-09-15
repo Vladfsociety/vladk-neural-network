@@ -8,7 +8,7 @@ from vladk_neural_network.model.base import NeuralNetwork
 from vladk_neural_network.model.layer import FullyConnected, Input
 from vladk_neural_network.model.loss import MeanSquaredError
 from vladk_neural_network.model.metric import R2Score
-from vladk_neural_network.model.optimizer import SGD, Adam
+from vladk_neural_network.model.optimizer import SGD
 
 """
 Regression testing on 2D functions.
@@ -164,13 +164,13 @@ def run_regression_test_3d(
     nn = NeuralNetwork(
         Input(2),
         layers,
-        optimizer=Adam(learning_rate=learning_rate),
+        optimizer=SGD(learning_rate=learning_rate),
         loss=MeanSquaredError(),
         metric=R2Score(),
     )
 
     start_time = time.time()
-    epochs = 15
+    epochs = 20
     nn.fit(train_dataset, test_dataset, epochs=epochs, batch_size=16, verbose=False)
     fit_time = round(time.time() - start_time, 4)
 

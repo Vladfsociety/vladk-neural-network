@@ -6,9 +6,9 @@ import torch
 
 class Layer:
     def _init_weights(self, size, device):
-        # Initialize weights using Xavier initialization
+        # Initialize weights using He initialization
         n_inputs = size[0]
-        limit = math.sqrt(1 / n_inputs)
+        limit = math.sqrt(6 / n_inputs)
         return torch.tensor(
             [
                 [random.uniform(-limit, limit) for _ in range(size[1])]
@@ -148,7 +148,7 @@ class Convolutional(Layer):
 
     def _init_weights(self, size, device):
         n_inputs = size[1] * size[2] * size[3]
-        limit = math.sqrt(1 / n_inputs)
+        limit = math.sqrt(6 / n_inputs)
         return torch.tensor(
             [
                 [

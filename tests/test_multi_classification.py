@@ -133,7 +133,7 @@ def get_digits_dataset():
 
 
 def run_digits_test(
-    learning_rate=0.001, cce_threshold=0.6, acc_threshold=0.92, fit_time_threshold=40.0
+    learning_rate=0.001, cce_threshold=0.6, acc_threshold=0.92, fit_time_threshold=20.0
 ):
     """Run a multi-class classification test on the Digits dataset."""
     print("\nMulti-class classification. Testing on Digits dataset")
@@ -157,7 +157,7 @@ def run_digits_test(
 
     start_time = time.time()
     epochs = 10
-    nn.fit(train_dataset, epochs=epochs, batch_size=1, verbose=False)
+    nn.fit(train_dataset, epochs=epochs, batch_size=8, verbose=False)
     fit_time = round(time.time() - start_time, 4)
 
     prediction, raw_prediction = nn.predict(test_dataset, with_raw_prediction=True)

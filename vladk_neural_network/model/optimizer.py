@@ -80,25 +80,27 @@ class Adam:
         """
         self._timestamp += 1
 
-        self._correction_1 = 1.0 - self._beta_1 ** self._timestamp
-        self._correction_2 = 1.0 - self._beta_2 ** self._timestamp
+        self._correction_1 = 1.0 - self._beta_1**self._timestamp
+        self._correction_2 = 1.0 - self._beta_2**self._timestamp
 
         for layer_index, layer in enumerate(layers[1:]):
             if not layer.learnable:
                 continue
 
-            first_moment_w = self._get_first_moment_w(layer_index, layer.grad_w)
-            second_moment_w = self._get_second_moment_w(layer_index, layer.grad_w)
+            grad_w_average = layer.grad_w / batch_size
+            first_moment_w = self._get_first_moment_w(layer_index, grad_w_average)
+            second_moment_w = self._get_second_moment_w(layer_index, grad_w_average)
 
             layers[layer_index + 1].w -= (self._learning_rate * first_moment_w) / (
-                batch_size * (torch.sqrt(second_moment_w) + self._epsilon)
+                torch.sqrt(second_moment_w) + self._epsilon
             )
 
-            first_moment_b = self._get_first_moment_b(layer_index, layer.grad_b)
-            second_moment_b = self._get_second_moment_b(layer_index, layer.grad_b)
+            grad_b_average = layer.grad_b / batch_size
+            first_moment_b = self._get_first_moment_b(layer_index, grad_b_average)
+            second_moment_b = self._get_second_moment_b(layer_index, grad_b_average)
 
             layers[layer_index + 1].b -= (self._learning_rate * first_moment_b) / (
-                batch_size * (torch.sqrt(second_moment_b) + self._epsilon)
+                torch.sqrt(second_moment_b) + self._epsilon
             )
 
         return

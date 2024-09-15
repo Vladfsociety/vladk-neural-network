@@ -18,9 +18,7 @@ class BinaryCrossEntropy:
             prediction, min=self.__epsilon, max=1.0 - self.__epsilon
         )
         losses = -(
-            actual * torch.log(prediction)
-            + (1 - actual)
-            * torch.log(1 - prediction)
+            actual * torch.log(prediction) + (1 - actual) * torch.log(1 - prediction)
         )
         return losses.sum() / prediction.size(0)
 
