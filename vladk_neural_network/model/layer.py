@@ -1,21 +1,18 @@
 import math
-import random
 
 import torch
 
 
 class Layer:
-    def _init_weights(self, size, device):
+    def _init_weights(self, size, weights_init, device):
         # Initialize weights using He initialization
         n_inputs = size[0]
-        limit = math.sqrt(6 / n_inputs)
-        return torch.tensor(
-            [
-                [random.uniform(-limit, limit) for _ in range(size[1])]
-                for _ in range(size[0])
-            ],
-            device=device,
-        )
+        if weights_init == "normal":
+            std = math.sqrt(2.0 / n_inputs)
+            return torch.normal(mean=0, std=std, size=size, device=device)
+        else:
+            limit = math.sqrt(6.0 / n_inputs)
+            return torch.empty(size, device=device).uniform_(-limit, limit)
 
     def _init_biases(self, size, device):
         return torch.zeros(size, device=device)
@@ -68,11 +65,13 @@ class FullyConnected(Layer):
 
         return layer_error
 
-    def initialize(self, previous_layer, device):
+    def initialize(self, previous_layer, weights_init, device):
         self.device = device
         self.z = torch.zeros((self.size, 1), device=self.device)
         self.a = torch.zeros((self.size, 1), device=self.device)
-        self.w = super()._init_weights((self.size, previous_layer.size), self.device)
+        self.w = super()._init_weights(
+            (self.size, previous_layer.size), weights_init, self.device
+        )
         self.b = super()._init_biases((self.size, 1), self.device)
         self.grad_w = torch.zeros_like(self.w, device=self.device)
         self.grad_b = torch.zeros_like(self.b, device=self.device)
@@ -146,22 +145,15 @@ class Convolutional(Layer):
         self.grad_w = None
         self.grad_b = None
 
-    def _init_weights(self, size, device):
+    def _init_weights(self, size, weights_init, device):
+        # Initialize weights using He initialization
         n_inputs = size[1] * size[2] * size[3]
-        limit = math.sqrt(6 / n_inputs)
-        return torch.tensor(
-            [
-                [
-                    [
-                        [random.uniform(-limit, limit) for _ in range(size[3])]
-                        for _ in range(size[2])
-                    ]
-                    for _ in range(size[1])
-                ]
-                for _ in range(size[0])
-            ],
-            device=device,
-        )
+        if weights_init == "normal":
+            std = math.sqrt(2.0 / n_inputs)
+            return torch.normal(mean=0, std=std, size=size, device=device)
+        else:
+            limit = math.sqrt(6.0 / n_inputs)
+            return torch.empty(size, device=device).uniform_(-limit, limit)
 
     def _get_padded_tensor(self, tensor, padding, padding_value=0.0):
         p_top, p_bot, p_left, p_right = padding
@@ -366,7 +358,7 @@ class Convolutional(Layer):
                 layer_error, prev_layer, prev_layer_a
             )
 
-    def initialize(self, previous_layer, device):
+    def initialize(self, previous_layer, weights_init, device):
         self.device = device
         if previous_layer.type in ("convolutional", "max_pool_2d"):
             self.input_c = previous_layer.output_c
@@ -388,7 +380,7 @@ class Convolutional(Layer):
             (self.output_c, self.output_h, self.output_w), device=self.device
         )
         self.w_shape = (self.output_c, self.input_c, self.kernel_size, self.kernel_size)
-        self.w = self._init_weights(self.w_shape, self.device)
+        self.w = self._init_weights(self.w_shape, weights_init, self.device)
         self.b = super()._init_biases(self.output_c, self.device)
         self.grad_w = torch.zeros_like(self.w)
         self.grad_b = torch.zeros_like(self.b)

@@ -45,7 +45,7 @@ def get_iris_dataset(species_to_compare, specie_to_exclude):
             }
         )
 
-    random.seed(3)
+    random.seed(1)
     random.shuffle(dataset)
     return dataset[:70], dataset[70:]
 

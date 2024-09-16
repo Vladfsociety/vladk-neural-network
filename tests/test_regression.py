@@ -170,7 +170,7 @@ def run_regression_test_3d(
     )
 
     start_time = time.time()
-    epochs = 20
+    epochs = 40
     nn.fit(train_dataset, test_dataset, epochs=epochs, batch_size=16, verbose=False)
     fit_time = round(time.time() - start_time, 4)
 

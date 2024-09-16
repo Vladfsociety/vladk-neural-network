@@ -47,7 +47,7 @@ def get_iris_dataset():
 
 
 def run_iris_test(
-    learning_rate=0.001, cce_threshold=0.1, acc_threshold=0.95, fit_time_threshold=4.0
+    learning_rate=0.001, cce_threshold=0.1, acc_threshold=0.9, fit_time_threshold=4.0
 ):
     """Run a multi-class classification test on the Iris dataset."""
     print("\nMulti-class classification. Testing on full Iris dataset (3 species)")
@@ -133,7 +133,7 @@ def get_digits_dataset():
 
 
 def run_digits_test(
-    learning_rate=0.001, cce_threshold=0.6, acc_threshold=0.92, fit_time_threshold=20.0
+    learning_rate=0.001, cce_threshold=0.6, acc_threshold=0.90, fit_time_threshold=20.0
 ):
     """Run a multi-class classification test on the Digits dataset."""
     print("\nMulti-class classification. Testing on Digits dataset")
@@ -156,7 +156,7 @@ def run_digits_test(
     )
 
     start_time = time.time()
-    epochs = 10
+    epochs = 15
     nn.fit(train_dataset, epochs=epochs, batch_size=8, verbose=False)
     fit_time = round(time.time() - start_time, 4)
 

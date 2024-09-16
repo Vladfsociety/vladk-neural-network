@@ -18,11 +18,15 @@ class NeuralNetwork:
         metric,
         convert_prediction=None,
         use_gpu=False,
+        weights_init="uniform",
     ):
         """
         Initialize the neural network with layers, optimizer, loss function, metric, and optional GPU usage.
         """
+        if weights_init not in ("uniform", "normal"):
+            raise Exception('weights_init value should be "uniform" or "normal"')
         self._use_gpu = use_gpu
+        self._weights_init = weights_init
         self._init_device()  # Initialize the device (CPU or GPU)
         self._input_layer = input_layer
         self._optimizer = optimizer
@@ -56,7 +60,12 @@ class NeuralNetwork:
         self._layers.append(self._input_layer.initialize(self.device))
         previous_layer = self._input_layer
         for layer in layers:
-            self._layers.append(layer.initialize(previous_layer, self.device))
+            if layer.learnable:
+                self._layers.append(
+                    layer.initialize(previous_layer, self._weights_init, self.device)
+                )
+            else:
+                self._layers.append(layer.initialize(previous_layer, self.device))
             previous_layer = layer
 
     def _binary_convert(self, prediction, threshold=0.5):
