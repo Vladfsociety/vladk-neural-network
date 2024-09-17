@@ -40,11 +40,12 @@ class Adam:
     Performs parameter updates using the Adam optimization algorithm with momentum and adaptive learning rates.
     """
 
-    def __init__(self, learning_rate=0.001, beta_1=0.9, beta_2=0.999, epsilon=1e-06):
+    def __init__(self, learning_rate=0.001, beta_1=0.9, beta_2=0.999, epsilon=1e-06, weight_decay=0.0):
         self._learning_rate = learning_rate
         self._beta_1 = beta_1
         self._beta_2 = beta_2
         self._epsilon = epsilon
+        self._weight_decay = weight_decay
         self._timestamp = 0
         self._first_moment_w = []
         self._first_moment_b = []
@@ -88,6 +89,10 @@ class Adam:
                 continue
 
             grad_w_average = layer.grad_w / batch_size
+
+            if self._weight_decay != 0.0:
+                grad_w_average += self._weight_decay * layers[layer_index + 1].w
+
             first_moment_w = self._get_first_moment_w(layer_index, grad_w_average)
             second_moment_w = self._get_second_moment_w(layer_index, grad_w_average)
 
