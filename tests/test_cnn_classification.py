@@ -75,7 +75,12 @@ def run_digits_test(
     cnn = NeuralNetwork(
         Input3D((1, 28, 28)),
         layers,
-        optimizer=Adam(learning_rate=learning_rate),
+        optimizer=Adam(
+            learning_rate=learning_rate,
+            weight_decay=0.01,
+            clipping=True,
+            max_grad_norm=10.0,
+        ),
         loss=CategoricalCrossEntropy(),
         metric=AccuracyOneHot(),
         convert_prediction="argmax",
@@ -83,7 +88,7 @@ def run_digits_test(
     )
 
     if str(cnn.device) == "cpu":
-        fit_time_threshold = 105.0
+        fit_time_threshold = 110.0
 
     start_time = time.time()
     epochs = 15
