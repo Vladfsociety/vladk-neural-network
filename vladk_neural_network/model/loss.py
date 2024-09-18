@@ -32,14 +32,12 @@ class BinaryCrossEntropy:
 
 
 class CategoricalCrossEntropy:
-    def __init__(self, epsilon=1e-06):
-        self.__epsilon = epsilon
-
     def value(self, prediction, actual):
         log_softmax_prediction = torch.log_softmax(prediction, dim=1)
         losses = -(actual * log_softmax_prediction)
         return losses.sum() / prediction.size(0)
 
     def derivative(self, prediction, actual):
-        softmax_prediction = torch.softmax(prediction, dim=0)
+        prediction_stable = prediction - torch.max(prediction, dim=0, keepdim=True)[0]
+        softmax_prediction = torch.softmax(prediction_stable, dim=0)
         return softmax_prediction - actual
