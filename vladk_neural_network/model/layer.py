@@ -197,7 +197,7 @@ class Convolutional(Layer):
 
             layer_error *= self.activation.derivative(self.z)
         else:
-            layer_error = next_layer_error
+            layer_error = next_layer_error * self.activation.derivative(self.z)
 
         return layer_error
 
@@ -664,8 +664,6 @@ class MaxPool2D:
         If the next layer is convolutional, we first need to perform the deconvolution
         operation and only then execute the operation inverse to the one performed by
         the max pool layer (I called the inverse operation reconstruction).
-        Finally, if deconvolution was applied, we need to apply the derivative of
-        the activation function of the previous (before the max pool layer) convolutional layer.
         """
         if next_layer.type == "convolutional":
             layer_error = self._calculate_layer_error(next_layer_error, next_layer)
@@ -673,8 +671,5 @@ class MaxPool2D:
             layer_error = next_layer_error
 
         layer_error = self._layer_error_reconstruct_dimension(layer_error)
-
-        if next_layer.type == "convolutional":
-            layer_error *= prev_layer.activation.derivative(prev_layer.z)
 
         return layer_error
