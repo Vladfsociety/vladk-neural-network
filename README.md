@@ -107,11 +107,17 @@ layers = [
 cnn = NeuralNetwork(
     Input3D((1, 28, 28)),
     layers,
-    optimizer=Adam(),
+    optimizer=Adam(
+        learning_rate=0.001, 
+        weight_decay=0.001,
+        clipping=True,
+        max_grad_norm=5.0,
+    ),
     loss=CategoricalCrossEntropy(),
     metric=AccuracyOneHot(),
     convert_prediction='argmax',
-    use_gpu=True
+    use_gpu=True,
+    weights_init="uniform"
 )
 
 # Train model
