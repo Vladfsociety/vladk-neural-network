@@ -1,6 +1,6 @@
 # Custom Neural Network Library
 
-This repository is a mini-library that implements a simple version of a feedforward neural network (FNN) and convolutional neural network (CNN) from scratch using Python and PyTorch. PyTorch is used solely for mathematical and element-wise operations on tensors (without using autograd), and for speeding up computations by utilizing the GPU. Simply put, PyTorch is used as a replacement for NumPy but with GPU acceleration. The library provides basic functionalities for building, training, and evaluating custom neural network models for both regression and classification tasks.
+This repository is a mini-library that implements a simple version of a feedforward neural network (FNN) and convolutional neural network (CNN) from scratch using Python and PyTorch. PyTorch is used solely for mathematical and element-wise operations on tensors (without using autograd), and for speeding up computations by utilizing the GPU. Simply put, PyTorch is used as a replacement for NumPy but with GPU acceleration. The library provides basic functionalities for building, training, and evaluating custom neural network models for both regression and classification tasks. Practical examples of applying the library for creating neural networks for regression and classification using datasets like Iris, MNIST and synthetic datasets can be found in the **notebooks/** folder.
 
 ## Features
 
