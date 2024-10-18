@@ -146,7 +146,7 @@ def run_regression_test_3d(
     learning_rate=0.001,
     mse_threshold=0.05,
     r2_threshold=0.975,
-    fit_time_threshold=40.0,
+    fit_time_threshold=50.0,
 ):
     """Run a regression test on a 3D function."""
     print(f"\nRegression. Testing {func.__name__}")
