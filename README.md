@@ -1,10 +1,10 @@
 # Custom Neural Network Library
 
-This repository is a mini-library that implements a simple version of a feedforward neural network (FNN) and convolutional neural network (CNN) from scratch using Python and PyTorch. PyTorch is used solely for mathematical and element-wise operations on tensors (without using autograd), and for speeding up computations by utilizing the GPU. Simply put, PyTorch is used as a replacement for NumPy but with GPU acceleration. The library provides basic functionalities for building, training, and evaluating custom neural network models for both regression and classification tasks. Practical examples of applying the library for creating neural networks for regression and classification using datasets like Iris, MNIST and synthetic datasets can be found in the **notebooks/** folder.
+This repository is a mini-library that implements a simple version of a fully connected neural network (FCNN) and convolutional neural network (CNN) from scratch using Python and PyTorch. PyTorch is used solely for mathematical and element-wise operations on tensors (without using autograd), and for speeding up computations by utilizing the GPU. Simply put, PyTorch is used as a replacement for NumPy but with GPU acceleration. The library provides basic functionalities for building, training, and evaluating custom neural network models for both regression and classification tasks. Practical examples of applying the library for creating neural networks for regression and classification using datasets like Iris, MNIST and synthetic datasets can be found in the **notebooks/** folder.
 
 ## Features
 
-- **Feedforward Neural Network (FNN)**: A fully connected neural network suitable for regression and classification tasks.
+- **Fully Connected Neural Network (FCNN)**: A fully connected neural network suitable for regression and classification tasks.
 - **Convolutional Neural Network (CNN)**: A simplified CNN implementation with convolutional and max-pooling layers.
 - **Activation Functions**: Includes ReLU, Leaky ReLU, Sigmoid, and Linear activations.
 - **Loss Functions**: Support for mean squared error (MSE), binary cross-entropy (BCE) and categorical cross-entropy (CCE) losses.
@@ -49,7 +49,7 @@ dataset = [
 ```
 
 ### Model creation examples:
-#### Feedforward Neural Network for regression:
+#### Fully Connected Neural Network for regression:
 
 ```
 from vladk_neural_network.model.activation import Linear, Relu
@@ -126,6 +126,6 @@ cnn.fit(train_dataset, test_dataset, epochs=10, batch_size=1, verbose=True)
 # Using model for prediction
 prediction = cnn.predict(test_dataset)
 ```
-Several examples, including training feedforward and convolutional neural networks, are available in the form of Jupyter notebooks in the **notebooks/** folder. You can view and run these examples to understand how to use the library for different tasks.
+Several examples, including training fully connected and convolutional neural networks, are available in the form of Jupyter notebooks in the **notebooks/** folder. You can view and run these examples to understand how to use the library for different tasks.
 ## License
 This project is licensed under the MIT License. See the [LICENSE](LICENSE.md) file for more details.
